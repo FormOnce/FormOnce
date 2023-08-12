@@ -16,7 +16,7 @@ export default function Home() {
               FormOnce
             </span>
           </Link>
-          <Link href="/auth">
+          <Link href="/auth/signup">
             <span className="text-foreground">Sign in</span>
           </Link>
         </nav>
