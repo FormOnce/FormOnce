@@ -17,7 +17,7 @@ model User {
     refreshToken    String?
     avatar          String?
     createdAt       DateTime          @default(now())
-    updatedAt       DateTime
+    updatedAt       DateTime          @updatedAt
     WorkspaceMember WorkspaceMember[]
 }
 
@@ -29,7 +29,7 @@ model Form {
     status       FormStatus     @default(DRAFT)
     link         String?
     createdAt    DateTime       @default(now())
-    updatedAt    DateTime
+    updatedAt    DateTime       @updatedAt
     Workspace    Workspace      @relation(fields: [workspaceId], references: [id])
     FormResponse FormResponse[]
 }
@@ -39,7 +39,7 @@ model FormResponse {
     formId    String
     response  Json     @default("{}")
     createdAt DateTime @default(now())
-    updatedAt DateTime
+    updatedAt DateTime @updatedAt
     Form      Form     @relation(fields: [formId], references: [id])
 }
 
@@ -49,7 +49,7 @@ model Workspace {
     apiKey          String            @unique
     icon            String?
     createdAt       DateTime          @default(now())
-    updatedAt       DateTime
+    updatedAt       DateTime          @updatedAt
     isPersonal      Boolean           @default(true)
     Form            Form[]
     WorkspaceMember WorkspaceMember[]
@@ -61,7 +61,7 @@ model WorkspaceMember {
     userId      String
     workspaceId String
     createdAt   DateTime  @default(now())
-    updatedAt   DateTime
+    updatedAt   DateTime  @updatedAt
     User        User      @relation(fields: [userId], references: [id])
     Workspace   Workspace @relation(fields: [workspaceId], references: [id])
 }
