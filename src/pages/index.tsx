@@ -1,7 +1,24 @@
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Icons } from "@/components/ui/icons";
+import { cn } from "@/lib/utils";
+import type { GetServerSideProps } from "next";
+import { signOut } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
+import { useState } from "react";
+import { getServerAuthSession } from "~/server/auth";
 
-export default function Home() {
+export default function Home({ id }: { id: string }) {
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  const handleSignout = () => {
+    setIsSigningOut(true);
+    void signOut({
+      callbackUrl: "/auth/signin",
+    }).then(() => {
+      setIsSigningOut(false);
+    });
+  };
+
   return (
     <>
       <Head>
@@ -16,9 +33,21 @@ export default function Home() {
               FormOnce
             </span>
           </Link>
-          <Link href="/auth/signup">
-            <span className="text-foreground">Sign in</span>
-          </Link>
+          {id ? (
+            <Button onClick={handleSignout} variant="ghost">
+              {isSigningOut && (
+                <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              Sign out
+            </Button>
+          ) : (
+            <Link
+              href="/auth/signin"
+              className={cn(buttonVariants({ variant: "ghost" }))}
+            >
+              <span className="text-foreground">Sign in</span>
+            </Link>
+          )}
         </nav>
         <div className="flex flex-col items-center justify-center bg-background">
           <div className="container flex flex-col items-center gap-16 px-4 py-16">
@@ -78,3 +107,20 @@ export default function Home() {
     </>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  const session = await getServerAuthSession(ctx);
+
+  if (session?.user?.id) {
+    return {
+      props: {
+        id: session.user.id,
+        name: session.user.name,
+      },
+    };
+  }
+
+  return {
+    props: {},
+  };
+};

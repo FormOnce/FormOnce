@@ -42,23 +42,24 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
 
   callbacks: {
-    jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-        token.email = user.email;
-        token.name = user.name;
+    session: ({ session, token }) => {
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          id: token.userId,
+          provider: token.provider,
+        },
       }
-      return token;
     },
-    session: ({ session, token }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: token.id,
-        email: token.email,
-        name: token.name,
-      },
-    }),
+    jwt: ({ token, user, account }) => {
+      if (user?.id)
+        token.userId = user.id;
+      if (account?.provider)
+        token.provider = account.provider;
+
+      return token;
+    }
   },
   adapter: PrismaAdapter(prisma),
   providers: [
@@ -104,6 +105,10 @@ export const authOptions: NextAuthOptions = {
   ],
   pages: {
     signIn: "/auth/signin",
+  },
+  session: {
+    // Set to jwt in order to make CredentialsProvider work properly
+    strategy: 'jwt'
   }
 };
 

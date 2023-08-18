@@ -5,7 +5,6 @@ import { Button } from "../ui/button";
 import { Icons } from "../ui/icons";
 import { api } from "~/utils/api";
 import { useFormik } from "formik";
-import { useRouter } from "next/router";
 import { signIn } from "next-auth/react";
 import { useState } from "react";
 
@@ -15,10 +14,12 @@ export interface UserAuthFormProps
 }
 
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
-  const [isGithubSignInLoading, setIsGithubSignInLoading] = useState(false);
+  const [isGithubLoading, setisGithubLoading] = useState(false);
 
-  const { mutateAsync: signup, isLoading: isCredentialSignUpLoading } =
-    api.auth.signup.useMutation();
+  const {
+    mutateAsync: signupUsingCredentials,
+    isLoading: isCredentialSignUpLoading,
+  } = api.auth.signup.useMutation();
 
   function onSubmit(event: React.SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -31,10 +32,23 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
       password: "",
       name: "",
     },
+    validate: (values) => {
+      const errors: Record<string, string> = {};
+      if (!values.email) {
+        errors.email = "Email is required";
+      }
+      if (!values.password) {
+        errors.password = "Password is required";
+      }
+      if (props.role === "signup" && !values.name) {
+        errors.name = "Username is required";
+      }
+      return errors;
+    },
     onSubmit: async (values) => {
       try {
         if (props.role === "signup") {
-          await signup(values);
+          await signupUsingCredentials(values);
         }
         await signIn("credentials", {
           email: values.email,
@@ -48,6 +62,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   });
 
   const hanleGithubSignIn = () => {
+    setisGithubLoading(true);
     void signIn("github", { callbackUrl: "/" });
   };
 
@@ -66,6 +81,8 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
                 autoComplete="email"
                 autoCorrect="off"
                 disabled={isCredentialSignUpLoading}
+                value={formik.values.email}
+                onChange={formik.handleChange}
               />
               {props.role === "signup" && (
                 <Input
@@ -76,6 +93,8 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
                   autoComplete="username"
                   autoCorrect="on"
                   disabled={isCredentialSignUpLoading}
+                  value={formik.values.name}
+                  onChange={formik.handleChange}
                 />
               )}
               <Input
@@ -86,12 +105,15 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
                 pattern=".{8,}"
                 autoComplete="password"
                 disabled={isCredentialSignUpLoading}
+                value={formik.values.password}
+                onChange={formik.handleChange}
               />
             </div>
             <Button disabled={isCredentialSignUpLoading}>
-              {isCredentialSignUpLoading && (
-                <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-              )}
+              {isCredentialSignUpLoading ||
+                (formik.isSubmitting && (
+                  <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+                ))}
               {props.role === "signin" ? "Sign in" : "Sign up"} with Email
             </Button>
           </div>
@@ -109,10 +131,10 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
         <div className="flex flex-col-reverse gap-2">
           <Button
             variant="outline"
-            disabled={isCredentialSignUpLoading || isGithubSignInLoading}
+            disabled={isCredentialSignUpLoading || isGithubLoading}
             onClick={hanleGithubSignIn}
           >
-            {isCredentialSignUpLoading ? (
+            {isGithubLoading ? (
               <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
             ) : (
               <Icons.gitHub className="mr-2 h-4 w-4" />

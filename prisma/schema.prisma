@@ -13,9 +13,11 @@ model User {
     id              String            @id @default(uuid())
     email           String            @unique
     name            String
-    password        String
+    image           String?
+    password        String?
     refreshToken    String?
     avatar          String?
+    emailVerified   DateTime?
     createdAt       DateTime          @default(now())
     updatedAt       DateTime          @updatedAt
     WorkspaceMember WorkspaceMember[]
