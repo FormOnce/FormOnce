@@ -9,6 +9,7 @@ import { z } from "zod";
 import { prisma } from "~/server/db";
 
 import CredentialsProvider from 'next-auth/providers/credentials';
+import GithubProvider from 'next-auth/providers/github';
 import argon2 from "argon2";
 
 /**
@@ -90,7 +91,11 @@ export const authOptions: NextAuthOptions = {
         if (!isPasswordValid) throw new Error("Invalid password");
         return user;
       }
-    })
+    }),
+    GithubProvider({
+      clientId: process.env.GITHUB_CLIENT_ID ?? "",
+      clientSecret: process.env.GITHUB_CLIENT_SECRET ?? "",
+    }),
     /**
      * 
      * 

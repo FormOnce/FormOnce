@@ -7,6 +7,7 @@ import { api } from "~/utils/api";
 import { useFormik } from "formik";
 import { useRouter } from "next/router";
 import { signIn } from "next-auth/react";
+import { useState } from "react";
 
 export interface UserAuthFormProps
   extends React.HTMLAttributes<HTMLDivElement> {
@@ -14,7 +15,7 @@ export interface UserAuthFormProps
 }
 
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
-  const nextRouter = useRouter();
+  const [isGithubSignInLoading, setIsGithubSignInLoading] = useState(false);
 
   const { mutateAsync: signup, isLoading: isCredentialSignUpLoading } =
     api.auth.signup.useMutation();
@@ -45,6 +46,10 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
       }
     },
   });
+
+  const hanleGithubSignIn = () => {
+    void signIn("github", { callbackUrl: "/" });
+  };
 
   return (
     <RootLayout title="Authentication">
@@ -102,8 +107,17 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
           </div>
         </div>
         <div className="flex flex-col-reverse gap-2">
-          <Button variant="outline" disabled={isCredentialSignUpLoading}>
-            <Icons.gitHub className="mr-2 h-4 w-4" /> Github
+          <Button
+            variant="outline"
+            disabled={isCredentialSignUpLoading || isGithubSignInLoading}
+            onClick={hanleGithubSignIn}
+          >
+            {isCredentialSignUpLoading ? (
+              <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Icons.gitHub className="mr-2 h-4 w-4" />
+            )}{" "}
+            Github
           </Button>
           <Button variant="outline" disabled={isCredentialSignUpLoading}>
             <Icons.google className="mr-2 h-4 w-4" /> Google
