@@ -12,7 +12,7 @@ import {
 
 export const authRouter = createTRPCRouter({
   signup: publicProcedure
-    .input(z.object({ username: z.string(), email: z.string(), password: z.string() }))
+    .input(z.object({ name: z.string(), email: z.string(), password: z.string() }))
     .mutation(async ({ ctx, input }) => {
       try {
         const hashedPassword = await argon2.hash(input.password, {
@@ -21,12 +21,13 @@ export const authRouter = createTRPCRouter({
 
         return await ctx.prisma.user.create({
           data: {
-            name: input.username,
+            name: input.name,
             email: input.email,
             password: hashedPassword,
           },
         });
       } catch (error) {
+        console.log(error);
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Something went wrong",

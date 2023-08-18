@@ -25,6 +25,7 @@
     "argon2": "^0.31.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
+    "formik": "^2.4.3",
     "lucide-react": "^0.264.0",
     "next": "^13.4.2",
     "next-auth": "^4.22.1",
