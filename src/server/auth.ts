@@ -83,6 +83,7 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!user) throw new Error("User not found");
+        if (!user.password) throw new Error("Password not set");
 
         const isPasswordValid = await argon2.verify(
           user.password,
