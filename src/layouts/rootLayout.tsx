@@ -1,4 +1,4 @@
-import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeProvider } from "@components/theme-provider";
 import { useTheme } from "next-themes";
 import Head from "next/head";
 import { useEffect } from "react";

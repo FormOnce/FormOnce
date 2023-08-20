@@ -1,9 +1,7 @@
-import RootLayout from "../rootLayout";
-import { Input } from "../ui/input";
-import { cn } from "@/lib/utils";
-import { Button } from "../ui/button";
-import { Icons } from "../ui/icons";
-import { api } from "~/utils/api";
+import RootLayout from "~/layouts/rootLayout";
+import { Input, Button, Icons } from "@components/ui";
+import { cn } from "@utils/cn";
+import { api } from "@utils/api";
 import { useFormik } from "formik";
 import { signIn } from "next-auth/react";
 import { useState } from "react";

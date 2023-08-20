@@ -1,5 +1,5 @@
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { cn } from "~/utils/cn";
+import { Button } from "~/components/ui/button";
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;

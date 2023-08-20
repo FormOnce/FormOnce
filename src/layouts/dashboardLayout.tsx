@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 
-import { MainNav, UserNav, TeamSwitcher } from "@/components/ui/nav";
-import RootLayout, { type RootLayoutProps } from "./rootLayout";
-import { Sidebar } from "./ui/sidebar";
+import { MainNav, UserNav, TeamSwitcher, Sidebar } from "~/components/ui";
+import RootLayout, { type RootLayoutProps } from "@layouts/rootLayout";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -25,7 +24,7 @@ export default function DashboardLayout({
             <UserNav />
           </div>
         </nav>
-        <div className="flex h-[calc(100vh-4rem)] w-full">
+        <div className="flex h-[calc(100vh-4rem)] w-full ">
           <Sidebar className="w-56" />
           <div className="p-8">{children}</div>
         </div>

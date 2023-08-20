@@ -1,5 +1,5 @@
-import DashboardLayout from "@/components/dashboardLayout";
-import { Button } from "@/components/ui/button";
+import DashboardLayout from "~/layouts/dashboardLayout";
+import { Button } from "~/components/ui/button";
 
 export default function Dashboard() {
   return (

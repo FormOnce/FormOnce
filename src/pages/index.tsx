@@ -1,6 +1,6 @@
-import { Button, buttonVariants } from "@/components/ui/button";
-import { Icons } from "@/components/ui/icons";
-import { cn } from "@/lib/utils";
+import { Button, buttonVariants } from "~/components/ui/button";
+import { Icons } from "~/components/ui/icons";
+import { cn } from "~/utils/cn";
 import type { GetServerSideProps } from "next";
 import { signOut } from "next-auth/react";
 import Head from "next/head";

@@ -1,10 +1,10 @@
 import { type Metadata } from "next";
 import Link from "next/link";
 
-import { cn } from "@/lib/utils";
-import { buttonVariants } from "@/components/ui/button";
-import { UserAuthForm } from "@/components/auth";
-import RootLayout from "@/components/rootLayout";
+import { cn } from "~/utils/cn";
+import { buttonVariants } from "~/components/ui";
+import { UserAuthForm } from "~/components/auth";
+import RootLayout from "~/layouts/rootLayout";
 
 export const metadata: Metadata = {
   title: "Authentication",
