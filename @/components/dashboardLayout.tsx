@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 
 import { MainNav, UserNav, TeamSwitcher } from "@/components/ui/nav";
 import RootLayout, { type RootLayoutProps } from "./rootLayout";
