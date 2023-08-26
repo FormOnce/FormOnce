@@ -42,33 +42,44 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@components/ui/select";
+import { api } from "@utils/api";
+import type { Workspace } from "@prisma/client";
+import { Icons } from "../icons";
+import { useWorkspaceStore } from "~/store";
 
-const groups = [
-  {
-    label: "Personal Account",
-    teams: [
-      {
-        label: "Alicia Koch",
-        value: "personal",
-      },
-    ],
-  },
-  {
-    label: "Teams",
-    teams: [
-      {
-        label: "Acme Inc.",
-        value: "acme-inc",
-      },
-      {
-        label: "Monsters Inc.",
-        value: "monsters",
-      },
-    ],
-  },
-];
+const getGroups = (workspaces: Workspace[] | undefined) => {
+  const groups = [
+    {
+      label: "Personal",
+      teams: [] as Team[],
+    },
+    {
+      label: "Teams",
+      teams: [] as Team[],
+    },
+  ];
 
-type Team = (typeof groups)[number]["teams"][number];
+  workspaces?.forEach((workspace) => {
+    if (workspace.isPersonal) {
+      groups[0]?.teams.push({
+        name: "Personal",
+        id: workspace.id,
+      });
+    } else {
+      groups[1]?.teams.push({
+        name: workspace.name,
+        id: workspace.id,
+      });
+    }
+  });
+
+  return groups;
+};
+
+type Team = {
+  name: string;
+  id: string;
+};
 
 type PopoverTriggerProps = React.ComponentPropsWithoutRef<
   typeof PopoverTrigger
@@ -79,11 +90,50 @@ interface TeamSwitcherProps extends PopoverTriggerProps {
 }
 
 export function TeamSwitcher({ className }: TeamSwitcherProps) {
+  const { data: workspaces, refetch: refetchWorkspaces } =
+    api.workspace.getAll.useQuery(undefined, {
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+    });
+
+  const addWorkspace = api.workspace.create.useMutation();
+
+  const { selectedWorkspace, setSelectedWorkspace } = useWorkspaceStore();
   const [open, setOpen] = React.useState(false);
   const [showNewTeamDialog, setShowNewTeamDialog] = React.useState(false);
-  const [selectedTeam, setSelectedTeam] = React.useState<Team>(
-    groups[0].teams[0]
-  );
+  const [newWorkspaceInfo, setNewWorkspaceInfo] = React.useState({
+    name: "",
+    plan: "free",
+  });
+
+  const groups = React.useMemo(() => getGroups(workspaces), [workspaces]);
+  React.useEffect(() => {
+    if (!selectedWorkspace.id) {
+      const defaultWS = groups?.[0]?.teams?.[0];
+      if (defaultWS)
+        setSelectedWorkspace({
+          id: defaultWS.id,
+          name: defaultWS.name,
+        });
+    }
+  }, [groups, selectedWorkspace.id, setSelectedWorkspace]);
+
+  const handleCreateTeam = async () => {
+    const name = newWorkspaceInfo.name.trim();
+    try {
+      await addWorkspace.mutateAsync({ name });
+      await refetchWorkspaces();
+      setShowNewTeamDialog(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    const name = e.target.name;
+    setNewWorkspaceInfo({ ...newWorkspaceInfo, [name]: val });
+  };
 
   return (
     <Dialog open={showNewTeamDialog} onOpenChange={setShowNewTeamDialog}>
@@ -94,16 +144,16 @@ export function TeamSwitcher({ className }: TeamSwitcherProps) {
             role="combobox"
             aria-expanded={open}
             aria-label="Select a team"
-            className={cn("w-[200px] justify-between", className)}
+            className={cn("w-[220px] justify-between", className)}
           >
             <Avatar className="mr-2 h-5 w-5">
               <AvatarImage
-                src={`https://avatar.vercel.sh/${selectedTeam.value}.png`}
-                alt={selectedTeam.label}
+                src={`https://avatar.vercel.sh/${selectedWorkspace?.id}.png`}
+                alt={selectedWorkspace?.name}
               />
               <AvatarFallback>SC</AvatarFallback>
             </Avatar>
-            {selectedTeam.label}
+            {selectedWorkspace?.name}
             <CaretSortIcon className="ml-auto h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
@@ -112,30 +162,30 @@ export function TeamSwitcher({ className }: TeamSwitcherProps) {
             <CommandList>
               <CommandInput placeholder="Search team..." />
               <CommandEmpty>No team found.</CommandEmpty>
-              {groups.map((group) => (
+              {groups?.map((group) => (
                 <CommandGroup key={group.label} heading={group.label}>
                   {group.teams.map((team) => (
                     <CommandItem
-                      key={team.value}
+                      key={team.id}
                       onSelect={() => {
-                        setSelectedTeam(team);
+                        setSelectedWorkspace(team);
                         setOpen(false);
                       }}
                       className="text-sm"
                     >
                       <Avatar className="mr-2 h-5 w-5">
                         <AvatarImage
-                          src={`https://avatar.vercel.sh/${team.value}.png`}
-                          alt={team.label}
+                          src={`https://avatar.vercel.sh/${team.id}.png`}
+                          alt={team.name}
                           className="grayscale"
                         />
                         <AvatarFallback>SC</AvatarFallback>
                       </Avatar>
-                      {team.label}
+                      {team.name}
                       <CheckIcon
                         className={cn(
                           "ml-auto h-4 w-4",
-                          selectedTeam.value === team.value
+                          selectedWorkspace?.id === team.id
                             ? "opacity-100"
                             : "opacity-0"
                         )}
@@ -156,7 +206,7 @@ export function TeamSwitcher({ className }: TeamSwitcherProps) {
                     }}
                   >
                     <PlusCircledIcon className="mr-2 h-5 w-5" />
-                    Create Team
+                    Create Workspace
                   </CommandItem>
                 </DialogTrigger>
               </CommandGroup>
@@ -166,20 +216,26 @@ export function TeamSwitcher({ className }: TeamSwitcherProps) {
       </Popover>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create team</DialogTitle>
+          <DialogTitle>Create workspace</DialogTitle>
           <DialogDescription>
-            Add a new team to manage products and customers.
+            Create a new workspace to manage forms & collaborate with others
           </DialogDescription>
         </DialogHeader>
         <div>
-          <div className="space-y-4 py-2 pb-4">
+          <form className="space-y-4 py-2 pb-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Team name</Label>
-              <Input id="name" placeholder="Acme Inc." />
+              <Input
+                id="name"
+                name="name"
+                label="Workspace name"
+                placeholder="Acme Inc."
+                value={newWorkspaceInfo.name}
+                onChange={handleChange}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="plan">Subscription plan</Label>
-              <Select>
+              <Select name="plan" disabled defaultValue="free">
                 <SelectTrigger>
                   <SelectValue placeholder="Select a plan" />
                 </SelectTrigger>
@@ -187,25 +243,30 @@ export function TeamSwitcher({ className }: TeamSwitcherProps) {
                   <SelectItem value="free">
                     <span className="font-medium">Free</span> -{" "}
                     <span className="text-muted-foreground">
-                      Trial for two weeks
+                      Trial for two months
                     </span>
                   </SelectItem>
                   <SelectItem value="pro">
                     <span className="font-medium">Pro</span> -{" "}
                     <span className="text-muted-foreground">
-                      $9/month per user
+                      $5/month per user
                     </span>
                   </SelectItem>
                 </SelectContent>
               </Select>
             </div>
-          </div>
+          </form>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => setShowNewTeamDialog(false)}>
             Cancel
           </Button>
-          <Button type="submit">Continue</Button>
+          <Button onClick={() => void handleCreateTeam()}>
+            {addWorkspace.isLoading ? (
+              <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+            ) : null}
+            Continue
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
