@@ -6,6 +6,8 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 
+import Crypto from "crypto";
+
 /** Index
  * signup: publicProcedure - create user
  **/
@@ -19,13 +21,34 @@ export const authRouter = createTRPCRouter({
           saltLength: 12,
         });
 
-        return await ctx.prisma.user.create({
-          data: {
-            name: input.name,
-            email: input.email,
-            password: hashedPassword,
-          },
-        });
+        return await
+          ctx.prisma.user.create({
+            data: {
+              name: input.name,
+              email: input.email,
+              password: hashedPassword,
+              WorkspaceMember: {
+                create: {
+                  role: "OWNER",
+                  Workspace: {
+                    create: {
+                      name: `${input.name}'s Workspace`,
+                      apiKey: Crypto.randomBytes(16).toString("hex"),
+                      isPersonal: true,
+                    },
+                  },
+                },
+              }
+            },
+            include: {
+              WorkspaceMember: {
+                include: {
+                  Workspace: true
+                }
+              }
+            }
+          });
+
       } catch (error) {
         console.log(error);
         throw new TRPCError({

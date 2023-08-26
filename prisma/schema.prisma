@@ -21,8 +21,8 @@ model User {
     createdAt       DateTime          @default(now())
     updatedAt       DateTime          @updatedAt
     WorkspaceMember WorkspaceMember[]
-    Account         Account[]
-    Session         Session[]
+    Accounts        Account[]
+    Sessions        Session[]
 }
 
 model Account {
@@ -61,41 +61,41 @@ model VerificationToken {
 }
 
 model Form {
-    id           String         @id
-    name         String
-    workspaceId  String
-    formSchema   Json           @default("{}")
-    status       FormStatus     @default(DRAFT)
-    link         String?
-    createdAt    DateTime       @default(now())
-    updatedAt    DateTime       @updatedAt
-    Workspace    Workspace      @relation(fields: [workspaceId], references: [id])
-    FormResponse FormResponse[]
+    id            String         @id @default(uuid())
+    name          String
+    workspaceId   String
+    formSchema    Json           @default("{}")
+    status        FormStatus     @default(DRAFT)
+    link          String?
+    createdAt     DateTime       @default(now())
+    updatedAt     DateTime       @updatedAt
+    Workspace     Workspace      @relation(fields: [workspaceId], references: [id])
+    FormResponses FormResponse[]
 }
 
 model FormResponse {
-    id        String   @id
+    id        String   @id @default(uuid())
     formId    String
     response  Json     @default("{}")
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
-    Form      Form     @relation(fields: [formId], references: [id])
+    Forms     Form     @relation(fields: [formId], references: [id])
 }
 
 model Workspace {
-    id              String            @id
-    name            String            @unique
-    apiKey          String            @unique
-    icon            String?
-    createdAt       DateTime          @default(now())
-    updatedAt       DateTime          @updatedAt
-    isPersonal      Boolean           @default(true)
-    Form            Form[]
-    WorkspaceMember WorkspaceMember[]
+    id               String            @id @default(uuid())
+    name             String            @unique
+    apiKey           String            @unique
+    icon             String?
+    createdAt        DateTime          @default(now())
+    updatedAt        DateTime          @updatedAt
+    isPersonal       Boolean           @default(false)
+    Forms            Form[]
+    WorkspaceMembers WorkspaceMember[]
 }
 
 model WorkspaceMember {
-    id          String    @id
+    id          String    @id @default(uuid())
     role        Role
     userId      String
     workspaceId String
