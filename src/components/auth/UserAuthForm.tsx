@@ -51,7 +51,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
         await signIn("credentials", {
           email: values.email,
           password: values.password,
-          callbackUrl: "/dashboard",
+          callbackUrl: "/forms",
         });
       } catch (error) {
         console.error(error);
@@ -61,7 +61,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
 
   const hanleGithubSignIn = () => {
     setisGithubLoading(true);
-    void signIn("github", { callbackUrl: "/dashboard" });
+    void signIn("github", { callbackUrl: "/forms" });
   };
 
   return (

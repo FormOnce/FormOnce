@@ -1,11 +1,13 @@
 import { cn } from "~/utils/cn";
-import { Button } from "~/components/ui/button";
+import { buttonVariants } from "~/components/ui/button";
+import Link from "next/link";
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
 }
 type SidebarItem = {
   name: string;
+  link: string;
   icon: React.ReactNode;
 };
 
@@ -20,6 +22,7 @@ const sidebarGroups: SidebarGroup[] = [
     items: [
       {
         name: "All Forms",
+        link: "/forms",
         icon: (
           <svg
             viewBox="0 0 15 15"
@@ -35,25 +38,27 @@ const sidebarGroups: SidebarGroup[] = [
           </svg>
         ),
       },
-      {
-        name: "All Responses",
-        icon: (
-          <svg
-            viewBox="0 0 15 15"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M12.5 3L2.5 3.00002C1.67157 3.00002 1 3.6716 1 4.50002V9.50003C1 10.3285 1.67157 11 2.5 11H7.50003C7.63264 11 7.75982 11.0527 7.85358 11.1465L10 13.2929V11.5C10 11.2239 10.2239 11 10.5 11H12.5C13.3284 11 14 10.3285 14 9.50003V4.5C14 3.67157 13.3284 3 12.5 3ZM2.49999 2.00002L12.5 2C13.8807 2 15 3.11929 15 4.5V9.50003C15 10.8807 13.8807 12 12.5 12H11V14.5C11 14.7022 10.8782 14.8845 10.6913 14.9619C10.5045 15.0393 10.2894 14.9965 10.1464 14.8536L7.29292 12H2.5C1.11929 12 0 10.8807 0 9.50003V4.50002C0 3.11931 1.11928 2.00003 2.49999 2.00002Z"
-              fill="currentColor"
-              fill-rule="evenodd"
-              clip-rule="evenodd"
-            ></path>
-          </svg>
-        ),
-      },
+      // {
+      //   name: "All Responses",
+      //   link: "/responses",
+      //   icon: (
+      //     <svg
+      //       viewBox="0 0 15 15"
+      //       fill="none"
+      //       xmlns="http://www.w3.org/2000/svg"
+      //     >
+      //       <path
+      //         d="M12.5 3L2.5 3.00002C1.67157 3.00002 1 3.6716 1 4.50002V9.50003C1 10.3285 1.67157 11 2.5 11H7.50003C7.63264 11 7.75982 11.0527 7.85358 11.1465L10 13.2929V11.5C10 11.2239 10.2239 11 10.5 11H12.5C13.3284 11 14 10.3285 14 9.50003V4.5C14 3.67157 13.3284 3 12.5 3ZM2.49999 2.00002L12.5 2C13.8807 2 15 3.11929 15 4.5V9.50003C15 10.8807 13.8807 12 12.5 12H11V14.5C11 14.7022 10.8782 14.8845 10.6913 14.9619C10.5045 15.0393 10.2894 14.9965 10.1464 14.8536L7.29292 12H2.5C1.11929 12 0 10.8807 0 9.50003V4.50002C0 3.11931 1.11928 2.00003 2.49999 2.00002Z"
+      //         fill="currentColor"
+      //         fill-rule="evenodd"
+      //         clip-rule="evenodd"
+      //       ></path>
+      //     </svg>
+      //   ),
+      // },
       {
         name: "Folders",
+        link: "/folders",
         icon: (
           <svg
             width="15"
@@ -77,7 +82,8 @@ const sidebarGroups: SidebarGroup[] = [
     name: "Settings",
     items: [
       {
-        name: "Teams",
+        name: "Workspaces",
+        link: "/settings/workspaces",
         icon: (
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -99,6 +105,7 @@ const sidebarGroups: SidebarGroup[] = [
       },
       {
         name: "Keys",
+        link: "/settings/keys",
         icon: (
           <svg
             width="15"
@@ -118,6 +125,7 @@ const sidebarGroups: SidebarGroup[] = [
       },
       {
         name: "Webhooks",
+        link: "/settings/webhooks",
         icon: (
           <svg
             width="15"
@@ -152,12 +160,18 @@ const SideBarGroup = ({ name, items }: SidebarGroup) => {
   );
 };
 
-const SidebarItem = ({ name, icon }: SidebarItem) => {
+const SidebarItem = ({ name, icon, link }: SidebarItem) => {
   return (
-    <Button variant="ghost" className="w-full justify-start">
+    <Link
+      href={link}
+      className={cn(
+        buttonVariants({ variant: "ghost" }),
+        "w-full justify-start"
+      )}
+    >
       <span className="mr-2 h-4 w-4">{icon}</span>
       {name}
-    </Button>
+    </Link>
   );
 };
 
