@@ -26,7 +26,7 @@ export default function DashboardLayout({
         </nav>
         <div className="flex h-[calc(100vh-4rem)] w-full ">
           <Sidebar className="w-60" />
-          <div className="p-8">{children}</div>
+          <div className="w-full p-8">{children}</div>
         </div>
       </>
     </RootLayout>

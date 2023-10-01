@@ -23,6 +23,7 @@ model User {
     WorkspaceMember WorkspaceMember[]
     Accounts        Account[]
     Sessions        Session[]
+    Form            Form[]
 }
 
 model Account {
@@ -70,6 +71,8 @@ model Form {
     createdAt     DateTime       @default(now())
     updatedAt     DateTime       @updatedAt
     Workspace     Workspace      @relation(fields: [workspaceId], references: [id])
+    author        User?          @relation(fields: [authorId], references: [id])
+    authorId      String?
     FormResponses FormResponse[]
 }
 

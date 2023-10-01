@@ -46,6 +46,7 @@ import { api } from "@utils/api";
 import type { Workspace } from "@prisma/client";
 import { Icons } from "../icons";
 import { useWorkspaceStore } from "~/store";
+import { useSession } from "next-auth/react";
 
 const getGroups = (workspaces: Workspace[] | undefined) => {
   const groups = [
@@ -90,6 +91,8 @@ interface TeamSwitcherProps extends PopoverTriggerProps {
 }
 
 export function TeamSwitcher({ className }: TeamSwitcherProps) {
+  const { update: updateSession } = useSession();
+
   const { data: workspaces, refetch: refetchWorkspaces } =
     api.workspace.getAll.useQuery(undefined, {
       refetchOnMount: false,
@@ -116,7 +119,12 @@ export function TeamSwitcher({ className }: TeamSwitcherProps) {
           name: defaultWS.name,
         });
     }
-  }, [groups, selectedWorkspace.id, setSelectedWorkspace]);
+    // update workspaceId in session
+    void updateSession({
+      workspaceId: selectedWorkspace.id,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [groups, selectedWorkspace.id]);
 
   const handleCreateTeam = async () => {
     const name = newWorkspaceInfo.name.trim();

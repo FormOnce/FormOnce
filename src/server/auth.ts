@@ -22,15 +22,10 @@ declare module "next-auth" {
   interface Session extends DefaultSession {
     user: DefaultSession["user"] & {
       id: string;
+      workspaceId: string;
       // ...other properties
-      // role: UserRole;
     };
   }
-
-  // interface User {
-  //   // ...other properties
-  //   // role: UserRole;
-  // }
 }
 
 /**
@@ -49,14 +44,20 @@ export const authOptions: NextAuthOptions = {
           ...session.user,
           id: token.userId,
           provider: token.provider,
+          workspaceId: token.workspaceId,
         },
       }
     },
-    jwt: ({ token, user, account }) => {
+    jwt: ({ token, user, account, trigger, session }) => {
       if (user?.id)
         token.userId = user.id;
       if (account?.provider)
         token.provider = account.provider;
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      if (trigger === 'update' && session?.workspaceId) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        token.workspaceId = session.workspaceId;
+      }
 
       return token;
     }

@@ -10,3 +10,4 @@ export * from './dropdown-menu';
 export * from './icons';
 export * from './label';
 export * from './sidebar';
+export * from './table';
