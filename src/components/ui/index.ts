@@ -11,3 +11,6 @@ export * from './icons';
 export * from './label';
 export * from './sidebar';
 export * from './table';
+export * from './resizable';
+export * from './collapsible';
+export * from './form';
