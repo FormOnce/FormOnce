@@ -11,13 +11,20 @@ import {
   TableRow,
 } from "@components/ui";
 import { api } from "~/utils/api";
+import { useRouter } from "next/router";
 
 export default function Forms() {
+  const router = useRouter();
+
+  const onCreateNewForm = () => {
+    void router.push("/forms/new");
+  };
+
   return (
     <DashboardLayout title="dashboard">
       <div className="flex justify-between">
         <h2 className="text-3xl font-bold tracking-tight">All Forms</h2>
-        <Button>
+        <Button onClick={onCreateNewForm}>
           <Icons.plus className="mr-2 h-4 w-4" />
           Create a new form
         </Button>

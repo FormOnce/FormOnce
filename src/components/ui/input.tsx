@@ -13,9 +13,11 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, type, label, help, ...props }, ref) => {
     return (
       <div className="flex flex-col gap-2">
-        <Label className="mb-1" htmlFor={props.id}>
-          {label}
-        </Label>
+        {label && (
+          <Label className="mb-1" htmlFor={props.id}>
+            {label}
+          </Label>
+        )}
         {help && <p className="text-sm text-muted-foreground">{help}</p>}
         <input
           type={type}
