@@ -23,6 +23,11 @@ import {
   FormLabel,
   FormMessage,
   Button,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@components/ui";
 
 const formSchema = ZQuestion;
@@ -34,7 +39,7 @@ const AddNewQuestion = () => {
       title: "",
       description: "",
       placeholder: "",
-      type: EQuestionType.TextLong,
+      type: EQuestionType.TextShort,
     },
     mode: "onTouched",
   });
@@ -44,6 +49,16 @@ const AddNewQuestion = () => {
     console.log(values);
     form.reset();
   }
+
+  const questionTypes = Object.values(EQuestionType)
+    .map((type) => ({
+      label: type.split(":")[0],
+      value: type,
+    }))
+    .filter(
+      (type, index, self) =>
+        self.findIndex((t) => t.label === type.label) === index
+    );
 
   return (
     <Collapsible className="rounded-md border shadow-sm shadow-slate-800">
@@ -107,6 +122,39 @@ const AddNewQuestion = () => {
                   <FormControl>
                     <Input type="text" placeholder="Hold my place" {...field} />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Input type</FormLabel>
+                  <FormDescription>
+                    What type of input should this question be?
+                  </FormDescription>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select an input type" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {questionTypes.map(
+                        (type) =>
+                          type && (
+                            <SelectItem key={type.label} value={type.value}>
+                              {type.label}
+                            </SelectItem>
+                          )
+                      )}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
