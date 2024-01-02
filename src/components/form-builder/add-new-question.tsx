@@ -32,7 +32,19 @@ import {
 
 const formSchema = ZQuestion;
 
+const questionTypes = Object.values(EQuestionType)
+  .map((type) => ({
+    label: type.split(":")[0],
+    value: type,
+  }))
+  .filter(
+    (type, index, self) =>
+      self.findIndex((t) => t.label === type.label) === index
+  );
+
 const AddNewQuestion = () => {
+  const [isOpen, setIsColapsed] = React.useState(false);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -50,21 +62,49 @@ const AddNewQuestion = () => {
     form.reset();
   }
 
-  const questionTypes = Object.values(EQuestionType)
-    .map((type) => ({
-      label: type.split(":")[0],
-      value: type,
-    }))
-    .filter(
-      (type, index, self) =>
-        self.findIndex((t) => t.label === type.label) === index
-    );
+  const onInputTypeChange = (value: EQuestionType) => {
+    form.setValue("type", value);
+  };
 
   return (
-    <Collapsible className="rounded-md border shadow-sm shadow-slate-800">
-      <CollapsibleTrigger className="flex w-full items-center rounded-md p-4 text-start hover:bg-accent hover:text-accent-foreground">
-        <Icons.plus className="mr-2 h-4 w-4" />
-        <div className="text">Add new question</div>
+    <Collapsible
+      open={isOpen}
+      onOpenChange={(open) => setIsColapsed(open)}
+      className="rounded-md border shadow-sm shadow-slate-800"
+    >
+      <CollapsibleTrigger
+        className={`flex w-full items-center justify-between rounded-md p-4 text-start ${
+          !isOpen && "hover:bg-accent hover:text-accent-foreground"
+        }`}
+      >
+        <div className="flex h-9 items-center">
+          <Icons.plus
+            className={`mr-2 h-6 w-6 transition ${isOpen && "rotate-90"}`}
+          />
+          <span className="text">Add new question</span>
+        </div>
+        {isOpen && (
+          <div className="w-36 items-center">
+            <Select
+              onValueChange={onInputTypeChange}
+              defaultValue={EQuestionType.TextShort}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select an input type" />
+              </SelectTrigger>
+              <SelectContent>
+                {questionTypes.map(
+                  (type) =>
+                    type && (
+                      <SelectItem key={type.label} value={type.value}>
+                        {type.label}
+                      </SelectItem>
+                    )
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
       </CollapsibleTrigger>
       <CollapsibleContent className="p-6 pt-4">
         <Form {...form}>
@@ -122,39 +162,6 @@ const AddNewQuestion = () => {
                   <FormControl>
                     <Input type="text" placeholder="Hold my place" {...field} />
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Input type</FormLabel>
-                  <FormDescription>
-                    What type of input should this question be?
-                  </FormDescription>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select an input type" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {questionTypes.map(
-                        (type) =>
-                          type && (
-                            <SelectItem key={type.label} value={type.value}>
-                              {type.label}
-                            </SelectItem>
-                          )
-                      )}
-                    </SelectContent>
-                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
