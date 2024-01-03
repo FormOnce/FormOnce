@@ -3,6 +3,7 @@ import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
+  ScrollArea,
 } from "@components/ui";
 import { useState } from "react";
 import { type TQuestion } from "~/types/question.types";
@@ -14,8 +15,10 @@ export default function Form() {
   return (
     <DashboardLayout title="dashboard">
       <ResizablePanelGroup direction="horizontal">
-        <ResizablePanel minSize={40} maxSize={60} className="pr-8 pt-8">
-          <AddNewQuestion />
+        <ResizablePanel minSize={50} maxSize={60} className="">
+          <ScrollArea className="flex h-full flex-col gap-4 pr-8 pt-8">
+            <AddNewQuestion />
+          </ScrollArea>
         </ResizablePanel>
         <ResizableHandle />
         <ResizablePanel>
