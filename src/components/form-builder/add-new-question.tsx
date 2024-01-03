@@ -2,7 +2,7 @@
 "use client";
 
 import React from "react";
-import { ZQuestion, EQuestionType, TQuestion } from "~/types/question.types";
+import { EQuestionType, type TQuestion } from "~/types/question.types";
 
 import {
   Collapsible,
@@ -35,6 +35,7 @@ const AddNewQuestion = () => {
   const onAddQuestion = (values: TQuestion) => {
     console.log("Adding question: ");
     console.log({ ...values, type: inputType });
+    setIsColapsed(false);
   };
 
   return (
