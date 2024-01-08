@@ -19,6 +19,7 @@ import { type z } from "zod";
 import {
   EQuestionType,
   ETextSubType,
+  type TTextQuestion,
   ZTextQuestion,
 } from "~/types/question.types";
 
@@ -30,26 +31,42 @@ const questionSubTypes = Object.values(ETextSubType).map((type) => ({
   icon: Icons[type as keyof typeof Icons],
 }));
 
-type TTextQuestionProps = {
-  onSubmit: (values: z.infer<typeof formSchema>) => void;
-};
+type TTextQuestionProps =
+  | {
+      mode: "add";
+      onSubmit: (values: z.infer<typeof formSchema>) => void;
+    }
+  | (TTextQuestion & {
+      mode: "edit";
+      onEdit: (values: z.infer<typeof formSchema>) => void;
+    });
 
-const TextQuestion = (props: TTextQuestionProps) => {
+const TextQuestionForm = (props: TTextQuestionProps) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      title: "",
-      description: "",
-      placeholder: "",
-      type: EQuestionType.Text,
-      subType: ETextSubType.Short,
-    },
+    defaultValues:
+      props.mode === "edit"
+        ? {
+            title: props.title,
+            description: props.description,
+            placeholder: props.placeholder,
+            type: EQuestionType.Text,
+            subType: props.subType,
+          }
+        : {
+            title: "",
+            description: "",
+            placeholder: "",
+            type: EQuestionType.Text,
+            subType: ETextSubType.Short,
+          },
     mode: "onTouched",
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     // This will be type-safe and validated.
-    props.onSubmit(values);
+    if (props.mode === "add") props.onSubmit(values);
+    else props.onEdit(values);
     form.reset();
   }
 
@@ -153,10 +170,16 @@ const TextQuestion = (props: TTextQuestionProps) => {
             </FormItem>
           )}
         />
-        <Button type="submit">Add Question</Button>
+        {props.mode === "add" ? (
+          <Button type="submit">Add Question</Button>
+        ) : (
+          <Button type="submit" disabled={!form.formState.isDirty}>
+            Edit Question
+          </Button>
+        )}
       </form>
     </Form>
   );
 };
 
-export { TextQuestion };
+export { TextQuestionForm };

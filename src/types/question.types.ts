@@ -3,16 +3,17 @@ import * as z from 'zod';
 export enum EQuestionType {
     Text = 'text',
     Select = 'select',
-    Date = 'date',
-    Time = 'time',
-    DateTime = 'datetime',
-    Radio = 'radio',
-    Checkbox = 'checkbox',
-    File = 'file',
-    Image = 'image',
-    Rating = 'rating',
-    Range = 'range',
-    Color = 'color',
+    // TODO: Implement the rest of the types
+    // Date = 'date',
+    // Time = 'time',
+    // DateTime = 'datetime',
+    // Radio = 'radio',
+    // Checkbox = 'checkbox',
+    // File = 'file',
+    // Image = 'image',
+    // Rating = 'rating',
+    // Range = 'range',
+    // Color = 'color',
 }
 
 export enum ETextSubType {
@@ -31,7 +32,7 @@ export enum ESelectSubType {
     Multiple = 'multiple',
 }
 
-export const ZBaseQuestion = z.object({
+const ZBaseQuestion = z.object({
     title: z.string().min(5).max(100),
     description: z.string().min(10).max(500).optional(),
     placeholder: z.string().optional(),
@@ -44,12 +45,16 @@ export const ZTextQuestion = z.object({
     subType: z.nativeEnum(ETextSubType),
 });
 
+export type TTextQuestion = z.infer<typeof ZTextQuestion>;
+
 export const ZSelectQuestion = z.object({
     ...ZBaseQuestion.shape,
     type: z.literal(EQuestionType.Select),
     subType: z.nativeEnum(ESelectSubType),
     options: z.array(z.string()),
 });
+
+export type TSelectQuestion = z.infer<typeof ZSelectQuestion>;
 
 export const ZQuestion = z.union([ZTextQuestion, ZSelectQuestion]);
 

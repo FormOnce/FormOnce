@@ -15,14 +15,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@components/ui";
-import { TextQuestion } from "./text-question";
+import { TextQuestionForm } from "./text-question-form";
+
+type TAddNewQuestionProps = {
+  onAddQuestion: (values: TQuestion) => void;
+};
 
 const questionTypes = Object.values(EQuestionType).map((type) => ({
   label: type,
   value: type,
 }));
 
-const AddNewQuestion = () => {
+const AddNewQuestion = (props: TAddNewQuestionProps) => {
   const [isOpen, setIsColapsed] = React.useState(false);
   const [inputType, setInputType] = React.useState<EQuestionType>(
     EQuestionType.Text
@@ -33,8 +37,7 @@ const AddNewQuestion = () => {
   };
 
   const onAddQuestion = (values: TQuestion) => {
-    console.log("Adding question: ");
-    console.log({ ...values, type: inputType });
+    props.onAddQuestion({ ...values, type: inputType } as TQuestion);
     setIsColapsed(false);
   };
 
@@ -80,11 +83,11 @@ const AddNewQuestion = () => {
       </CollapsibleTrigger>
       <CollapsibleContent className="p-6 pt-4">
         {inputType === EQuestionType.Text && (
-          <TextQuestion onSubmit={onAddQuestion} />
+          <TextQuestionForm onSubmit={onAddQuestion} mode="add" />
         )}
       </CollapsibleContent>
     </Collapsible>
   );
 };
 
-export default AddNewQuestion;
+export { AddNewQuestion };
