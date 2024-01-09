@@ -7,8 +7,11 @@ import Head from "next/head";
 import Link from "next/link";
 import { useState } from "react";
 import { getServerAuthSession } from "~/server/auth";
+import { useRouter } from "next/router";
 
 export default function Home({ id }: { id: string }) {
+  const router = useRouter();
+
   const [isSigningOut, setIsSigningOut] = useState(false);
   const handleSignout = () => {
     setIsSigningOut(true);
@@ -17,6 +20,10 @@ export default function Home({ id }: { id: string }) {
     }).then(() => {
       setIsSigningOut(false);
     });
+  };
+
+  const handleRedirectToDashboard = () => {
+    void router.push("/forms");
   };
 
   return (
@@ -34,12 +41,17 @@ export default function Home({ id }: { id: string }) {
             </span>
           </Link>
           {id ? (
-            <Button onClick={handleSignout} variant="ghost">
-              {isSigningOut && (
-                <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-              )}
-              Sign out
-            </Button>
+            <div className="flex">
+              <Button onClick={handleRedirectToDashboard} variant="ghost">
+                Dashboard
+              </Button>
+              <Button onClick={handleSignout} variant="ghost">
+                {isSigningOut && (
+                  <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                Sign out
+              </Button>
+            </div>
           ) : (
             <Link
               href="/auth/signin"

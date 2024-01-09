@@ -14,3 +14,5 @@ export * from './table';
 export * from './resizable';
 export * from './collapsible';
 export * from './form';
+export * from './radio-group';
+export * from './scroll-area';
