@@ -39,7 +39,7 @@ export default function Forms() {
 export function AllFormsTable() {
   const router = useRouter();
 
-  const { data: forms } = api.form.getAll.useQuery();
+  const { data: forms, isLoading } = api.form.getAll.useQuery();
 
   const handleClick = (id: string) => {
     void router.push(`/forms/${id}`);
@@ -59,6 +59,13 @@ export function AllFormsTable() {
         </TableRow>
       </TableHeader>
       <TableBody>
+        {isLoading ? (
+          <TableRow>
+            <TableCell colSpan={5} className="text-center">
+              Loading...
+            </TableCell>
+          </TableRow>
+        ) : null}
         {forms?.map((form) => (
           <TableRow
             key={form.name}
