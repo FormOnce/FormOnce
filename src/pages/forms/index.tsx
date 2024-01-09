@@ -37,7 +37,14 @@ export default function Forms() {
 }
 
 export function AllFormsTable() {
+  const router = useRouter();
+
   const { data: forms } = api.form.getAll.useQuery();
+
+  const handleClick = (id: string) => {
+    void router.push(`/forms/${id}`);
+  };
+
   return (
     <Table>
       <TableCaption>A list of your recent forms.</TableCaption>
@@ -53,7 +60,11 @@ export function AllFormsTable() {
       </TableHeader>
       <TableBody>
         {forms?.map((form) => (
-          <TableRow key={form.name} className="cursor-pointer">
+          <TableRow
+            key={form.name}
+            className="cursor-pointer"
+            onClick={() => handleClick(form.id)}
+          >
             <TableCell className="font-medium">{form.name}</TableCell>
             <TableCell>{form.status}</TableCell>
             <TableCell className="text-xs">
