@@ -7,6 +7,7 @@ import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
+  Separator,
 } from "@components/ui";
 import { TextQuestionForm } from "./text-question-form";
 
@@ -33,21 +34,26 @@ const EditableQuestion = ({
       className="rounded-md border shadow-sm shadow-slate-800"
     >
       <CollapsibleTrigger
-        className={`flex w-full items-center justify-between rounded-md p-4 text-start ${
+        className={`flex w-full flex-col rounded-md p-4 pb-3 text-start ${
           !isOpen && "hover:bg-accent hover:text-accent-foreground"
         }`}
       >
         <div className="flex items-center">
           <div>{question.index}</div>
           <div className="ml-4">
-            <p className="text">{question.title}</p>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm">{question.title}</p>
+            <p className="text-xs text-muted-foreground">
               {question.description}
             </p>
           </div>
         </div>
+        {isOpen && (
+          <Separator
+            className={`ml-4 mt-2 w-[95%] ${isOpen ? null : "hidden"}`}
+          />
+        )}
       </CollapsibleTrigger>
-      <CollapsibleContent className="p-6 pt-4">
+      <CollapsibleContent className="p-6 pt-0">
         {question.type === EQuestionType.Text && (
           <TextQuestionForm onEdit={onEditQuestion} mode="edit" {...question} />
         )}

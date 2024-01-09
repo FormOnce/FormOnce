@@ -1,5 +1,6 @@
 import DashboardLayout from "~/layouts/dashboardLayout";
 import {
+  Icons,
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
@@ -8,7 +9,6 @@ import {
 import { useEffect } from "react";
 import { type TQuestion } from "~/types/question.types";
 import { AddNewQuestion } from "~/components/form-builder/add-new-question";
-import { TextQuestionForm } from "~/components/form-builder/text-question-form";
 import { api } from "~/utils/api";
 import { useRouter } from "next/router";
 import type { GetServerSideProps } from "next";
@@ -21,9 +21,6 @@ type TProps = {
 
 export default function Form(props: TProps) {
   const router = useRouter();
-
-  console.log(props.formId);
-
   const {
     data: formData,
     // isLoading: isFormLoading,
@@ -88,20 +85,23 @@ export default function Form(props: TProps) {
   };
 
   // TODO: implement edit question
-  const onEditQuestion = (values: TQuestion) => {};
+  const onEditQuestion = (values: TQuestion) => {
+    console.log(values);
+  };
 
   return (
     <DashboardLayout title="dashboard">
       <ResizablePanelGroup direction="horizontal">
-        <ResizablePanel minSize={50} maxSize={60} className="">
+        <ResizablePanel minSize={50} maxSize={60} className="h-full">
           <ScrollArea className="h-full pr-8">
-            <div className="flex flex-col gap-6">
+            <div className="flex h-full flex-col gap-6">
               {formData?.formSchema?.questions.map(
                 (question: TQuestion, index: number) => {
                   switch (question.type) {
                     case "text":
                       return (
                         <EditableQuestion
+                          key={index}
                           editQuestion={onEditQuestion}
                           {...question}
                           index={index + 1}
@@ -112,6 +112,11 @@ export default function Form(props: TProps) {
                   }
                 }
               )}
+              {isUpdatingForm || isCreatingForm ? (
+                <div className="flex items-center justify-center p-1">
+                  <Icons.spinner className="mr-3 h-5 w-5 animate-spin" />
+                </div>
+              ) : null}
               <AddNewQuestion onAddQuestion={onAddQuestion} />
             </div>
           </ScrollArea>
