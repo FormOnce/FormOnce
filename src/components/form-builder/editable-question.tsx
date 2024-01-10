@@ -14,10 +14,12 @@ import { TextQuestionForm } from "./text-question-form";
 type TEditableQuestionProps = TQuestion & {
   index: number;
   editQuestion: (values: TQuestion) => void;
+  setCurrentQuestion: (QIdx: number) => void;
 };
 
 const EditableQuestion = ({
   editQuestion,
+  setCurrentQuestion,
   ...question
 }: TEditableQuestionProps) => {
   const [isOpen, setIsColapsed] = React.useState(false);
@@ -27,10 +29,15 @@ const EditableQuestion = ({
     setIsColapsed(false);
   };
 
+  const onOpenChange = (open: boolean) => {
+    setCurrentQuestion(question.index);
+    setIsColapsed(open);
+  };
+
   return (
     <Collapsible
       open={isOpen}
-      onOpenChange={(open) => setIsColapsed(open)}
+      onOpenChange={onOpenChange}
       className="rounded-md border shadow-sm shadow-slate-800"
     >
       <CollapsibleTrigger
@@ -39,7 +46,7 @@ const EditableQuestion = ({
         }`}
       >
         <div className="flex items-center">
-          <div>{question.index}</div>
+          <div>{question.index + 1}</div>
           <div className="ml-4">
             <p className="text-sm">{question.title}</p>
             <p className="text-xs text-muted-foreground">
