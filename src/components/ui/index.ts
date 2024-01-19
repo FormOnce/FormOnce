@@ -18,3 +18,4 @@ export * from './radio-group';
 export * from './scroll-area';
 export * from './separator';
 export * from './textarea';
+export * from './progress'
