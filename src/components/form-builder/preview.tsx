@@ -36,9 +36,13 @@ function Preview({ formSchema, currentQuestionIdx }: TPreviewProps) {
 
   return (
     <div className="rounded-md border px-12 py-16">
-      {!!formSchema.questions[qIdx] && (
-        <QuestionRenderer question={formSchema.questions[qIdx]} />
-      )}
+      {formSchema.questions.map((question, idx) => (
+        <QuestionRenderer
+          key={idx}
+          question={question}
+          visible={qIdx === idx}
+        />
+      ))}
       <div className="flex justify-end">
         <Button onClick={handleNext}>
           {qIdx === formSchema.questions.length - 1 ? "Submit" : "Next"}
