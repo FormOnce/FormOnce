@@ -43,8 +43,8 @@ export default function Form(props: TProps) {
 
   const { mutateAsync: createForm, isLoading: isCreatingForm } =
     api.form.create.useMutation();
-  const { mutateAsync: updateForm, isLoading: isUpdatingForm } =
-    api.form.update.useMutation();
+  const { mutateAsync: addQuestion, isLoading: isAddingQuestion } =
+    api.form.addQuestion.useMutation();
 
   const [currentQuestion, setCurrentQuestion] = useState<number>(0);
 
@@ -65,9 +65,7 @@ export default function Form(props: TProps) {
     if (props.formId === "new") {
       void createForm({
         name: "New Form",
-        formSchema: {
-          questions: [values],
-        },
+        questions: [values],
       }).then((res) => {
         void router.push(`/forms/${res.id}`);
       });
@@ -75,14 +73,9 @@ export default function Form(props: TProps) {
     }
 
     // else add question to form
-    void updateForm({
-      id: props.formId,
-      formSchema: {
-        questions: [
-          ...(formData?.formSchema as TFormSchema)?.questions,
-          values,
-        ],
-      },
+    void addQuestion({
+      formId: props.formId,
+      question: values,
     }).then(() => {
       void refreshFormData();
     });
@@ -99,25 +92,24 @@ export default function Form(props: TProps) {
         <ResizablePanel minSize={50} maxSize={60} className="h-full">
           <ScrollArea className="h-full pr-8">
             <div className="flex h-full flex-col gap-6">
-              {(formData?.formSchema as TFormSchema)?.questions.map(
-                (question: TQuestion, index: number) => {
-                  switch (question.type) {
-                    case "text":
-                      return (
-                        <EditableQuestion
-                          key={index}
-                          editQuestion={onEditQuestion}
-                          {...question}
-                          index={index}
-                          setCurrentQuestion={setCurrentQuestion}
-                        />
-                      );
-                    default:
-                      return null;
-                  }
+              {formData?.questions.map((unTypedQ, index: number) => {
+                const question = unTypedQ as TQuestion;
+                switch (question.type) {
+                  case "text":
+                    return (
+                      <EditableQuestion
+                        key={index}
+                        editQuestion={onEditQuestion}
+                        {...question}
+                        index={index}
+                        setCurrentQuestion={setCurrentQuestion}
+                      />
+                    );
+                  default:
+                    return null;
                 }
-              )}
-              {isUpdatingForm || isCreatingForm ? (
+              })}
+              {isAddingQuestion || isCreatingForm ? (
                 <div className="flex items-center justify-center p-1">
                   <Icons.spinner className="mr-3 h-5 w-5 animate-spin" />
                 </div>
@@ -134,6 +126,7 @@ export default function Form(props: TProps) {
               <Preview
                 formSchema={formData?.formSchema as TFormSchema}
                 currentQuestionIdx={currentQuestion}
+                questions={formData?.questions as TQuestion[]}
               />
             )}
           </div>
