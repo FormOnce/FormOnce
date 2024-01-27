@@ -6,7 +6,7 @@ import {
   ResizablePanelGroup,
   ScrollArea,
 } from "@components/ui";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { type TQuestion } from "~/types/question.types";
 import { AddNewQuestion } from "~/components/form-builder/add-new-question";
 import { api } from "~/utils/api";
@@ -14,6 +14,8 @@ import { useRouter } from "next/router";
 import type { GetServerSideProps } from "next";
 import { getServerAuthSession } from "~/server/auth";
 import { EditableQuestion } from "~/components/form-builder/editable-question";
+import type { TFormSchema } from "~/types/form.types";
+import { Preview } from "~/components/form-builder/preview";
 
 type TProps = {
   formId: string;
@@ -43,6 +45,8 @@ export default function Form(props: TProps) {
     api.form.create.useMutation();
   const { mutateAsync: updateForm, isLoading: isUpdatingForm } =
     api.form.update.useMutation();
+
+  const [currentQuestion, setCurrentQuestion] = useState<number>(0);
 
   // check if formId is valid, if unvalid redirect to dashboard
   useEffect(() => {
@@ -75,8 +79,7 @@ export default function Form(props: TProps) {
       id: props.formId,
       formSchema: {
         questions: [
-          /*TODO: Finalise formSchema type and remove 'as' */
-          ...(formData?.formSchema as { questions: TQuestion[] })?.questions,
+          ...(formData?.formSchema as TFormSchema)?.questions,
           values,
         ],
       },
@@ -96,24 +99,24 @@ export default function Form(props: TProps) {
         <ResizablePanel minSize={50} maxSize={60} className="h-full">
           <ScrollArea className="h-full pr-8">
             <div className="flex h-full flex-col gap-6">
-              {/*TODO: Finalise formSchema type and remove 'as' */}
-              {(
-                formData?.formSchema as { questions: TQuestion[] }
-              )?.questions.map((question: TQuestion, index: number) => {
-                switch (question.type) {
-                  case "text":
-                    return (
-                      <EditableQuestion
-                        key={index}
-                        editQuestion={onEditQuestion}
-                        {...question}
-                        index={index + 1}
-                      />
-                    );
-                  default:
-                    return null;
+              {(formData?.formSchema as TFormSchema)?.questions.map(
+                (question: TQuestion, index: number) => {
+                  switch (question.type) {
+                    case "text":
+                      return (
+                        <EditableQuestion
+                          key={index}
+                          editQuestion={onEditQuestion}
+                          {...question}
+                          index={index}
+                          setCurrentQuestion={setCurrentQuestion}
+                        />
+                      );
+                    default:
+                      return null;
+                  }
                 }
-              })}
+              )}
               {isUpdatingForm || isCreatingForm ? (
                 <div className="flex items-center justify-center p-1">
                   <Icons.spinner className="mr-3 h-5 w-5 animate-spin" />
@@ -125,8 +128,14 @@ export default function Form(props: TProps) {
         </ResizablePanel>
         <ResizableHandle />
         <ResizablePanel>
-          <div className="p-4 text-center">
-            <p className="text-muted-foreground">Preview</p>
+          <div className="flex flex-col gap-8 p-4">
+            <p className="text-center text-muted-foreground">Preview</p>
+            {formData?.formSchema && (
+              <Preview
+                formSchema={formData?.formSchema as TFormSchema}
+                currentQuestionIdx={currentQuestion}
+              />
+            )}
           </div>
         </ResizablePanel>
       </ResizablePanelGroup>
