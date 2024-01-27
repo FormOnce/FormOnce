@@ -130,10 +130,12 @@ export default function Form(props: TProps) {
         <ResizablePanel>
           <div className="flex flex-col gap-8 p-4">
             <p className="text-center text-muted-foreground">Preview</p>
-            <Preview
-              formSchema={formData?.formSchema as TFormSchema}
-              currentQuestionIdx={currentQuestion}
-            />
+            {formData?.formSchema && (
+              <Preview
+                formSchema={formData?.formSchema as TFormSchema}
+                currentQuestionIdx={currentQuestion}
+              />
+            )}
           </div>
         </ResizablePanel>
       </ResizablePanelGroup>

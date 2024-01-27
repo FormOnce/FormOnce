@@ -18,7 +18,7 @@ function Preview({ formSchema, currentQuestionIdx }: TPreviewProps) {
     const currProgress =
       (((currentQuestionIdx ?? 0) + 1) * 100) / formSchema.questions.length;
     setProgress(currProgress);
-  }, [currentQuestionIdx, formSchema.questions.length]);
+  }, [currentQuestionIdx, formSchema.questions]);
 
   const handleNext = () => {
     setQuestionIdx((i) =>
