@@ -3,8 +3,8 @@ import {
     createTRPCRouter,
     protectedProcedure,
 } from "~/server/api/trpc";
-import { ZCreateForm } from "../dtos/forms/createForm";
-import { ZUpdateForm } from "../dtos/forms/updateForm";
+import { ZCreateForm } from "./dtos/createForm";
+import { ZUpdateForm } from "./dtos/updateForm";
 import { z } from "zod";
 
 

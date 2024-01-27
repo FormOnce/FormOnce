@@ -1,7 +1,7 @@
 import { createTRPCRouter } from "~/server/api/trpc";
 import { authRouter } from "./routers/auth";
 import { workspaceRouter } from "./routers/workspace";
-import { formRouter } from "./routers/forms";
+import { formRouter } from "./routers/forms/router";
 
 /**
  * This is the primary router for your server.
