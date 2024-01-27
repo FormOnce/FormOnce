@@ -66,6 +66,7 @@ model Form {
     name          String
     workspaceId   String
     formSchema    Json           @default("{}")
+    questions     Json[]
     status        FormStatus     @default(DRAFT)
     link          String?
     createdAt     DateTime       @default(now())

@@ -1,6 +1,7 @@
-import { z } from 'zod';
+import { z } from 'zod'
+import { ZQuestion } from '~/types/question.types';;
 
 export const ZCreateForm = z.object({
     name: z.string(),
-    formSchema: z.object({}).passthrough(),
+    questions: z.array(ZQuestion),
 });

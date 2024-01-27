@@ -1,8 +1,9 @@
-import { z } from "zod";
-import { ZQuestion } from "./question.types";
+import type { JSONSchema7 } from "json-schema";
 
-export const ZFormSchema = z.object({
-    questions: z.array(ZQuestion).min(1),
-});
-
-export type TFormSchema = z.infer<typeof ZFormSchema>;
+// eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style, @typescript-eslint/no-explicit-any
+export type TFormSchema = {
+    "type": JSONSchema7["type"];
+    "description"?: string;
+    "properties": JSONSchema7["properties"];
+    "required": string[]
+}

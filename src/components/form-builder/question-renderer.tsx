@@ -7,23 +7,28 @@ type TQuestionRenderer = {
   visible?: boolean;
 };
 
-function QuestionRenderer({ question, visible = true }: TQuestionRenderer) {
+function QuestionRenderer({
+  question,
+  visible = true,
+  ...props
+}: TQuestionRenderer) {
   if (!question) return null;
 
   return (
     <div className="overflow-hidden">
       <div
-        className={`mb-4 min-h-[8rem] transition-all duration-150 ease-out ${
+        className={`min-h-[8rem] transition-all duration-150 ease-out ${
           visible ? "not-sr-only translate-x-0" : "sr-only -translate-x-full"
         }`}
       >
-        <p className="text font-semibold">{question.title}</p>
-        <p className=" text-sm text-gray-500">{question.description}</p>
+        {/* <p className="text font-semibold">{question.title}</p>
+        <p className=" text-sm text-gray-500">{question.description}</p> */}
         <div className="mt-2">
           <InputRenderer
             type={question.type}
             subType={question.subType}
             placeholder={question.placeholder}
+            {...props}
           />
         </div>
       </div>
@@ -31,10 +36,11 @@ function QuestionRenderer({ question, visible = true }: TQuestionRenderer) {
   );
 }
 
-const InputRenderer = ({
+export const InputRenderer = ({
   type,
   subType,
   placeholder,
+  ...props
 }: Pick<TQuestion, "type" | "subType" | "placeholder">) => {
   switch (type) {
     case "text":
@@ -46,6 +52,7 @@ const InputRenderer = ({
               placeholder={placeholder}
               type="email"
               name="answer"
+              {...props}
             />
           );
         case "long":
@@ -54,6 +61,7 @@ const InputRenderer = ({
               className="mt-2"
               placeholder={placeholder}
               name="answer"
+              {...props}
             />
           );
         case "email":
