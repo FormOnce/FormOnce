@@ -8,12 +8,7 @@ import {
   ResizablePanelGroup,
   ScrollArea,
 } from "@components/ui";
-import {
-  FormEventHandler,
-  MouseEventHandler,
-  useEffect,
-  useState,
-} from "react";
+import { useEffect, useState } from "react";
 import { type TQuestion } from "~/types/question.types";
 import { AddNewQuestion } from "~/components/form-builder/add-new-question";
 import { api } from "~/utils/api";
