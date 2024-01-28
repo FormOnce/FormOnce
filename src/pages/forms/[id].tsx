@@ -25,7 +25,7 @@ export default function Form(props: TProps) {
   const router = useRouter();
   const {
     data: formData,
-    // isLoading: isFormLoading,
+    isLoading: isLoadingFormData,
     // isSuccess: formDataFetched,
     isError: isFormInvalid,
     refetch: refreshFormData,
@@ -88,50 +88,56 @@ export default function Form(props: TProps) {
 
   return (
     <DashboardLayout title="dashboard">
-      <ResizablePanelGroup direction="horizontal">
-        <ResizablePanel minSize={50} maxSize={60} className="h-full">
-          <ScrollArea className="h-full pr-8">
-            <div className="flex h-full flex-col gap-6">
-              {formData?.questions.map((unTypedQ, index: number) => {
-                const question = unTypedQ as TQuestion;
-                switch (question.type) {
-                  case "text":
-                    return (
-                      <EditableQuestion
-                        key={index}
-                        editQuestion={onEditQuestion}
-                        {...question}
-                        index={index}
-                        setCurrentQuestion={setCurrentQuestion}
-                      />
-                    );
-                  default:
-                    return null;
-                }
-              })}
-              {isAddingQuestion || isCreatingForm ? (
-                <div className="flex items-center justify-center p-1">
-                  <Icons.spinner className="mr-3 h-5 w-5 animate-spin" />
-                </div>
-              ) : null}
-              <AddNewQuestion onAddQuestion={onAddQuestion} />
+      {isLoadingFormData || true ? (
+        <div className="flex h-full items-center justify-center">
+          <Icons.spinner className="mb-10 h-8 w-8 animate-spin" />
+        </div>
+      ) : (
+        <ResizablePanelGroup direction="horizontal">
+          <ResizablePanel minSize={50} maxSize={60} className="h-full">
+            <ScrollArea className="h-full pr-8">
+              <div className="flex h-full flex-col gap-6">
+                {formData?.questions.map((unTypedQ, index: number) => {
+                  const question = unTypedQ as TQuestion;
+                  switch (question.type) {
+                    case "text":
+                      return (
+                        <EditableQuestion
+                          key={index}
+                          editQuestion={onEditQuestion}
+                          {...question}
+                          index={index}
+                          setCurrentQuestion={setCurrentQuestion}
+                        />
+                      );
+                    default:
+                      return null;
+                  }
+                })}
+                {isAddingQuestion || isCreatingForm ? (
+                  <div className="flex items-center justify-center p-1">
+                    <Icons.spinner className="mr-3 h-5 w-5 animate-spin" />
+                  </div>
+                ) : null}
+                <AddNewQuestion onAddQuestion={onAddQuestion} />
+              </div>
+            </ScrollArea>
+          </ResizablePanel>
+          <ResizableHandle />
+          <ResizablePanel>
+            <div className="flex flex-col gap-8 p-4">
+              <p className="text-center text-muted-foreground">Preview</p>
+              {formData?.formSchema && (
+                <Preview
+                  formSchema={formData?.formSchema as TFormSchema}
+                  currentQuestionIdx={currentQuestion}
+                  questions={formData?.questions as TQuestion[]}
+                />
+              )}
             </div>
-          </ScrollArea>
-        </ResizablePanel>
-        <ResizableHandle />
-        <ResizablePanel>
-          <div className="flex flex-col gap-8 p-4">
-            <p className="text-center text-muted-foreground">Preview</p>
-            {formData?.formSchema && (
-              <Preview
-                formSchema={formData?.formSchema as TFormSchema}
-                currentQuestionIdx={currentQuestion}
-                questions={formData?.questions as TQuestion[]}
-              />
-            )}
-          </div>
-        </ResizablePanel>
-      </ResizablePanelGroup>
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      )}
     </DashboardLayout>
   );
 }
