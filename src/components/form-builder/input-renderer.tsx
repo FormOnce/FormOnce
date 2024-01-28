@@ -16,7 +16,7 @@ export const InputRenderer = ({
             <Input
               className="mt-2"
               placeholder={placeholder}
-              type="email"
+              type="text"
               name="answer"
               {...props}
             />
