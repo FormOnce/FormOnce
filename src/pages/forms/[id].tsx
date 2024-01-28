@@ -88,7 +88,7 @@ export default function Form(props: TProps) {
 
   return (
     <DashboardLayout title="dashboard">
-      {isLoadingFormData || true ? (
+      {isLoadingFormData ? (
         <div className="flex h-full items-center justify-center">
           <Icons.spinner className="mb-10 h-8 w-8 animate-spin" />
         </div>
