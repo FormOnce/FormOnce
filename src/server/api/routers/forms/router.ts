@@ -206,5 +206,50 @@ export const formRouter = createTRPCRouter({
                 message: "Something went wrong",
             });
         }
-    })
+    }),
+
+    publish: protectedProcedure
+        .input(z.object({
+            id: z.string()
+        }))
+        .mutation(async ({ input, ctx }) => {
+            try {
+                return await ctx.prisma.form.update({
+                    where: {
+                        id: input.id
+                    },
+                    data: {
+                        status: "PUBLISHED"
+                    }
+                });
+            } catch (error) {
+                console.log(error);
+                throw new TRPCError({
+                    code: "INTERNAL_SERVER_ERROR",
+                    message: "Something went wrong",
+                });
+            }
+        }),
+    unpublish: protectedProcedure
+        .input(z.object({
+            id: z.string()
+        }))
+        .mutation(async ({ input, ctx }) => {
+            try {
+                return await ctx.prisma.form.update({
+                    where: {
+                        id: input.id
+                    },
+                    data: {
+                        status: "DRAFT"
+                    }
+                });
+            } catch (error) {
+                console.log(error);
+                throw new TRPCError({
+                    code: "INTERNAL_SERVER_ERROR",
+                    message: "Something went wrong",
+                });
+            }
+        }),
 });

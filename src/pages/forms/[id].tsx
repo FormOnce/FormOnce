@@ -24,7 +24,6 @@ import { EditableQuestion } from "~/components/form-builder/editable-question";
 import type { TFormSchema } from "~/types/form.types";
 import { Preview } from "~/components/form-builder/preview";
 import { FormStatus } from "@prisma/client";
-import { FormSubmitHandler } from "react-hook-form";
 
 type TProps = {
   formId: string;
@@ -56,6 +55,10 @@ export default function Form(props: TProps) {
     api.form.addQuestion.useMutation();
   const { mutateAsync: updateForm, isLoading: isUpdatingForm } =
     api.form.update.useMutation();
+  const { mutateAsync: publishForm, isLoading: isPublishingForm } =
+    api.form.publish.useMutation();
+  const { mutateAsync: unpublishForm, isLoading: isUnpublishingForm } =
+    api.form.unpublish.useMutation();
 
   const [currentQuestion, setCurrentQuestion] = useState<number>(0);
   const [isEditingFormName, setIsEditingFormName] = useState<boolean>(false);
@@ -109,6 +112,22 @@ export default function Form(props: TProps) {
     });
   };
 
+  const onTogglePublish = async () => {
+    if (formData?.status === FormStatus.DRAFT) {
+      await publishForm({
+        id: props.formId,
+      }).then(() => {
+        void refreshFormData();
+      });
+    } else {
+      await unpublishForm({
+        id: props.formId,
+      }).then(() => {
+        void refreshFormData();
+      });
+    }
+  };
+
   return (
     <DashboardLayout title="dashboard">
       {isLoadingFormData ? (
@@ -149,10 +168,18 @@ export default function Form(props: TProps) {
               <Button type="button" onClick={() => void router.push("/forms")}>
                 Back
               </Button>
-              <Button type="button">
-                {formData?.status === FormStatus.DRAFT
-                  ? "Publish"
-                  : "Unpublish"}
+              <Button
+                type="button"
+                onClick={() => void onTogglePublish()}
+                disabled={isPublishingForm || isUnpublishingForm}
+              >
+                {isPublishingForm || isUnpublishingForm ? (
+                  <Icons.spinner className="mr-3 h-5 w-5 animate-spin" />
+                ) : formData?.status === FormStatus.DRAFT ? (
+                  "Publish"
+                ) : (
+                  "Unpublish"
+                )}
               </Button>
             </div>
           </div>
