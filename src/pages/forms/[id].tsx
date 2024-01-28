@@ -1,12 +1,19 @@
 import DashboardLayout from "~/layouts/dashboardLayout";
 import {
+  Button,
   Icons,
+  Input,
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
   ScrollArea,
 } from "@components/ui";
-import { useEffect, useState } from "react";
+import {
+  FormEventHandler,
+  MouseEventHandler,
+  useEffect,
+  useState,
+} from "react";
 import { type TQuestion } from "~/types/question.types";
 import { AddNewQuestion } from "~/components/form-builder/add-new-question";
 import { api } from "~/utils/api";
@@ -16,6 +23,8 @@ import { getServerAuthSession } from "~/server/auth";
 import { EditableQuestion } from "~/components/form-builder/editable-question";
 import type { TFormSchema } from "~/types/form.types";
 import { Preview } from "~/components/form-builder/preview";
+import { FormStatus } from "@prisma/client";
+import { FormSubmitHandler } from "react-hook-form";
 
 type TProps = {
   formId: string;
@@ -45,8 +54,11 @@ export default function Form(props: TProps) {
     api.form.create.useMutation();
   const { mutateAsync: addQuestion, isLoading: isAddingQuestion } =
     api.form.addQuestion.useMutation();
+  const { mutateAsync: updateForm, isLoading: isUpdatingForm } =
+    api.form.update.useMutation();
 
   const [currentQuestion, setCurrentQuestion] = useState<number>(0);
+  const [isEditingFormName, setIsEditingFormName] = useState<boolean>(false);
 
   // check if formId is valid, if unvalid redirect to dashboard
   useEffect(() => {
@@ -86,6 +98,17 @@ export default function Form(props: TProps) {
     console.log(values);
   };
 
+  const updateFormName = async () => {
+    setIsEditingFormName(false);
+    const formName = document.getElementById("form-name") as HTMLInputElement;
+    await updateForm({
+      id: props.formId,
+      name: formName.value,
+    }).then(() => {
+      void refreshFormData();
+    });
+  };
+
   return (
     <DashboardLayout title="dashboard">
       {isLoadingFormData ? (
@@ -93,50 +116,91 @@ export default function Form(props: TProps) {
           <Icons.spinner className="mb-10 h-8 w-8 animate-spin" />
         </div>
       ) : (
-        <ResizablePanelGroup direction="horizontal">
-          <ResizablePanel minSize={50} maxSize={60} className="h-full">
-            <ScrollArea className="h-full pr-8">
-              <div className="flex h-full flex-col gap-6">
-                {formData?.questions.map((unTypedQ, index: number) => {
-                  const question = unTypedQ as TQuestion;
-                  switch (question.type) {
-                    case "text":
-                      return (
-                        <EditableQuestion
-                          key={index}
-                          editQuestion={onEditQuestion}
-                          {...question}
-                          index={index}
-                          setCurrentQuestion={setCurrentQuestion}
-                        />
-                      );
-                    default:
-                      return null;
+        <div className="flex h-full flex-col gap-4">
+          <div className="flex items-center justify-between">
+            {isEditingFormName ? (
+              <form
+                // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                onSubmit={updateFormName}
+              >
+                <Input
+                  id="form-name"
+                  size={56}
+                  placeholder="Search"
+                  defaultValue={formData!.name}
+                  onMouseEnter={() =>
+                    document.getElementById("form-name")?.focus()
                   }
-                })}
-                {isAddingQuestion || isCreatingForm ? (
-                  <div className="flex items-center justify-center p-1">
-                    <Icons.spinner className="mr-3 h-5 w-5 animate-spin" />
-                  </div>
-                ) : null}
-                <AddNewQuestion onAddQuestion={onAddQuestion} />
-              </div>
-            </ScrollArea>
-          </ResizablePanel>
-          <ResizableHandle />
-          <ResizablePanel>
-            <div className="flex flex-col gap-8 p-4">
-              <p className="text-center text-muted-foreground">Preview</p>
-              {formData?.formSchema && (
-                <Preview
-                  formSchema={formData?.formSchema as TFormSchema}
-                  currentQuestionIdx={currentQuestion}
-                  questions={formData?.questions as TQuestion[]}
+                  onMouseLeave={() => setIsEditingFormName(false)}
                 />
-              )}
+              </form>
+            ) : isUpdatingForm ? (
+              <Icons.spinner className="mr-3 h-5 w-5 animate-spin" />
+            ) : (
+              <h1
+                className="cursor-pointer text-3xl font-semibold"
+                onClick={() => setIsEditingFormName(true)}
+              >
+                {formData!.name}
+              </h1>
+            )}
+
+            <div className="flex items-center gap-4">
+              <Button type="button" onClick={() => void router.push("/forms")}>
+                Back
+              </Button>
+              <Button type="button">
+                {formData?.status === FormStatus.DRAFT
+                  ? "Publish"
+                  : "Unpublish"}
+              </Button>
             </div>
-          </ResizablePanel>
-        </ResizablePanelGroup>
+          </div>
+          <ResizablePanelGroup direction="horizontal">
+            <ResizablePanel minSize={40} maxSize={60} className="h-full">
+              <ScrollArea className="h-full pr-8">
+                <div className="flex h-full flex-col gap-6">
+                  {formData?.questions.map((unTypedQ, index: number) => {
+                    const question = unTypedQ as TQuestion;
+                    switch (question.type) {
+                      case "text":
+                        return (
+                          <EditableQuestion
+                            key={index}
+                            editQuestion={onEditQuestion}
+                            {...question}
+                            index={index}
+                            setCurrentQuestion={setCurrentQuestion}
+                          />
+                        );
+                      default:
+                        return null;
+                    }
+                  })}
+                  {isAddingQuestion || isCreatingForm ? (
+                    <div className="flex items-center justify-center p-1">
+                      <Icons.spinner className="mr-3 h-5 w-5 animate-spin" />
+                    </div>
+                  ) : null}
+                  <AddNewQuestion onAddQuestion={onAddQuestion} />
+                </div>
+              </ScrollArea>
+            </ResizablePanel>
+            <ResizableHandle />
+            <ResizablePanel>
+              <div className="flex flex-col gap-4 p-4">
+                {formData?.formSchema && (
+                  <Preview
+                    formSchema={formData?.formSchema as TFormSchema}
+                    currentQuestionIdx={currentQuestion}
+                    questions={formData?.questions as TQuestion[]}
+                  />
+                )}
+                <p className="text-center text-muted-foreground">Preview</p>
+              </div>
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        </div>
       )}
     </DashboardLayout>
   );
