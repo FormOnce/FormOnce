@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import type { TFormSchema } from "~/types/form.types";
-import { InputRenderer } from "./question-renderer";
+import { InputRenderer } from "./input-renderer";
 import type { TQuestion } from "~/types/question.types";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";

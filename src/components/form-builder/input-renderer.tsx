@@ -2,40 +2,6 @@ import React from "react";
 import { Input, Textarea } from "../ui";
 import type { TQuestion } from "~/types/question.types";
 
-type TQuestionRenderer = {
-  question: TQuestion | undefined;
-  visible?: boolean;
-};
-
-function QuestionRenderer({
-  question,
-  visible = true,
-  ...props
-}: TQuestionRenderer) {
-  if (!question) return null;
-
-  return (
-    <div className="overflow-hidden">
-      <div
-        className={`min-h-[8rem] transition-all duration-150 ease-out ${
-          visible ? "not-sr-only translate-x-0" : "sr-only -translate-x-full"
-        }`}
-      >
-        {/* <p className="text font-semibold">{question.title}</p>
-        <p className=" text-sm text-gray-500">{question.description}</p> */}
-        <div className="mt-2">
-          <InputRenderer
-            type={question.type}
-            subType={question.subType}
-            placeholder={question.placeholder}
-            {...props}
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export const InputRenderer = ({
   type,
   subType,
@@ -132,5 +98,3 @@ export const InputRenderer = ({
       );
   }
 };
-
-export { QuestionRenderer };
