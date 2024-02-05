@@ -5,7 +5,7 @@ import RootLayout, { type RootLayoutProps } from "@layouts/rootLayout";
 
 export const metadata: Metadata = {
   title: "Dashboard",
-  description: "Example dashboard app built using the components.",
+  description: "App Dashboard",
 };
 
 export type dashboardLayoutProps = RootLayoutProps;
