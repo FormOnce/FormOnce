@@ -111,8 +111,12 @@ export default function Form(props: TProps) {
     if (formData?.status === FormStatus.DRAFT) {
       await publishForm({
         id: props.formId,
-      }).then(() => {
-        void refreshFormData();
+      }).then(async () => {
+        await refreshFormData();
+        // copy form link to clipboard
+        void navigator.clipboard.writeText(
+          `${window.location.origin}/forms/${formData?.id}`
+        );
       });
     } else {
       await unpublishForm({
@@ -244,6 +248,10 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   }
 
   return {
+    redirect: {
+      destination: "/auth/signin",
+      permanent: false,
+    },
     props: {},
   };
 };

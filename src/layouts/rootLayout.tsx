@@ -6,9 +6,14 @@ import { useEffect } from "react";
 export type RootLayoutProps = {
   title: string;
   children: React.ReactNode;
+  theme?: string;
 };
 
-export default function RootLayout({ title, children }: RootLayoutProps) {
+export default function RootLayout({
+  title,
+  children,
+  theme,
+}: RootLayoutProps) {
   const { setTheme } = useTheme();
   useEffect(() => {
     setTheme("dark");
@@ -17,7 +22,12 @@ export default function RootLayout({ title, children }: RootLayoutProps) {
   return (
     <>
       <Head>{title}</Head>
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="dark"
+        enableSystem={true}
+        forcedTheme={theme}
+      >
         {children}
       </ThemeProvider>
     </>

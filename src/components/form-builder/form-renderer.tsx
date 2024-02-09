@@ -22,7 +22,7 @@ import type { z } from "zod";
 type TProps = {
   formSchema: TFormSchema;
   questions: TQuestion[];
-  onSubmit: (values: unknown) => Promise<void>;
+  onSubmit: (values: Record<string, unknown>) => Promise<void>;
   onNext: () => void;
   onPrev: () => void;
   currentQuestionIdx?: number;

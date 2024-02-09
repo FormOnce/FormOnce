@@ -2,6 +2,7 @@ import { TRPCError } from "@trpc/server";
 import {
     createTRPCRouter,
     protectedProcedure,
+    publicProcedure,
 } from "~/server/api/trpc";
 import { ZCreateForm } from "./dtos/createForm";
 import { ZUpdateForm } from "./dtos/updateForm";
@@ -252,4 +253,54 @@ export const formRouter = createTRPCRouter({
                 });
             }
         }),
+
+    // public procedure to get formData for a form, used to render the live forms
+    getPublicFormData: publicProcedure
+        .input(z.object({
+            id: z.string()
+        }))
+        .query(async ({ input, ctx }) => {
+            try {
+                return await ctx.prisma.form.findUnique({
+                    where: {
+                        id: input.id
+                    },
+                    select: {
+                        formSchema: true,
+                        questions: true,
+                        name: true
+                    }
+                });
+            } catch (error) {
+                console.log(error);
+                throw new TRPCError({
+                    code: "INTERNAL_SERVER_ERROR",
+                    message: "Something went wrong",
+                });
+            }
+        }),
+
+    // public procedure to submit a response to a form
+    submitResponse: publicProcedure
+        .input(z.object({
+            formId: z.string(),
+            response: z.object({}).passthrough()
+        }))
+        .mutation(async ({ input, ctx }) => {
+            try {
+                return await ctx.prisma.formResponse.create({
+                    data: {
+                        formId: input.formId,
+                        response: input.response
+                    }
+                });
+            } catch (error) {
+                console.log(error);
+                throw new TRPCError({
+                    code: "INTERNAL_SERVER_ERROR",
+                    message: "Something went wrong",
+                });
+            }
+        })
+
 });
