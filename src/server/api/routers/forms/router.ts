@@ -23,7 +23,7 @@ export const formRouter = createTRPCRouter({
                 return await
                     ctx.prisma.form.findMany({
                         where: {
-                            workspaceId: ctx.session?.user?.workspaceId
+                            workspaceId: ctx.session?.user?.workspaceId ?? null
                         },
                         include: {
                             author: {
