@@ -31,7 +31,7 @@ function LiveForm({ formId, formSchema, questions }: TLiveFormProps) {
     // console.log("submit", values);
   };
 
-  if (formSubmitted || true) {
+  if (formSubmitted) {
     return (
       <div className="flex flex-col items-center gap-2">
         <div className="text text-4xl font-bold">Form submitted 🎉</div>
