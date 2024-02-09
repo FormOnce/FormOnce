@@ -65,7 +65,7 @@ export default function Form(props: TProps) {
     if (isFormInvalid) {
       // invalid form id
       console.log("here");
-      void router.push("/forms/new");
+      void router.push("/dashboard/forms/new");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFormInvalid]);
@@ -77,7 +77,7 @@ export default function Form(props: TProps) {
         name: "New Form",
         questions: [values],
       }).then((res) => {
-        void router.push(`/forms/${res.id}`);
+        void router.push(`/dashboard/forms/${res.id}`);
       });
       return;
     }
@@ -125,7 +125,7 @@ export default function Form(props: TProps) {
 
   return (
     <DashboardLayout title="dashboard">
-      {isLoadingFormData ? (
+      {props.formId !== "new" && isLoadingFormData ? (
         <div className="flex h-full items-center justify-center">
           <Icons.spinner className="mb-10 h-8 w-8 animate-spin" />
         </div>
@@ -141,7 +141,7 @@ export default function Form(props: TProps) {
                   id="form-name"
                   size={56}
                   placeholder="Search"
-                  defaultValue={formData!.name}
+                  defaultValue={formData?.name ?? "New Form"}
                   onMouseEnter={() =>
                     document.getElementById("form-name")?.focus()
                   }
@@ -155,25 +155,29 @@ export default function Form(props: TProps) {
                 className="cursor-pointer text-3xl font-semibold"
                 onClick={() => setIsEditingFormName(true)}
               >
-                {formData!.name}
+                {formData?.name ?? "New Form"}
               </h1>
             )}
 
             <div className="flex items-center gap-4">
-              <Button type="button" onClick={() => void router.push("/forms")}>
+              <Button type="button" onClick={() => void router.back()}>
                 Back
               </Button>
               <Button
                 type="button"
                 onClick={() => void onTogglePublish()}
-                disabled={isPublishingForm || isUnpublishingForm}
+                disabled={
+                  isPublishingForm ||
+                  isUnpublishingForm ||
+                  !!!formData?.questions.length
+                }
               >
                 {isPublishingForm || isUnpublishingForm ? (
                   <Icons.spinner className="mr-3 h-5 w-5 animate-spin" />
-                ) : formData?.status === FormStatus.DRAFT ? (
-                  "Publish"
-                ) : (
+                ) : formData?.status === FormStatus.PUBLISHED ? (
                   "Unpublish"
+                ) : (
+                  "Publish"
                 )}
               </Button>
             </div>

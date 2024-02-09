@@ -23,7 +23,7 @@ export default function Home({ id }: { id: string }) {
   };
 
   const handleRedirectToDashboard = () => {
-    void router.push("/forms");
+    void router.push("/dashboard/forms");
   };
 
   return (

@@ -12,12 +12,14 @@ import {
 } from "@components/ui";
 import { api } from "~/utils/api";
 import { useRouter } from "next/router";
+import type { GetServerSideProps } from "next";
+import { getServerAuthSession } from "~/server/auth";
 
 export default function Forms() {
   const router = useRouter();
 
   const onCreateNewForm = () => {
-    void router.push("/forms/new");
+    void router.push("/dashboard/forms/new");
   };
 
   return (
@@ -42,7 +44,7 @@ export function AllFormsTable() {
   const { data: forms, isLoading } = api.form.getAll.useQuery();
 
   const handleClick = (id: string) => {
-    void router.push(`/forms/${id}`);
+    void router.push(`/dashboard/forms/${id}`);
   };
 
   return (
@@ -88,3 +90,20 @@ export function AllFormsTable() {
     </Table>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  const session = await getServerAuthSession(ctx);
+
+  if (!session?.user?.id) {
+    return {
+      redirect: {
+        destination: "/auth/signin",
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {},
+  };
+};
