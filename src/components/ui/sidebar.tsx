@@ -22,7 +22,7 @@ const sidebarGroups: SidebarGroup[] = [
     items: [
       {
         name: "All Forms",
-        link: "/forms",
+        link: "/dashboard/forms",
         icon: (
           <svg
             viewBox="0 0 15 15"
@@ -58,7 +58,7 @@ const sidebarGroups: SidebarGroup[] = [
       // },
       {
         name: "Folders",
-        link: "/folders",
+        link: "/dashboard/folders",
         icon: (
           <svg
             width="15"
