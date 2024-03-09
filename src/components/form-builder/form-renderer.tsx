@@ -90,7 +90,6 @@ function FormRenderer({
     <div>
       <Form {...form}>
         <form
-          // eslint-disable-next-line @typescript-eslint/no-misused-promises
           // onSubmit={form.handleSubmit(onSubmit, onError)}
           onSubmit={(e) => {
             e.preventDefault();

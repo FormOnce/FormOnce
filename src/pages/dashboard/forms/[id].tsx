@@ -150,10 +150,7 @@ export default function Form(props: TProps) {
         <div className="flex h-full flex-col gap-4">
           <div className="flex items-center justify-between">
             {isEditingFormName ? (
-              <form
-                // eslint-disable-next-line @typescript-eslint/no-misused-promises
-                onSubmit={updateFormName}
-              >
+              <form onSubmit={updateFormName}>
                 <Input
                   id="form-name"
                   size={56}
