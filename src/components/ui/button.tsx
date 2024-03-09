@@ -40,10 +40,21 @@ export interface ButtonProps
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
   loading?: boolean;
+  noChildOnLoading?: boolean;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
+  (
+    {
+      className,
+      variant,
+      size,
+      asChild = false,
+      noChildOnLoading = false,
+      ...props
+    },
+    ref
+  ) => {
     const Comp = asChild ? Slot : "button";
     return props.loading ? (
       <Comp
@@ -52,8 +63,10 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
         disabled
       >
-        {props.children}
-        <Icons.spinner className="ml-1 h-5 w-5 animate-spin" />
+        {!noChildOnLoading && props.children}
+        <Icons.spinner
+          className={`h-5 w-5 animate-spin ${noChildOnLoading ? "" : "ml-1"}`}
+        />
       </Comp>
     ) : (
       <Comp

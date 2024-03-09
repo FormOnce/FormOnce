@@ -270,6 +270,62 @@ export const formRouter = createTRPCRouter({
             }
         }),
 
+    deleteQuestion: protectedProcedure
+        .input(z.object({
+            formId: z.string(),
+            questionId: z.string()
+        }))
+        .mutation(async ({ input, ctx }) => {
+            try {
+                const form = await ctx.prisma.form.findUnique({
+                    where: {
+                        id: input.formId,
+                        workspaceId: ctx.session?.user?.workspaceId
+                    }
+                });
+
+                if (!form) {
+                    throw new TRPCError({
+                        code: "INTERNAL_SERVER_ERROR",
+                        message: "Form not found or you don't have permission to edit this form",
+                    });
+                }
+
+                const questions = form.questions as TQuestion[];
+                const questionIndex = questions.findIndex(q => q.id === input.questionId);
+
+                if (questionIndex === -1) {
+                    throw new TRPCError({
+                        code: "INTERNAL_SERVER_ERROR",
+                        message: "Question not found or you don't have permission to edit this question",
+                    });
+                }
+
+                questions.splice(questionIndex, 1);
+
+                const formSchema = form.formSchema as TFormSchema;
+                delete formSchema.properties![input.questionId];
+                formSchema.required = formSchema.required.filter((id) => id !== input.questionId);
+
+                return await ctx.prisma.form.update({
+                    where: {
+                        id: input.formId
+                    },
+                    data: {
+                        questions,
+                        formSchema: formSchema as unknown as string
+                    }
+                });
+
+            } catch (error) {
+                console.log(error);
+                throw new TRPCError({
+                    code: "INTERNAL_SERVER_ERROR",
+                    message: "Something went wrong",
+                });
+            }
+        }),
+
     publish: protectedProcedure
         .input(z.object({
             id: z.string()
