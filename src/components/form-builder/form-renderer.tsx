@@ -92,6 +92,10 @@ function FormRenderer({
         <form
           // eslint-disable-next-line @typescript-eslint/no-misused-promises
           // onSubmit={form.handleSubmit(onSubmit, onError)}
+          onSubmit={(e) => {
+            e.preventDefault();
+            void handleNext();
+          }}
           className="my-8"
         >
           {questions.map((question, idx) => (
