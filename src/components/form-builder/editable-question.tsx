@@ -25,7 +25,10 @@ const EditableQuestion = ({
   const [isOpen, setIsColapsed] = React.useState(false);
 
   const onEditQuestion = (values: TQuestion) => {
-    editQuestion({ ...values, type: question.type } as TQuestion);
+    editQuestion({
+      ...values,
+      id: question.id,
+    } as TQuestion);
     setIsColapsed(false);
   };
 

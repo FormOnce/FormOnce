@@ -10,11 +10,20 @@ import { z } from "zod";
 import { ZAddQuestion } from "./dtos/addQuestion";
 import type { TFormSchema } from "~/types/form.types";
 import { questionToJsonSchema } from "./helpers/questionToJsonSchema";
-import type { TQuestion } from "~/types/question.types";
+import { ZQuestion, type TQuestion } from "~/types/question.types";
+import { ZEditQuestion } from "./dtos/editQuestion";
 
 
 /** Index
  * getAll: protectedProcedure - get all forms for a workspace
+ * getOne: protectedProcedure - get a single form by id
+ * create: protectedProcedure - create a new form
+ * update: protectedProcedure - update a form
+ * addQuestion: protectedProcedure - add a question to a form
+ * publish: protectedProcedure - publish a form
+ * unpublish: protectedProcedure - unpublish a form
+ * getPublicFormData: publicProcedure - get form data for a form
+ * submitResponse: publicProcedure - submit a response to a form
  **/
 
 export const formRouter = createTRPCRouter({
@@ -209,6 +218,57 @@ export const formRouter = createTRPCRouter({
             });
         }
     }),
+
+    editQuestion: protectedProcedure
+        .input(ZEditQuestion)
+        .mutation(async ({ input, ctx }) => {
+            try {
+                const form = await ctx.prisma.form.findUnique({
+                    where: {
+                        id: input.formId,
+                        workspaceId: ctx.session?.user?.workspaceId
+                    }
+                });
+
+                if (!form) {
+                    throw new TRPCError({
+                        code: "INTERNAL_SERVER_ERROR",
+                        message: "Form not found or you don't have permission to edit this form",
+                    });
+                }
+
+                const questions = form.questions as TQuestion[];
+                const questionIndex = questions.findIndex(q => q.id === input.question.id);
+
+                if (questionIndex === -1) {
+                    throw new TRPCError({
+                        code: "INTERNAL_SERVER_ERROR",
+                        message: "Question not found or you don't have permission to edit this question",
+                    });
+                }
+
+                questions[questionIndex] = {
+                    ...questions[questionIndex],
+                    ...input.question
+                }
+
+                return await ctx.prisma.form.update({
+                    where: {
+                        id: input.formId
+                    },
+                    data: {
+                        questions
+                    }
+                });
+
+            } catch (error) {
+                console.log(error);
+                throw new TRPCError({
+                    code: "INTERNAL_SERVER_ERROR",
+                    message: "Something went wrong",
+                });
+            }
+        }),
 
     publish: protectedProcedure
         .input(z.object({
