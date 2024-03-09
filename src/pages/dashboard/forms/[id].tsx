@@ -76,10 +76,10 @@ export default function Form(props: TProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFormInvalid]);
 
-  const onAddQuestion = (values: TQuestion) => {
+  const onAddQuestion = async (values: TQuestion) => {
     // if formId is new, create form first
     if (props.formId === "new") {
-      void createForm({
+      await createForm({
         name: "New Form",
         questions: [values],
       }).then((res) => {
