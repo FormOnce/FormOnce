@@ -19,6 +19,7 @@ import { EditableQuestion } from "~/components/form-builder/editable-question";
 import type { TFormSchema } from "~/types/form.types";
 import { Preview } from "~/components/form-builder/preview";
 import { FormStatus } from "@prisma/client";
+import { Reorder } from "framer-motion";
 
 type TProps = {
   formId: string;
@@ -38,9 +39,11 @@ export default function Form(props: TProps) {
     },
     {
       enabled: !!props.formId && props.formId !== "new",
-      refetchOnMount: false,
       refetchOnWindowFocus: false,
       retry: false,
+      onSuccess(data) {
+        setQuestions(data.questions as TQuestion[]);
+      },
     }
   );
 
@@ -48,14 +51,14 @@ export default function Form(props: TProps) {
     api.form.create.useMutation();
   const { mutateAsync: addQuestion, isLoading: isAddingQuestion } =
     api.form.addQuestion.useMutation();
-  const { mutateAsync: updateForm, isLoading: isUpdatingForm } =
-    api.form.update.useMutation();
+  const { mutateAsync: updateForm } = api.form.update.useMutation();
   const { mutateAsync: publishForm, isLoading: isPublishingForm } =
     api.form.publish.useMutation();
   const { mutateAsync: unpublishForm, isLoading: isUnpublishingForm } =
     api.form.unpublish.useMutation();
 
   const [currentQuestion, setCurrentQuestion] = useState<number>(0);
+  const [questions, setQuestions] = useState<TQuestion[]>([]);
   const [isEditingFormName, setIsEditingFormName] = useState<boolean>(false);
 
   // check if formId is valid, if unvalid redirect to dashboard
@@ -94,6 +97,16 @@ export default function Form(props: TProps) {
   // TODO: implement edit question
   const onEditQuestion = (values: TQuestion) => {
     console.log(values);
+  };
+
+  const reorderQuestions = async (questions: TQuestion[]) => {
+    setQuestions(questions);
+    await updateForm({
+      id: props.formId,
+      questions: questions,
+    }).then(() => {
+      void refreshFormData();
+    });
   };
 
   const updateFormName = async () => {
@@ -137,10 +150,7 @@ export default function Form(props: TProps) {
         <div className="flex h-full flex-col gap-4">
           <div className="flex items-center justify-between">
             {isEditingFormName ? (
-              <form
-                // eslint-disable-next-line @typescript-eslint/no-misused-promises
-                onSubmit={updateFormName}
-              >
+              <form onSubmit={updateFormName}>
                 <Input
                   id="form-name"
                   size={56}
@@ -152,8 +162,6 @@ export default function Form(props: TProps) {
                   onMouseLeave={() => setIsEditingFormName(false)}
                 />
               </form>
-            ) : isUpdatingForm ? (
-              <Icons.spinner className="mr-3 h-5 w-5 animate-spin" />
             ) : (
               <h1
                 className="cursor-pointer text-3xl font-semibold"
@@ -190,11 +198,14 @@ export default function Form(props: TProps) {
             <ResizablePanel minSize={40} maxSize={60} className="h-full">
               <ScrollArea className="h-full pr-8">
                 <div className="flex h-full flex-col gap-6">
-                  {formData?.questions.map((unTypedQ, index: number) => {
-                    const question = unTypedQ as TQuestion;
-                    switch (question.type) {
-                      case "text":
-                        return (
+                  <Reorder.Group
+                    onReorder={reorderQuestions}
+                    values={questions}
+                    className="flex flex-col gap-4"
+                  >
+                    {questions.map((question, index: number) => {
+                      return (
+                        <Reorder.Item key={question.id} value={question}>
                           <EditableQuestion
                             key={index}
                             editQuestion={onEditQuestion}
@@ -202,11 +213,10 @@ export default function Form(props: TProps) {
                             index={index}
                             setCurrentQuestion={setCurrentQuestion}
                           />
-                        );
-                      default:
-                        return null;
-                    }
-                  })}
+                        </Reorder.Item>
+                      );
+                    })}
+                  </Reorder.Group>
                   {isAddingQuestion || isCreatingForm ? (
                     <div className="flex items-center justify-center p-1">
                       <Icons.spinner className="mr-3 h-5 w-5 animate-spin" />

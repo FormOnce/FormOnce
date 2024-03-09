@@ -77,7 +77,6 @@ const TextQuestionForm = (props: TTextQuestionProps) => {
   return (
     <Form {...form}>
       <form
-        // eslint-disable-next-line @typescript-eslint/no-misused-promises
         onSubmit={form.handleSubmit(onSubmit, onError)}
         className="space-y-8"
       >

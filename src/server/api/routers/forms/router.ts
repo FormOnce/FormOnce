@@ -136,7 +136,8 @@ export const formRouter = createTRPCRouter({
                     },
                     data: {
                         name: input.name,
-                        formSchema: input.formSchema
+                        formSchema: input.formSchema,
+                        questions: input.questions
                     }
                 });
             } catch (error) {
