@@ -49,13 +49,16 @@ export default function Form(props: TProps) {
 
   const { mutateAsync: createForm, isLoading: isCreatingForm } =
     api.form.create.useMutation();
-  const { mutateAsync: addQuestion, isLoading: isAddingQuestion } =
-    api.form.addQuestion.useMutation();
   const { mutateAsync: updateForm } = api.form.update.useMutation();
   const { mutateAsync: publishForm, isLoading: isPublishingForm } =
     api.form.publish.useMutation();
   const { mutateAsync: unpublishForm, isLoading: isUnpublishingForm } =
     api.form.unpublish.useMutation();
+
+  const { mutateAsync: addQuestion, isLoading: isAddingQuestion } =
+    api.form.addQuestion.useMutation();
+  const { mutateAsync: editQuestion } = api.form.editQuestion.useMutation();
+  const { mutateAsync: deleteQuestion } = api.form.deleteQuestion.useMutation();
 
   const [currentQuestion, setCurrentQuestion] = useState<number>(0);
   const [questions, setQuestions] = useState<TQuestion[]>([]);
@@ -73,10 +76,10 @@ export default function Form(props: TProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFormInvalid]);
 
-  const onAddQuestion = (values: TQuestion) => {
+  const onAddQuestion = async (values: TQuestion) => {
     // if formId is new, create form first
     if (props.formId === "new") {
-      void createForm({
+      await createForm({
         name: "New Form",
         questions: [values],
       }).then((res) => {
@@ -94,9 +97,26 @@ export default function Form(props: TProps) {
     });
   };
 
-  // TODO: implement edit question
-  const onEditQuestion = (values: TQuestion) => {
-    console.log(values);
+  const onEditQuestion = async (values: TQuestion) => {
+    const question = questions[currentQuestion]!;
+    await editQuestion({
+      formId: props.formId,
+      question: {
+        ...values,
+        id: question.id!,
+      },
+    }).then(() => {
+      void refreshFormData();
+    });
+  };
+
+  const onDeleteQuestion = async (questionId: string) => {
+    await deleteQuestion({
+      formId: props.formId,
+      questionId: questionId,
+    }).then(() => {
+      void refreshFormData();
+    });
   };
 
   const reorderQuestions = async (questions: TQuestion[]) => {
@@ -205,10 +225,15 @@ export default function Form(props: TProps) {
                   >
                     {questions.map((question, index: number) => {
                       return (
-                        <Reorder.Item key={question.id} value={question}>
+                        <Reorder.Item
+                          key={question.id}
+                          value={question}
+                          className="flex items-center justify-between gap-4"
+                        >
                           <EditableQuestion
                             key={index}
                             editQuestion={onEditQuestion}
+                            deleteQuestion={onDeleteQuestion}
                             {...question}
                             index={index}
                             setCurrentQuestion={setCurrentQuestion}

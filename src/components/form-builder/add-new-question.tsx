@@ -17,7 +17,7 @@ import {
 import { TextQuestionForm } from "./text-question-form";
 
 type TAddNewQuestionProps = {
-  onAddQuestion: (values: TQuestion) => void;
+  onAddQuestion: (values: TQuestion) => Promise<void>;
 };
 
 const questionTypes = Object.values(EQuestionType).map((type) => ({
@@ -35,8 +35,8 @@ const AddNewQuestion = (props: TAddNewQuestionProps) => {
     setInputType(value);
   };
 
-  const onAddQuestion = (values: TQuestion) => {
-    props.onAddQuestion({ ...values, type: inputType } as TQuestion);
+  const onAddQuestion = async (values: TQuestion) => {
+    await props.onAddQuestion({ ...values, type: inputType } as TQuestion);
     setIsColapsed(false);
   };
 

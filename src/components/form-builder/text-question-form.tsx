@@ -34,14 +34,16 @@ const questionSubTypes = Object.values(ETextSubType).map((type) => ({
 type TTextQuestionProps =
   | {
       mode: "add";
-      onSubmit: (values: z.infer<typeof formSchema>) => void;
+      onSubmit: (values: z.infer<typeof formSchema>) => Promise<void>;
     }
   | (TTextQuestion & {
       mode: "edit";
-      onEdit: (values: z.infer<typeof formSchema>) => void;
+      onEdit: (values: z.infer<typeof formSchema>) => Promise<void>;
     });
 
 const TextQuestionForm = (props: TTextQuestionProps) => {
+  const [isLoading, setIsloading] = React.useState(false);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues:
@@ -63,10 +65,12 @@ const TextQuestionForm = (props: TTextQuestionProps) => {
     mode: "onTouched",
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsloading(true);
     // This will be type-safe and validated.
-    if (props.mode === "add") props.onSubmit(values);
-    else props.onEdit(values);
+    if (props.mode === "add") await props.onSubmit(values);
+    else await props.onEdit(values);
+    setIsloading(false);
     form.reset();
   }
 
@@ -172,7 +176,11 @@ const TextQuestionForm = (props: TTextQuestionProps) => {
         {props.mode === "add" ? (
           <Button type="submit">Add Question</Button>
         ) : (
-          <Button type="submit" disabled={!form.formState.isDirty}>
+          <Button
+            type="submit"
+            disabled={!form.formState.isDirty}
+            loading={isLoading}
+          >
             Edit Question
           </Button>
         )}
