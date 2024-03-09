@@ -51,8 +51,7 @@ export default function Form(props: TProps) {
     api.form.create.useMutation();
   const { mutateAsync: addQuestion, isLoading: isAddingQuestion } =
     api.form.addQuestion.useMutation();
-  const { mutateAsync: editQuestion, isLoading: isEditingQuestion } =
-    api.form.editQuestion.useMutation();
+  const { mutateAsync: editQuestion } = api.form.editQuestion.useMutation();
   const { mutateAsync: updateForm } = api.form.update.useMutation();
   const { mutateAsync: publishForm, isLoading: isPublishingForm } =
     api.form.publish.useMutation();
@@ -96,9 +95,9 @@ export default function Form(props: TProps) {
     });
   };
 
-  const onEditQuestion = (values: TQuestion) => {
+  const onEditQuestion = async (values: TQuestion) => {
     const question = questions[currentQuestion]!;
-    void editQuestion({
+    await editQuestion({
       formId: props.formId,
       question: {
         ...values,

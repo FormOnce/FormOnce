@@ -13,7 +13,7 @@ import { TextQuestionForm } from "./text-question-form";
 
 type TEditableQuestionProps = TQuestion & {
   index: number;
-  editQuestion: (values: TQuestion) => void;
+  editQuestion: (values: TQuestion) => Promise<void>;
   setCurrentQuestion: (QIdx: number) => void;
 };
 
@@ -24,8 +24,8 @@ const EditableQuestion = ({
 }: TEditableQuestionProps) => {
   const [isOpen, setIsColapsed] = React.useState(false);
 
-  const onEditQuestion = (values: TQuestion) => {
-    editQuestion({
+  const onEditQuestion = async (values: TQuestion) => {
+    await editQuestion({
       ...values,
       id: question.id,
     } as TQuestion);
