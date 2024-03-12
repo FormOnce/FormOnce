@@ -198,6 +198,11 @@ export default function Form(props: TProps) {
               <Button
                 type="button"
                 onClick={() => void onTogglePublish()}
+                variant={
+                  formData?.status === FormStatus.PUBLISHED
+                    ? "destructive"
+                    : "default"
+                }
                 disabled={
                   isPublishingForm ||
                   isUnpublishingForm ||
