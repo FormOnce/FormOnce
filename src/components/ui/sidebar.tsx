@@ -1,7 +1,7 @@
 import { cn } from "~/utils/cn";
 import { buttonVariants } from "~/components/ui/button";
 import Link from "next/link";
-import { TeamSwitcher, UserNav } from "./nav";
+import { TeamSwitcher } from "./nav";
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;

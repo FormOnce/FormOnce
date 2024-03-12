@@ -10,7 +10,7 @@ import { z } from "zod";
 import { ZAddQuestion } from "./dtos/addQuestion";
 import type { TFormSchema } from "~/types/form.types";
 import { questionToJsonSchema } from "./helpers/questionToJsonSchema";
-import { ZQuestion, type TQuestion } from "~/types/question.types";
+import { type TQuestion } from "~/types/question.types";
 import { ZEditQuestion } from "./dtos/editQuestion";
 
 
