@@ -63,7 +63,7 @@ export function AllFormsTable() {
       <TableBody>
         {isLoading ? (
           <TableRow>
-            <TableCell colSpan={5} className="text-center">
+            <TableCell colSpan={6} className="text-center">
               Loading...
             </TableCell>
           </TableRow>
