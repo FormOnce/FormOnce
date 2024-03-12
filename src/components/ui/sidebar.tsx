@@ -1,6 +1,7 @@
 import { cn } from "~/utils/cn";
 import { buttonVariants } from "~/components/ui/button";
 import Link from "next/link";
+import { TeamSwitcher, UserNav } from "./nav";
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
@@ -178,6 +179,9 @@ const SidebarItem = ({ name, icon, link }: SidebarItem) => {
 export function Sidebar({ className }: SidebarProps) {
   return (
     <div className={cn("border-r pb-12", className)}>
+      <div className="px-4 py-4">
+        <TeamSwitcher />
+      </div>
       <div className="space-y-4 py-4">
         {sidebarGroups.map((sidebarGroup, i) => (
           <SideBarGroup key={i} {...sidebarGroup} />

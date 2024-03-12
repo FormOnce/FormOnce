@@ -43,6 +43,7 @@ export const formRouter = createTRPCRouter({
                                     id: true
                                 }
                             },
+                            FormResponses: true
                         }
                     });
             } catch (error) {

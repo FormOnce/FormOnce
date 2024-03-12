@@ -56,7 +56,7 @@ export function AllFormsTable() {
           <TableHead>Status</TableHead>
           <TableHead>Created</TableHead>
           <TableHead>Edited</TableHead>
-          {/* <TableHead>Responses</TableHead> */}
+          <TableHead>Responses</TableHead>
           <TableHead>Author</TableHead>
         </TableRow>
       </TableHeader>
@@ -82,7 +82,9 @@ export function AllFormsTable() {
             <TableCell className="text-xs">
               {form.updatedAt.toLocaleDateString()}
             </TableCell>
-            {/* <TableCell className="text-xs">{form.}</TableCell> */}
+            <TableCell className="text-xs">
+              {form.FormResponses?.length}
+            </TableCell>
             <TableCell className="text-xs">{form.author?.name}</TableCell>
           </TableRow>
         ))}

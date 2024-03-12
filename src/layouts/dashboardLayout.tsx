@@ -17,16 +17,17 @@ export default function DashboardLayout({
   return (
     <RootLayout title={title}>
       <>
-        <nav className="flex h-16 items-center border-b px-4">
-          <TeamSwitcher />
-          <MainNav className="mx-6" />
-          <div className="ml-auto mr-2 flex items-center">
-            <UserNav />
+        {/* <nav className="flex items-center px-4 py-2"> */}
+        {/* <MainNav className="mx-6" /> */}
+        {/* </nav> */}
+        <div className="flex h-[100vh] w-full">
+          <Sidebar className="w-72" />
+          <div className="flex w-full flex-col">
+            <div className="ml-auto mr-4 mt-2 flex items-center">
+              <UserNav />
+            </div>
+            <div className="w-full p-8">{children}</div>
           </div>
-        </nav>
-        <div className="flex h-[calc(100vh-4rem)] w-full ">
-          <Sidebar className="w-60" />
-          <div className="w-full p-8">{children}</div>
         </div>
       </>
     </RootLayout>
