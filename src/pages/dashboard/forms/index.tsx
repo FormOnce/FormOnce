@@ -49,7 +49,7 @@ export function AllFormsTable() {
 
   return (
     <Table>
-      <TableCaption>A list of your recent forms.</TableCaption>
+      <TableCaption>A list of your recent forms</TableCaption>
       <TableHeader>
         <TableRow>
           <TableHead>Form</TableHead>
@@ -83,7 +83,9 @@ export function AllFormsTable() {
               {form.updatedAt.toLocaleDateString()}
             </TableCell>
             <TableCell className="text-xs">
-              {form.FormResponses?.length}
+              <div className="w-16 text-center">
+                {Number(form.FormResponses?.length).toLocaleString()}
+              </div>
             </TableCell>
             <TableCell className="text-xs">{form.author?.name}</TableCell>
           </TableRow>
