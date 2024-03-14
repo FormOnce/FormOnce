@@ -26,12 +26,16 @@ type TProps = {
   onNext: () => void;
   onPrev: () => void;
   currentQuestionIdx?: number;
+  onReset?: () => void;
+  resetSignal?: boolean;
 };
 
 function FormRenderer({
   formSchema,
   questions,
   currentQuestionIdx,
+  resetSignal,
+  onReset,
   ...props
 }: TProps) {
   const [qIdx, setQuestionIdx] = useState(currentQuestionIdx ?? 0);
@@ -85,6 +89,23 @@ function FormRenderer({
     defaultValues: defaultValues,
     mode: "all",
   });
+
+  // watch for reset signal and reset form
+  useEffect(() => {
+    if (resetSignal) {
+      // reset form
+      form.reset();
+
+      setQuestionIdx(0);
+      currentQuestionIdx;
+      setProgress(100 / questions.length);
+
+      if (onReset) {
+        onReset();
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resetSignal]);
 
   return (
     <div>
