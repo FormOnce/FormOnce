@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@components/ui";
 import { TextQuestionForm } from "./text-question-form";
+import { SelectQuestionForm } from "./select-question-form";
 
 type TAddNewQuestionProps = {
   onAddQuestion: (values: TQuestion) => Promise<void>;
@@ -83,6 +84,9 @@ const AddNewQuestion = (props: TAddNewQuestionProps) => {
       <CollapsibleContent className="p-6 pt-4">
         {inputType === EQuestionType.Text && (
           <TextQuestionForm onSubmit={onAddQuestion} mode="add" />
+        )}
+        {inputType === EQuestionType.Select && (
+          <SelectQuestionForm onSubmit={onAddQuestion} mode="add" />
         )}
       </CollapsibleContent>
     </Collapsible>

@@ -19,3 +19,4 @@ export * from './scroll-area';
 export * from './separator';
 export * from './textarea';
 export * from './progress'
+export * from './switch'
