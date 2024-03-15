@@ -1,18 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { formSchemaToZod } from "~/utils/forms/formSchemaToZod";
-import {
-  Button,
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  Icons,
-  Progress,
-} from "@components/ui";
+import { Button, Form, FormField, Icons, Progress } from "@components/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { InputRenderer } from "./input-renderer";
 import type { TQuestion } from "~/types/question.types";
@@ -125,25 +114,15 @@ function FormRenderer({
               name={question.id!}
               render={({ field }) => (
                 <div className="overflow-hidden">
-                  <FormItem
+                  <div
                     className={`transition-all duration-150 ease-out ${
                       qIdx === idx
                         ? "not-sr-only translate-x-0"
                         : "sr-only -translate-x-full"
                     }`}
                   >
-                    <FormLabel>{question.title}</FormLabel>
-                    <FormDescription>{question.description}</FormDescription>
-                    <FormControl>
-                      <InputRenderer
-                        type={question.type}
-                        subType={question.subType}
-                        placeholder={question.placeholder}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+                    <InputRenderer field={field} question={question} />
+                  </div>
                 </div>
               )}
             />

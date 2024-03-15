@@ -12,6 +12,7 @@ import {
   Separator,
 } from "@components/ui";
 import { TextQuestionForm } from "./text-question-form";
+import { SelectQuestionForm } from "./select-question-form";
 
 type TEditableQuestionProps = TQuestion & {
   index: number;
@@ -79,6 +80,13 @@ const EditableQuestion = ({
         <CollapsibleContent className="p-6 pt-0">
           {question.type === EQuestionType.Text && (
             <TextQuestionForm
+              onEdit={onEditQuestion}
+              mode="edit"
+              {...question}
+            />
+          )}
+          {question.type === EQuestionType.Select && (
+            <SelectQuestionForm
               onEdit={onEditQuestion}
               mode="edit"
               {...question}
