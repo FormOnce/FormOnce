@@ -66,7 +66,17 @@ function FormRenderer({
   const defaultValues = questions.reduce(
     (acc: Record<string, unknown>, curr) => {
       if (curr.id) {
-        acc[curr.id] = "";
+        switch (curr.type) {
+          case "text":
+            acc[curr.id] = "";
+            break;
+          case "select":
+            acc[curr.id] = [];
+            break;
+          default:
+            acc[curr.id] = "";
+            break;
+        }
       }
       return acc;
     },
@@ -121,7 +131,11 @@ function FormRenderer({
                         : "sr-only -translate-x-full"
                     }`}
                   >
-                    <InputRenderer field={field} question={question} />
+                    <InputRenderer
+                      field={field}
+                      question={question}
+                      formControl={form.control}
+                    />
                   </div>
                 </div>
               )}

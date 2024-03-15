@@ -1,39 +1,41 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import {
   FormControl,
   FormDescription,
+  FormField,
   FormItem,
   FormLabel,
   FormMessage,
   Input,
-  // RadioGroup,
   Textarea,
 } from "../ui";
-import { EQuestionType, type TQuestion } from "~/types/question.types";
-// import { RadioGroupItem } from "@radix-ui/react-radio-group";
-import type { ControllerRenderProps } from "react-hook-form";
+import {
+  EQuestionType,
+  ESelectSubType,
+  type TQuestion,
+} from "~/types/question.types";
+import type { Control, ControllerRenderProps } from "react-hook-form";
+import { Checkbox } from "../ui/checkbox";
+import type { CheckedState } from "@radix-ui/react-checkbox";
 
 type TInputRenderProps = {
   question: TQuestion;
-  field: ControllerRenderProps<
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    Record<string, any>,
-    string
-  >;
+  field: ControllerRenderProps<Record<string, any>, string>;
+  formControl: Control<Record<string, any>, string>;
 };
 
 export const InputRenderer = ({
   question,
   field,
+  formControl,
 }: // ...props
 TInputRenderProps) => {
-  console.log("question", question);
   switch (question.type) {
     case EQuestionType.Text:
       return (
         <FormItem>
           <FormLabel>{question.title}</FormLabel>
-          <FormDescription>{question.description}</FormDescription>
           <FormControl>
             <RenderTextInput
               type={question.subType}
@@ -41,79 +43,19 @@ TInputRenderProps) => {
               placeholder={question.placeholder ?? ""}
             />
           </FormControl>
+          <FormDescription>{question.description}</FormDescription>
           <FormMessage />
         </FormItem>
       );
 
-    // case "select":
-    //   switch (subType) {
-    //     case "single":
-    //       return (
-    //         <RadioGroup
-    //           aria-multiselectable
-    //           className="flex flex-col space-y-1"
-    //         >
-    //           {
-    //             props.options.map((option: string, idx) => (
-    //               <FormItem key={idx} className="flex items-center space-x-3 space-y-2">
-    //                 <FormControl>
-    //                   <RadioGroupItem value={option} />
-    //                 </FormControl>
-    //                 <FormLabel className="font-normal">{option}</FormLabel>
-    //               </FormItem>
-    //             ))
-    //           }
-    //           <FormItem className="flex items-center space-x-3 space-y-2">
-    //             <FormControl>
-    //               <RadioGroupItem value="all" />
-    //             </FormControl>
-    //             <FormLabel className="font-normal">All new messages</FormLabel>
-    //           </FormItem>
-    //         </RadioGroup>
-    //       );
-    //     case "multiple":
-    //       return (
-    //         <RadioGroup className="flex flex-col space-y-1">
-    //           <FormItem className="flex items-center space-x-3 space-y-0">
-    //             <FormControl>
-    //               <RadioGroupItem value="all" />
-    //             </FormControl>
-    //             <FormLabel className="font-normal">All new messages</FormLabel>
-    //           </FormItem>
-    //           <FormItem className="flex items-center space-x-3 space-y-0">
-    //             <FormControl>
-    //               <RadioGroupItem value="mentions" />
-    //             </FormControl>
-    //             <FormLabel className="font-normal">
-    //               Direct messages and mentions
-    //             </FormLabel>
-    //           </FormItem>
-    //           <FormItem className="flex items-center space-x-3 space-y-0">
-    //             <FormControl>
-    //               <RadioGroupItem value="none" />
-    //             </FormControl>
-    //             <FormLabel className="font-normal">Nothing</FormLabel>
-    //           </FormItem>
-    //         </RadioGroup>
-    //       );
-    //     default:
-    //       return (
-    //         <select
-    //           className="mt-2"
-    //           name="answer"
-    //           {...props}
-    //           placeholder="Select an option"
-    //         >
-    //           <option value="" disabled>
-    //             Select an option
-    //           </option>
-    //           <option value="option1">Option 1</option>
-    //           <option value="option2">Option 2</option>
-    //           <option value="option3">Option 3</option>
-    //         </select>
-    //       );
-    //   }
-
+    case EQuestionType.Select:
+      return (
+        <RenderSelectInput
+          question={question}
+          field={field}
+          formControl={formControl}
+        />
+      );
     default:
       return (
         <Input
@@ -204,5 +146,95 @@ const RenderTextInput = ({
           {...field}
         />
       );
+  }
+};
+
+type TRenderSelectInputProps = {
+  question: TQuestion;
+  field: TInputRenderProps["field"];
+  formControl: TInputRenderProps["formControl"];
+};
+
+const RenderSelectInput = ({
+  question,
+  formControl,
+}: TRenderSelectInputProps) => {
+  type THandleCheckboxChange = {
+    item: string;
+    checked: CheckedState;
+    field: ControllerRenderProps<Record<string, any>, string>;
+    mode: ESelectSubType;
+  };
+
+  const handleCheckboxChange = ({
+    item,
+    checked,
+    field,
+    mode,
+  }: THandleCheckboxChange) => {
+    // set field.value empty array if it's undefined, (this happens for new questions)
+    field.value = (field.value as string[]) ?? [];
+
+    if (mode === ESelectSubType.Single) {
+      return checked
+        ? field.onChange([item])
+        : field.onChange(
+            (field?.value as string[])?.filter((value) => value !== item)
+          );
+    } else {
+      return checked
+        ? field.onChange([...(field?.value as string[]), item])
+        : field.onChange(
+            (field?.value as string[])?.filter((value) => value !== item)
+          );
+    }
+  };
+
+  switch (question.subType) {
+    case ESelectSubType.Multiple:
+    case ESelectSubType.Single:
+      return (
+        <FormItem>
+          <div className="mb-4">
+            <FormLabel className="text-base">{question.title}</FormLabel>
+            <FormDescription>{question.description}</FormDescription>
+          </div>
+          {question.options.map((item) => (
+            <FormField
+              key={item}
+              control={formControl}
+              name={question.id!}
+              render={({ field }) => {
+                return (
+                  <FormItem
+                    key={item}
+                    className="flex flex-row items-start space-x-3 space-y-0"
+                  >
+                    <FormControl>
+                      <Checkbox
+                        checked={(field.value as string[])?.includes(item)}
+                        onCheckedChange={(checked) =>
+                          handleCheckboxChange({
+                            item,
+                            checked,
+                            field,
+                            mode: question.subType,
+                          })
+                        }
+                      />
+                    </FormControl>
+                    <FormLabel className="text-sm font-normal">
+                      {item}
+                    </FormLabel>
+                  </FormItem>
+                );
+              }}
+            />
+          ))}
+          <FormMessage />
+        </FormItem>
+      );
+    default:
+      return <></>;
   }
 };

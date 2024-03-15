@@ -88,8 +88,13 @@ const selectQuestionToJsonSchema = (question: TSelectQuestion) => {
         case 'single':
             return {
                 ...rest,
-                type: 'string' as const,
-                enum: question.options,
+                type: 'array' as const,
+                items: {
+                    type: 'string' as const,
+                    enum: question.options,
+                },
+                maxItems: 1,
+                minItems: 1,
             };
 
         case 'multiple':
@@ -100,6 +105,7 @@ const selectQuestionToJsonSchema = (question: TSelectQuestion) => {
                     type: 'string' as const,
                     enum: question.options,
                 },
+                minItems: 1,
             };
 
         default:
