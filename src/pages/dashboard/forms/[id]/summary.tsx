@@ -15,6 +15,7 @@ import { getServerAuthSession } from "~/server/auth";
 import { FormStatus } from "@prisma/client";
 import { CalendarDateRangePicker } from "~/components/date-range-picker";
 import calculatePercentageDelta from "~/utils/responses/calculatePercentageDelta";
+import OverViewChart from "~/components/responses/overview-chart";
 
 type TProps = {
   formId: string;
@@ -208,6 +209,14 @@ export default function Summary(props: TProps) {
               </CardContent>
             </Card>
           ))}
+        </div>
+        <div className="my-12 mr-14">
+          {formData?.FormResponses && (
+            <OverViewChart
+              formViews={formData?.FormViews}
+              formResponses={formData?.FormResponses}
+            />
+          )}
         </div>
       </div>
     </DashboardLayout>
