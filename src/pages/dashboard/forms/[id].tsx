@@ -131,7 +131,21 @@ export default function Form(props: TProps) {
 
   const updateFormName = async () => {
     setIsEditingFormName(false);
+
     const formName = document.getElementById("form-name") as HTMLInputElement;
+
+    // if formId is new, create form
+    if (props.formId === "new") {
+      await createForm({
+        name: formName.value,
+        questions: [],
+      }).then((res) => {
+        void router.push(`/dashboard/forms/${res.id}`);
+      });
+      return;
+    }
+
+    // else update form name
     await updateForm({
       id: props.formId,
       name: formName.value,
