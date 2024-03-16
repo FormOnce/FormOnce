@@ -57,7 +57,9 @@ export const formRouter = createTRPCRouter({
         }),
     getOne: protectedProcedure
         .input(z.object({
-            id: z.string()
+            id: z.string(),
+            includeResponses: z.boolean().optional(),
+            includeViews: z.boolean().optional()
         }))
         .query(async ({ input, ctx }) => {
             try {
@@ -75,6 +77,8 @@ export const formRouter = createTRPCRouter({
                                     id: true
                                 }
                             },
+                            FormResponses: input.includeResponses ? true : false,
+                            FormViews: input.includeViews ? true : false
                         }
                     });
             } catch (error) {
