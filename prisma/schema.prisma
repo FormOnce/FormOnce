@@ -75,15 +75,28 @@ model Form {
     author        User?          @relation(fields: [authorId], references: [id])
     authorId      String?
     FormResponses FormResponse[]
+    FormViews     FormViews[]
+}
+
+model FormViews {
+    id             String        @id @default(uuid())
+    formId         String
+    formResponseId String?
+    createdAt      DateTime      @default(now())
+    updatedAt      DateTime      @updatedAt
+    Forms          Form          @relation(fields: [formId], references: [id])
+    FormResponse   FormResponse? @relation(fields: [formResponseId], references: [id])
 }
 
 model FormResponse {
-    id        String   @id @default(uuid())
+    id        String      @id @default(uuid())
     formId    String
-    response  Json     @default("{}")
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    Forms     Form     @relation(fields: [formId], references: [id])
+    response  Json        @default("{}")
+    completed DateTime?
+    createdAt DateTime    @default(now())
+    updatedAt DateTime    @updatedAt
+    Forms     Form        @relation(fields: [formId], references: [id])
+    FormViews FormViews[]
 }
 
 model Workspace {
