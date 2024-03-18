@@ -215,9 +215,9 @@ export default function Form(props: TProps) {
             )}
 
             <div className="flex items-center gap-4">
-              <Button type="button" onClick={() => void router.back()}>
+              {/* <Button type="button" onClick={() => void router.back()}>
                 Back
-              </Button>
+              </Button> */}
               <Button
                 type="button"
                 onClick={() => void onTogglePublish()}
