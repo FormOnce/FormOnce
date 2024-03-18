@@ -2,6 +2,7 @@ import { ThemeProvider } from "@components/theme-provider";
 import { useTheme } from "next-themes";
 import Head from "next/head";
 import { useEffect } from "react";
+import { Toaster } from "sonner";
 
 export type RootLayoutProps = {
   title: string;
@@ -29,6 +30,7 @@ export default function RootLayout({
         forcedTheme={theme}
       >
         {children}
+        <Toaster />
       </ThemeProvider>
     </>
   );

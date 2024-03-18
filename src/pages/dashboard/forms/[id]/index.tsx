@@ -20,6 +20,7 @@ import type { TFormSchema } from "~/types/form.types";
 import { Preview } from "~/components/form-builder/preview";
 import { FormStatus } from "@prisma/client";
 import { Reorder } from "framer-motion";
+import { toast } from "sonner";
 
 type TProps = {
   formId: string;
@@ -165,11 +166,19 @@ export default function Form(props: TProps) {
           `${window.location.origin}/forms/${formData?.id}`
         );
       });
+      toast.success("Form published and link copied to clipboard", {
+        position: "top-center",
+        duration: 1000,
+      });
     } else {
       await unpublishForm({
         id: props.formId,
       }).then(() => {
         void refreshFormData();
+      });
+      toast.success("Form unpublished", {
+        position: "top-center",
+        duration: 1000,
       });
     }
   };
