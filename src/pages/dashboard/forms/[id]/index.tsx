@@ -273,13 +273,11 @@ export default function Form(props: TProps) {
             <ResizableHandle />
             <ResizablePanel>
               <div className="flex flex-col gap-4 p-4">
-                {formData?.formSchema && (
-                  <Preview
-                    formSchema={formData?.formSchema as TFormSchema}
-                    currentQuestionIdx={currentQuestion}
-                    questions={formData?.questions as TQuestion[]}
-                  />
-                )}
+                <Preview
+                  formSchema={formData?.formSchema as TFormSchema}
+                  currentQuestionIdx={currentQuestion}
+                  questions={formData?.questions as TQuestion[]}
+                />
                 <p className="text-center text-muted-foreground">Preview</p>
               </div>
             </ResizablePanel>
