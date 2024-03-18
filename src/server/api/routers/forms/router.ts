@@ -44,6 +44,9 @@ export const formRouter = createTRPCRouter({
                                 }
                             },
                             FormResponses: true
+                        },
+                        orderBy: {
+                            createdAt: "desc"
                         }
                     });
             } catch (error) {

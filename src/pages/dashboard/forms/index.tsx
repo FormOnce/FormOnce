@@ -14,6 +14,7 @@ import { api } from "~/utils/api";
 import { useRouter } from "next/router";
 import type { GetServerSideProps } from "next";
 import { getServerAuthSession } from "~/server/auth";
+import { type Form, FormStatus } from "@prisma/client";
 
 export default function Forms() {
   const router = useRouter();
@@ -43,8 +44,14 @@ export function AllFormsTable() {
 
   const { data: forms, isLoading } = api.form.getAll.useQuery();
 
-  const handleClick = (id: string) => {
-    void router.push(`/dashboard/forms/${id}`);
+  const handleClick = (form: Form) => {
+    // if form is not published, redirect to form editor
+    if (form.status == FormStatus.DRAFT) {
+      return void router.push(`/dashboard/forms/${form.id}`);
+    }
+
+    // if form is published, redirect to form summary
+    return void router.push(`/dashboard/forms/${form.id}/summary`);
   };
 
   return (
@@ -72,7 +79,7 @@ export function AllFormsTable() {
           <TableRow
             key={form.name}
             className="cursor-pointer"
-            onClick={() => handleClick(form.id)}
+            onClick={() => handleClick(form)}
           >
             <TableCell className="font-medium">{form.name}</TableCell>
             <TableCell>{form.status}</TableCell>
