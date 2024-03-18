@@ -6,9 +6,9 @@ import FormRenderer from "./form-renderer";
 import { Button, Icons } from "../ui";
 
 type TPreviewProps = {
-  formSchema: TFormSchema;
+  formSchema?: TFormSchema;
   currentQuestionIdx?: number;
-  questions: TQuestion[];
+  questions?: TQuestion[];
 };
 
 function Preview({ formSchema, currentQuestionIdx, questions }: TPreviewProps) {
@@ -34,25 +34,35 @@ function Preview({ formSchema, currentQuestionIdx, questions }: TPreviewProps) {
 
   return (
     <div className="rounded-md border px-4 py-6">
-      <Button
-        variant="secondary"
-        onClick={onReset}
-        className="float-right gap-1 text-sm font-normal [&>svg]:active:rotate-180"
-      >
-        Reset <Icons.reset className="duration-50 transform transition" />
-      </Button>
-      <div className="px-8 py-10">
-        <FormRenderer
-          formSchema={formSchema}
-          questions={questions}
-          currentQuestionIdx={currentQuestionIdx}
-          onNext={onNext}
-          onPrev={onPrev}
-          onSubmit={onSubmit}
-          resetSignal={resetSignal}
-          onReset={onReset}
-        />
-      </div>
+      {formSchema && questions ? (
+        <>
+          <Button
+            variant="secondary"
+            onClick={onReset}
+            className="float-right gap-1 text-sm font-normal [&>svg]:active:rotate-180"
+          >
+            Reset <Icons.reset className="duration-50 transform transition" />
+          </Button>
+          <div className="px-8 py-10">
+            <FormRenderer
+              formSchema={formSchema}
+              questions={questions}
+              currentQuestionIdx={currentQuestionIdx}
+              onNext={onNext}
+              onPrev={onPrev}
+              onSubmit={onSubmit}
+              resetSignal={resetSignal}
+              onReset={onReset}
+            />
+          </div>
+        </>
+      ) : (
+        <div className="flex h-64 items-center justify-center">
+          <p className="text-muted-foreground">
+            Add questions to see the preview
+          </p>
+        </div>
+      )}
     </div>
   );
 }

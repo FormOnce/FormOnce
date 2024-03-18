@@ -20,6 +20,7 @@ import type { TFormSchema } from "~/types/form.types";
 import { Preview } from "~/components/form-builder/preview";
 import { FormStatus } from "@prisma/client";
 import { Reorder } from "framer-motion";
+import { toast } from "sonner";
 
 type TProps = {
   formId: string;
@@ -165,11 +166,19 @@ export default function Form(props: TProps) {
           `${window.location.origin}/forms/${formData?.id}`
         );
       });
+      toast.success("Form published and link copied to clipboard", {
+        position: "top-center",
+        duration: 1000,
+      });
     } else {
       await unpublishForm({
         id: props.formId,
       }).then(() => {
         void refreshFormData();
+      });
+      toast.success("Form unpublished", {
+        position: "top-center",
+        duration: 1000,
       });
     }
   };
@@ -206,9 +215,9 @@ export default function Form(props: TProps) {
             )}
 
             <div className="flex items-center gap-4">
-              <Button type="button" onClick={() => void router.back()}>
+              {/* <Button type="button" onClick={() => void router.back()}>
                 Back
-              </Button>
+              </Button> */}
               <Button
                 type="button"
                 onClick={() => void onTogglePublish()}
@@ -273,13 +282,11 @@ export default function Form(props: TProps) {
             <ResizableHandle />
             <ResizablePanel>
               <div className="flex flex-col gap-4 p-4">
-                {formData?.formSchema && (
-                  <Preview
-                    formSchema={formData?.formSchema as TFormSchema}
-                    currentQuestionIdx={currentQuestion}
-                    questions={formData?.questions as TQuestion[]}
-                  />
-                )}
+                <Preview
+                  formSchema={formData?.formSchema as TFormSchema}
+                  currentQuestionIdx={currentQuestion}
+                  questions={formData?.questions as TQuestion[]}
+                />
                 <p className="text-center text-muted-foreground">Preview</p>
               </div>
             </ResizablePanel>
