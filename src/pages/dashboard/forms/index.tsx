@@ -14,7 +14,7 @@ import { api } from "~/utils/api";
 import { useRouter } from "next/router";
 import type { GetServerSideProps } from "next";
 import { getServerAuthSession } from "~/server/auth";
-import { Form, FormStatus } from "@prisma/client";
+import { type Form, FormStatus } from "@prisma/client";
 
 export default function Forms() {
   const router = useRouter();
