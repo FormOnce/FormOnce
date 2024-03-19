@@ -17,7 +17,7 @@ import { CalendarDateRangePicker } from "~/components/date-range-picker";
 import calculatePercentageDelta from "~/utils/responses/calculatePercentageDelta";
 import OverViewChart from "~/components/responses/overview-chart";
 import { toast } from "sonner";
-import { DateRange } from "react-day-picker";
+import type { DateRange } from "react-day-picker";
 
 type TProps = {
   formId: string;
@@ -236,12 +236,16 @@ export default function Summary(props: TProps) {
           ))}
         </div>
         <div className="my-12 mr-14">
-          {formData?.FormResponses && (
+          {formData?.FormResponses ? (
             <OverViewChart
               formViews={formData?.FormViews}
               formResponses={formData?.FormResponses}
               dateRange={dateRange}
             />
+          ) : (
+            <div className="flex h-80 items-center justify-center">
+              <Icons.spinner className="h-8 w-8 animate-spin" />
+            </div>
           )}
         </div>
       </div>

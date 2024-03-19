@@ -25,12 +25,7 @@ export function CalendarDateRangePicker({
   validRange,
   onChange,
 }: TCalendarDateRangePickerProps) {
-  const [date, setDate] = React.useState<DateRange | undefined>(
-    validRange ?? {
-      from: subDays(new Date(), 30),
-      to: new Date(),
-    }
-  );
+  const [date, setDate] = React.useState<DateRange | undefined>(validRange);
 
   const onSelectRange = (date: DateRange | undefined) => {
     setDate(date);
