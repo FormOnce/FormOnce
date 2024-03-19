@@ -7,7 +7,7 @@ import {
   CardTitle,
   Icons,
 } from "@components/ui";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { api } from "~/utils/api";
 import { useRouter } from "next/router";
 import type { GetServerSideProps } from "next";
@@ -17,6 +17,7 @@ import { CalendarDateRangePicker } from "~/components/date-range-picker";
 import calculatePercentageDelta from "~/utils/responses/calculatePercentageDelta";
 import OverViewChart from "~/components/responses/overview-chart";
 import { toast } from "sonner";
+import { DateRange } from "react-day-picker";
 
 type TProps = {
   formId: string;
@@ -47,6 +48,8 @@ export default function Summary(props: TProps) {
     api.form.publish.useMutation();
   const { mutateAsync: unpublishForm, isLoading: isUnpublishingForm } =
     api.form.unpublish.useMutation();
+
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
 
   // check if formId is valid, if unvalid redirect to dashboard
   useEffect(() => {
@@ -90,7 +93,6 @@ export default function Summary(props: TProps) {
 
   const cards = useMemo(() => {
     // calculate percentage delta
-
     // calculate formView percentage delta
     const formViewDeltaInNumber = calculatePercentageDelta(
       formData?.FormViews ?? []
@@ -179,7 +181,7 @@ export default function Summary(props: TProps) {
         <div className="flex w-full justify-between">
           <h1 className="text-3xl font-bold">{formData?.name}</h1>
           <div className="flex gap-4">
-            <CalendarDateRangePicker />
+            <CalendarDateRangePicker onChange={setDateRange} />
             <Button
               type="button"
               onClick={() => void onTogglePublish()}
@@ -224,6 +226,7 @@ export default function Summary(props: TProps) {
             <OverViewChart
               formViews={formData?.FormViews}
               formResponses={formData?.FormResponses}
+              dateRange={dateRange}
             />
           )}
         </div>
