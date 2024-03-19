@@ -7,7 +7,7 @@ import {
   CardTitle,
   Icons,
 } from "@components/ui";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { api } from "~/utils/api";
 import { useRouter } from "next/router";
 import type { GetServerSideProps } from "next";
@@ -17,6 +17,7 @@ import { CalendarDateRangePicker } from "~/components/date-range-picker";
 import calculatePercentageDelta from "~/utils/responses/calculatePercentageDelta";
 import OverViewChart from "~/components/responses/overview-chart";
 import { toast } from "sonner";
+import type { DateRange } from "react-day-picker";
 
 type TProps = {
   formId: string;
@@ -47,6 +48,8 @@ export default function Summary(props: TProps) {
     api.form.publish.useMutation();
   const { mutateAsync: unpublishForm, isLoading: isUnpublishingForm } =
     api.form.unpublish.useMutation();
+
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
 
   // check if formId is valid, if unvalid redirect to dashboard
   useEffect(() => {
@@ -89,12 +92,26 @@ export default function Summary(props: TProps) {
   };
 
   const cards = useMemo(() => {
+    let formResponses = formData?.FormResponses ?? [];
+    let formViews = formData?.FormViews ?? [];
+
+    // filter formResponses and formViews based on dateRange
+    if (dateRange?.from && dateRange?.to) {
+      formResponses = formResponses.filter((response) => {
+        const date = new Date(response.createdAt);
+        return date >= dateRange.from! && date <= dateRange.to!;
+      });
+
+      formViews = formViews.filter((view) => {
+        const date = new Date(view.createdAt);
+        return date >= dateRange.from! && date <= dateRange.to!;
+      });
+    }
+
     // calculate percentage delta
 
     // calculate formView percentage delta
-    const formViewDeltaInNumber = calculatePercentageDelta(
-      formData?.FormViews ?? []
-    );
+    const formViewDeltaInNumber = calculatePercentageDelta(formViews ?? []);
     let formViewDelta = "";
 
     if (formViewDeltaInNumber) {
@@ -106,7 +123,7 @@ export default function Summary(props: TProps) {
 
     // calculate formStarts percentage delta
     const formStartsDeltaInNumber = calculatePercentageDelta(
-      formData?.FormResponses ?? []
+      formResponses ?? []
     );
     let formStartsDelta = "";
 
@@ -118,8 +135,7 @@ export default function Summary(props: TProps) {
     }
 
     // calculate formResponse percentage delta
-    const completedResponses =
-      formData?.FormResponses.filter((r) => r.completed) ?? [];
+    const completedResponses = formResponses.filter((r) => r.completed) ?? [];
 
     const formResponseDeltaInNumber =
       calculatePercentageDelta(completedResponses);
@@ -133,7 +149,7 @@ export default function Summary(props: TProps) {
     }
 
     // calculate average time
-    const totalTime = formData?.FormResponses.reduce((acc, curr) => {
+    const totalTime = formResponses.reduce((acc, curr) => {
       // if response in not completed, skip
       if (!curr.completed) return acc;
 
@@ -150,12 +166,12 @@ export default function Summary(props: TProps) {
     return [
       {
         title: "Views",
-        value: formData?.FormViews.length ?? "-",
+        value: formViews.length ?? "-",
         description: formViewDelta,
       },
       {
         title: "Starts",
-        value: formData?.FormResponses.length ?? "-",
+        value: formResponses.length ?? "-",
         description: formStartsDelta,
       },
       {
@@ -171,7 +187,7 @@ export default function Summary(props: TProps) {
           : "-",
       },
     ];
-  }, [formData]);
+  }, [formData, dateRange]);
 
   return (
     <DashboardLayout title="dashboard">
@@ -179,7 +195,7 @@ export default function Summary(props: TProps) {
         <div className="flex w-full justify-between">
           <h1 className="text-3xl font-bold">{formData?.name}</h1>
           <div className="flex gap-4">
-            <CalendarDateRangePicker />
+            <CalendarDateRangePicker onChange={setDateRange} />
             <Button
               type="button"
               onClick={() => void onTogglePublish()}
@@ -220,11 +236,16 @@ export default function Summary(props: TProps) {
           ))}
         </div>
         <div className="my-12 mr-14">
-          {formData?.FormResponses && (
+          {formData?.FormResponses ? (
             <OverViewChart
               formViews={formData?.FormViews}
               formResponses={formData?.FormResponses}
+              dateRange={dateRange}
             />
+          ) : (
+            <div className="flex h-80 items-center justify-center">
+              <Icons.spinner className="h-8 w-8 animate-spin" />
+            </div>
           )}
         </div>
       </div>

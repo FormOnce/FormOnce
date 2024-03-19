@@ -62,7 +62,7 @@ export const formRouter = createTRPCRouter({
         .input(z.object({
             id: z.string(),
             includeResponses: z.boolean().optional(),
-            includeViews: z.boolean().optional()
+            includeViews: z.boolean().optional(),
         }))
         .query(async ({ input, ctx }) => {
             try {

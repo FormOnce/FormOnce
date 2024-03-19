@@ -1,5 +1,6 @@
 import type { FormResponse, FormViews } from "@prisma/client";
 import React, { useMemo } from "react";
+import type { DateRange } from "react-day-picker";
 import {
   CartesianGrid,
   Legend,
@@ -14,8 +15,9 @@ import {
 type TProps = {
   formResponses: FormResponse[];
   formViews: FormViews[];
+  dateRange: DateRange | undefined;
 };
-function OverViewChart({ formResponses, formViews }: TProps) {
+function OverViewChart({ formResponses, formViews, dateRange }: TProps) {
   // 1. get the number of responses per week
   const responsesPerWeek = useMemo(() => {
     const responsesPerWeek: Record<string, number> = {};
@@ -78,6 +80,13 @@ function OverViewChart({ formResponses, formViews }: TProps) {
         ...formViews.map((v) => new Date(v.createdAt).getTime())
       )
     );
+
+    // adjust lo and hi according to the date range
+    if (dateRange?.from && dateRange?.to) {
+      lo.setTime(dateRange.from.getTime());
+      hi.setTime(dateRange.to.getTime());
+    }
+
     const weeks = [];
     const curr = lo;
     while (curr <= hi) {
@@ -85,7 +94,7 @@ function OverViewChart({ formResponses, formViews }: TProps) {
       curr.setDate(curr.getDate() + 1);
     }
     return weeks;
-  }, [formResponses, formViews]);
+  }, [formResponses, formViews, dateRange]);
 
   const data = useMemo(() => {
     return weeks.map((week) => {
@@ -103,11 +112,19 @@ function OverViewChart({ formResponses, formViews }: TProps) {
       <LineChart data={data}>
         <CartesianGrid strokeDasharray="3 3" stroke="#242423" />
         <Tooltip
-          content={({ active, payload }) => {
+          content={({ active, payload, label }) => {
             if (active && payload?.length) {
               return (
                 <div className="rounded-lg border bg-background p-4 shadow-sm">
                   <div className="grid grid-cols-2 gap-2">
+                    <div className="flex flex-col">
+                      <span className="text-[0.70rem] uppercase text-muted-foreground">
+                        Date
+                      </span>
+                      <span className="font-bold text-muted-foreground">
+                        {label}
+                      </span>
+                    </div>
                     <div className="flex flex-col">
                       <span className="text-[0.70rem] uppercase text-muted-foreground">
                         Views
