@@ -92,11 +92,26 @@ export default function Summary(props: TProps) {
   };
 
   const cards = useMemo(() => {
+    let formResponses = formData?.FormResponses ?? [];
+    let formViews = formData?.FormViews ?? [];
+
+    // filter formResponses and formViews based on dateRange
+    if (dateRange?.from && dateRange?.to) {
+      formResponses = formResponses.filter((response) => {
+        const date = new Date(response.createdAt);
+        return date >= dateRange.from! && date <= dateRange.to!;
+      });
+
+      formViews = formViews.filter((view) => {
+        const date = new Date(view.createdAt);
+        return date >= dateRange.from! && date <= dateRange.to!;
+      });
+    }
+
     // calculate percentage delta
+
     // calculate formView percentage delta
-    const formViewDeltaInNumber = calculatePercentageDelta(
-      formData?.FormViews ?? []
-    );
+    const formViewDeltaInNumber = calculatePercentageDelta(formViews ?? []);
     let formViewDelta = "";
 
     if (formViewDeltaInNumber) {
@@ -108,7 +123,7 @@ export default function Summary(props: TProps) {
 
     // calculate formStarts percentage delta
     const formStartsDeltaInNumber = calculatePercentageDelta(
-      formData?.FormResponses ?? []
+      formResponses ?? []
     );
     let formStartsDelta = "";
 
@@ -120,8 +135,7 @@ export default function Summary(props: TProps) {
     }
 
     // calculate formResponse percentage delta
-    const completedResponses =
-      formData?.FormResponses.filter((r) => r.completed) ?? [];
+    const completedResponses = formResponses.filter((r) => r.completed) ?? [];
 
     const formResponseDeltaInNumber =
       calculatePercentageDelta(completedResponses);
@@ -135,7 +149,7 @@ export default function Summary(props: TProps) {
     }
 
     // calculate average time
-    const totalTime = formData?.FormResponses.reduce((acc, curr) => {
+    const totalTime = formResponses.reduce((acc, curr) => {
       // if response in not completed, skip
       if (!curr.completed) return acc;
 
@@ -152,12 +166,12 @@ export default function Summary(props: TProps) {
     return [
       {
         title: "Views",
-        value: formData?.FormViews.length ?? "-",
+        value: formViews.length ?? "-",
         description: formViewDelta,
       },
       {
         title: "Starts",
-        value: formData?.FormResponses.length ?? "-",
+        value: formResponses.length ?? "-",
         description: formStartsDelta,
       },
       {
@@ -173,7 +187,7 @@ export default function Summary(props: TProps) {
           : "-",
       },
     ];
-  }, [formData]);
+  }, [formData, dateRange]);
 
   return (
     <DashboardLayout title="dashboard">
