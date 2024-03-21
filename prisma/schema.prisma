@@ -92,6 +92,10 @@ model FormResponse {
     id        String      @id @default(uuid())
     formId    String
     response  Json        @default("{}")
+    browser   String?
+    ip        String?
+    os        String?
+    device    String?
     completed DateTime?
     createdAt DateTime    @default(now())
     updatedAt DateTime    @updatedAt

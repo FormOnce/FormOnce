@@ -6,6 +6,10 @@ import {
   CardHeader,
   CardTitle,
   Icons,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
 } from "@components/ui";
 import { useEffect, useMemo, useState } from "react";
 import { api } from "~/utils/api";
@@ -18,6 +22,8 @@ import calculatePercentageDelta from "~/utils/responses/calculatePercentageDelta
 import OverViewChart from "~/components/responses/overview-chart";
 import { toast } from "sonner";
 import type { DateRange } from "react-day-picker";
+import ResponsesTable from "~/components/responses/responses-table";
+import { CopyIcon } from "@radix-ui/react-icons";
 
 type TProps = {
   formId: string;
@@ -27,7 +33,7 @@ export default function Summary(props: TProps) {
   const router = useRouter();
   const {
     data: formData,
-    isLoading: isLoadingFormData,
+    // isLoading: isLoadingFormData,
     // isSuccess: formDataFetched,
     isError: isFormInvalid,
     refetch: refreshFormData,
@@ -195,29 +201,55 @@ export default function Summary(props: TProps) {
         <div className="flex w-full justify-between">
           <h1 className="text-3xl font-bold">{formData?.name}</h1>
           <div className="flex gap-4">
-            <CalendarDateRangePicker onChange={setDateRange} />
-            <Button
-              type="button"
-              onClick={() => void onTogglePublish()}
-              variant={
-                formData?.status === FormStatus.PUBLISHED
-                  ? "destructive"
-                  : "default"
-              }
-              disabled={
-                isPublishingForm ||
-                isUnpublishingForm ||
-                !!!formData?.questions.length
-              }
-            >
-              {isPublishingForm || isUnpublishingForm ? (
-                <Icons.spinner className="mr-3 h-5 w-5 animate-spin" />
-              ) : formData?.status === FormStatus.PUBLISHED ? (
-                "Unpublish"
-              ) : (
-                "Publish"
-              )}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() =>
+                  void router.push(`/dashboard/forms/${props.formId}`)
+                }
+              >
+                Edit
+              </Button>
+              <Button
+                type="button"
+                // variant="secondary"
+                onClick={async () => {
+                  await navigator.clipboard.writeText(
+                    formData?.link ??
+                      `${window.location.origin}/forms/${formData?.id}`
+                  );
+                  toast.success("Link copied to clipboard", {
+                    position: "top-center",
+                    duration: 1000,
+                  });
+                }}
+              >
+                Copy Link <CopyIcon className="ml-2 h-4 w-4" />
+              </Button>
+              <Button
+                type="button"
+                onClick={() => void onTogglePublish()}
+                variant={
+                  formData?.status === FormStatus.PUBLISHED
+                    ? "destructive"
+                    : "default"
+                }
+                disabled={
+                  isPublishingForm ||
+                  isUnpublishingForm ||
+                  !!!formData?.questions.length
+                }
+              >
+                {isPublishingForm || isUnpublishingForm ? (
+                  <Icons.spinner className="mr-3 h-5 w-5 animate-spin" />
+                ) : formData?.status === FormStatus.PUBLISHED ? (
+                  "Unpublish"
+                ) : (
+                  "Publish"
+                )}
+              </Button>
+            </div>
           </div>
         </div>
         <div className="grid grid-cols-4 gap-6">
@@ -235,13 +267,37 @@ export default function Summary(props: TProps) {
             </Card>
           ))}
         </div>
-        <div className="my-12 mr-14">
+        <div className="my-4 px-4">
           {formData?.FormResponses ? (
-            <OverViewChart
-              formViews={formData?.FormViews}
-              formResponses={formData?.FormResponses}
-              dateRange={dateRange}
-            />
+            <Tabs defaultValue="overview" className="">
+              <div className="flex justify-between">
+                <TabsList>
+                  <TabsTrigger value="overview">Overview</TabsTrigger>
+                  <TabsTrigger value="responses">Responses</TabsTrigger>
+                </TabsList>
+                <CalendarDateRangePicker onChange={setDateRange} />
+              </div>
+              <TabsContent value="overview" className="mr-14 py-6">
+                <OverViewChart
+                  formViews={formData?.FormViews}
+                  formResponses={formData?.FormResponses}
+                  dateRange={dateRange}
+                />
+              </TabsContent>
+              <TabsContent value="responses" className="">
+                <ResponsesTable
+                  data={formData.FormResponses.filter((response) => {
+                    return (
+                      !dateRange?.to ||
+                      (dateRange.from &&
+                        dateRange.to &&
+                        new Date(response.createdAt) >= dateRange.from &&
+                        new Date(response.createdAt) <= dateRange.to)
+                    );
+                  })}
+                />
+              </TabsContent>
+            </Tabs>
           ) : (
             <div className="flex h-80 items-center justify-center">
               <Icons.spinner className="h-8 w-8 animate-spin" />

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { CalendarIcon } from "@radix-ui/react-icons";
-import { format, subDays } from "date-fns";
+import { format, addSeconds } from "date-fns";
 import type { DateRange } from "react-day-picker";
 
 import { cn } from "~/utils/cn";
@@ -28,8 +28,12 @@ export function CalendarDateRangePicker({
   const [date, setDate] = React.useState<DateRange | undefined>(validRange);
 
   const onSelectRange = (date: DateRange | undefined) => {
-    setDate(date);
-    onChange(date);
+    const adjustedDate = {
+      from: date?.from,
+      to: date?.to ? addSeconds(date.to, 86399) : undefined,
+    };
+    setDate(adjustedDate);
+    onChange(adjustedDate);
   };
 
   return (
