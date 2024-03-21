@@ -255,7 +255,17 @@ export default function Summary(props: TProps) {
                 />
               </TabsContent>
               <TabsContent value="responses" className="">
-                <ResponsesTable data={formData.FormResponses} />
+                <ResponsesTable
+                  data={formData.FormResponses.filter((response) => {
+                    return (
+                      !dateRange ||
+                      (dateRange.from &&
+                        dateRange.to &&
+                        new Date(response.createdAt) >= dateRange.from &&
+                        new Date(response.createdAt) <= dateRange.to)
+                    );
+                  })}
+                />
               </TabsContent>
             </Tabs>
           ) : (
