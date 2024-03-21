@@ -23,6 +23,7 @@ import OverViewChart from "~/components/responses/overview-chart";
 import { toast } from "sonner";
 import type { DateRange } from "react-day-picker";
 import ResponsesTable from "~/components/responses/responses-table";
+import { CopyIcon } from "@radix-ui/react-icons";
 
 type TProps = {
   formId: string;
@@ -200,29 +201,55 @@ export default function Summary(props: TProps) {
         <div className="flex w-full justify-between">
           <h1 className="text-3xl font-bold">{formData?.name}</h1>
           <div className="flex gap-4">
-            <CalendarDateRangePicker onChange={setDateRange} />
-            <Button
-              type="button"
-              onClick={() => void onTogglePublish()}
-              variant={
-                formData?.status === FormStatus.PUBLISHED
-                  ? "destructive"
-                  : "default"
-              }
-              disabled={
-                isPublishingForm ||
-                isUnpublishingForm ||
-                !!!formData?.questions.length
-              }
-            >
-              {isPublishingForm || isUnpublishingForm ? (
-                <Icons.spinner className="mr-3 h-5 w-5 animate-spin" />
-              ) : formData?.status === FormStatus.PUBLISHED ? (
-                "Unpublish"
-              ) : (
-                "Publish"
-              )}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() =>
+                  void router.push(`/dashboard/forms/${props.formId}`)
+                }
+              >
+                Edit
+              </Button>
+              <Button
+                type="button"
+                // variant="secondary"
+                onClick={async () => {
+                  await navigator.clipboard.writeText(
+                    formData?.link ??
+                      `${window.location.origin}/forms/${formData?.id}`
+                  );
+                  toast.success("Link copied to clipboard", {
+                    position: "top-center",
+                    duration: 1000,
+                  });
+                }}
+              >
+                Copy Link <CopyIcon className="ml-2 h-4 w-4" />
+              </Button>
+              <Button
+                type="button"
+                onClick={() => void onTogglePublish()}
+                variant={
+                  formData?.status === FormStatus.PUBLISHED
+                    ? "destructive"
+                    : "default"
+                }
+                disabled={
+                  isPublishingForm ||
+                  isUnpublishingForm ||
+                  !!!formData?.questions.length
+                }
+              >
+                {isPublishingForm || isUnpublishingForm ? (
+                  <Icons.spinner className="mr-3 h-5 w-5 animate-spin" />
+                ) : formData?.status === FormStatus.PUBLISHED ? (
+                  "Unpublish"
+                ) : (
+                  "Publish"
+                )}
+              </Button>
+            </div>
           </div>
         </div>
         <div className="grid grid-cols-4 gap-6">
@@ -240,13 +267,16 @@ export default function Summary(props: TProps) {
             </Card>
           ))}
         </div>
-        <div className="my-6 px-4">
+        <div className="my-4 px-4">
           {formData?.FormResponses ? (
             <Tabs defaultValue="overview" className="">
-              <TabsList>
-                <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="responses">Responses</TabsTrigger>
-              </TabsList>
+              <div className="flex justify-between">
+                <TabsList>
+                  <TabsTrigger value="overview">Overview</TabsTrigger>
+                  <TabsTrigger value="responses">Responses</TabsTrigger>
+                </TabsList>
+                <CalendarDateRangePicker onChange={setDateRange} />
+              </div>
               <TabsContent value="overview" className="mr-14 py-6">
                 <OverViewChart
                   formViews={formData?.FormViews}
@@ -258,7 +288,7 @@ export default function Summary(props: TProps) {
                 <ResponsesTable
                   data={formData.FormResponses.filter((response) => {
                     return (
-                      !dateRange ||
+                      !dateRange?.to ||
                       (dateRange.from &&
                         dateRange.to &&
                         new Date(response.createdAt) >= dateRange.from &&
