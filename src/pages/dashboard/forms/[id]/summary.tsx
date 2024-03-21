@@ -32,7 +32,7 @@ export default function Summary(props: TProps) {
   const router = useRouter();
   const {
     data: formData,
-    isLoading: isLoadingFormData,
+    // isLoading: isLoadingFormData,
     // isSuccess: formDataFetched,
     isError: isFormInvalid,
     refetch: refreshFormData,
