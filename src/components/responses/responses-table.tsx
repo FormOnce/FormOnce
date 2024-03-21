@@ -35,6 +35,7 @@ import {
 } from "@components/ui";
 import type { FormResponse } from "@prisma/client";
 import { DataTableColumnHeader } from "./dataTableColumnHeader";
+import { Share } from "lucide-react";
 
 type TResponseTableProps = {
   data: FormResponse[];
@@ -195,17 +196,81 @@ export function ResponsesTable({ data }: TResponseTableProps) {
     },
   });
 
+  function flattenObject(ob: Record<string, unknown>) {
+    const toReturn = {} as Record<string, unknown>;
+
+    for (const i in ob) {
+      if (!ob.hasOwnProperty(i)) continue;
+
+      if (typeof ob[i] == "object" && ob[i] !== null) {
+        const flatObject = flattenObject(ob[i] as Record<string, unknown>);
+        for (const x in flatObject) {
+          if (!flatObject.hasOwnProperty(x)) continue;
+
+          toReturn[i + "__" + x] = flatObject[x];
+        }
+      } else {
+        toReturn[i] = ob[i];
+      }
+    }
+    return toReturn;
+  }
+
+  function convertToCSV(arr: Record<string, unknown>[]) {
+    const flatJsonArray = arr.map(flattenObject);
+    const array = [Object.keys(flatJsonArray[0]!)].concat(
+      flatJsonArray as unknown as string[][]
+    );
+
+    return array
+      .map((it) => {
+        return Object.values(it).toString();
+      })
+      .join("\n");
+  }
+
+  const handleExport = (type: "csv" | "json") => {
+    const data = table.getFilteredRowModel().rows.map((row) => row.original);
+
+    const formattedData = data.map((response) => {
+      const toReturn = {
+        ...response,
+        id: undefined,
+        formId: undefined,
+        createdAt: undefined,
+        started: response.createdAt,
+        updatedAt: response.updatedAt,
+        lastUpdated: response.updatedAt,
+        completed: response.completed,
+      };
+      delete toReturn.id;
+      delete toReturn.formId;
+      delete toReturn.createdAt;
+      return toReturn;
+    });
+
+    let blob = new Blob([JSON.stringify(formattedData)], {
+      type: "application/json",
+    });
+
+    if (type === "csv") {
+      const csv = convertToCSV(formattedData);
+      blob = new Blob([csv], {
+        type: "text/csv;charset=utf-8",
+      });
+    }
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `responses.${type}`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="w-full">
       <div className="flex items-center pb-4">
-        {/* <Input
-          placeholder="Filter emails..."
-          value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("email")?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        /> */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
@@ -230,6 +295,22 @@ export function ResponsesTable({ data }: TResponseTableProps) {
                   </DropdownMenuCheckboxItem>
                 );
               })}
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button className="ml-2">
+              Export
+              <Share className="ml-2 h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => handleExport("csv")}>
+              CSV
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleExport("json")}>
+              JSON
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
