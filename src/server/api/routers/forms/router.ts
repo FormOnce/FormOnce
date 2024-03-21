@@ -80,9 +80,13 @@ export const formRouter = createTRPCRouter({
                                     id: true
                                 }
                             },
-                            FormResponses: input.includeResponses ? true : false,
+                            FormResponses: input.includeResponses ? {
+                                orderBy: {
+                                    createdAt: "desc"
+                                }
+                            } : false,
                             FormViews: input.includeViews ? true : false
-                        }
+                        },
                     });
             } catch (error) {
                 console.log(error);
@@ -107,7 +111,8 @@ export const formRouter = createTRPCRouter({
                 const questions: TQuestion[] = []
 
                 input.questions.forEach(question => {
-                    const questionId = crypto.randomUUID();
+                    // const questionId = crypto.randomUUID();
+                    const questionId = question.title.toLowerCase().replace(/ /g, "_");
                     const jsonSchema = questionToJsonSchema(question);
 
                     if (jsonSchema !== null) {
@@ -182,7 +187,8 @@ export const formRouter = createTRPCRouter({
             }
 
             // generate a new question id
-            const questionId = crypto.randomUUID();
+            // const questionId = crypto.randomUUID();
+            const questionId = input.question.title.toLowerCase().replace(/ /g, "_")
 
             // 1. convert question to a jsonSchema object
             const jsonSchema = questionToJsonSchema(input.question);

@@ -254,8 +254,8 @@ export default function Summary(props: TProps) {
                   dateRange={dateRange}
                 />
               </TabsContent>
-              <TabsContent value="responses" className="p-6">
-                <ResponsesTable />
+              <TabsContent value="responses" className="">
+                <ResponsesTable data={formData.FormResponses} />
               </TabsContent>
             </Tabs>
           ) : (
