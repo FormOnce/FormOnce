@@ -6,6 +6,10 @@ import {
   CardHeader,
   CardTitle,
   Icons,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
 } from "@components/ui";
 import { useEffect, useMemo, useState } from "react";
 import { api } from "~/utils/api";
@@ -18,6 +22,7 @@ import calculatePercentageDelta from "~/utils/responses/calculatePercentageDelta
 import OverViewChart from "~/components/responses/overview-chart";
 import { toast } from "sonner";
 import type { DateRange } from "react-day-picker";
+import ResponsesTable from "~/components/responses/responses-table";
 
 type TProps = {
   formId: string;
@@ -235,13 +240,24 @@ export default function Summary(props: TProps) {
             </Card>
           ))}
         </div>
-        <div className="my-12 mr-14">
+        <div className="my-6 px-4">
           {formData?.FormResponses ? (
-            <OverViewChart
-              formViews={formData?.FormViews}
-              formResponses={formData?.FormResponses}
-              dateRange={dateRange}
-            />
+            <Tabs defaultValue="overview" className="">
+              <TabsList>
+                <TabsTrigger value="overview">Overview</TabsTrigger>
+                <TabsTrigger value="responses">Responses</TabsTrigger>
+              </TabsList>
+              <TabsContent value="overview" className="mr-14 py-6">
+                <OverViewChart
+                  formViews={formData?.FormViews}
+                  formResponses={formData?.FormResponses}
+                  dateRange={dateRange}
+                />
+              </TabsContent>
+              <TabsContent value="responses" className="p-6">
+                <ResponsesTable />
+              </TabsContent>
+            </Tabs>
           ) : (
             <div className="flex h-80 items-center justify-center">
               <Icons.spinner className="h-8 w-8 animate-spin" />

@@ -108,7 +108,7 @@ function OverViewChart({ formResponses, formViews, dateRange }: TProps) {
   }, [responsesPerWeek, viewsPerWeek, weeks, startsPerWeek]);
 
   return (
-    <ResponsiveContainer width="100%" height={350}>
+    <ResponsiveContainer width="100%" height={400}>
       <LineChart data={data}>
         <CartesianGrid strokeDasharray="3 3" stroke="#242423" />
         <Tooltip
