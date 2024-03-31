@@ -426,15 +426,16 @@ export const formRouter = createTRPCRouter({
                     }
                 });
 
+                let formView = undefined;
                 if (input.increaseViewCount) {
-                    await ctx.prisma.formViews.create({
+                    formView = await ctx.prisma.formViews.create({
                         data: {
                             formId: input.id
                         }
                     });
                 }
 
-                return form;
+                return { form, formViewId: formView?.id };
             } catch (error) {
                 console.log(error);
                 throw new TRPCError({
@@ -448,7 +449,8 @@ export const formRouter = createTRPCRouter({
     submitResponse: publicProcedure
         .input(z.object({
             formId: z.string(),
-            response: z.object({}).passthrough()
+            response: z.object({}).passthrough(),
+            formViewId: z.string().optional()
         }))
         .mutation(async ({ input, ctx }) => {
             try {
@@ -456,7 +458,12 @@ export const formRouter = createTRPCRouter({
                     data: {
                         formId: input.formId,
                         response: input.response,
-                        completed: new Date().toISOString()
+                        completed: new Date().toISOString(),
+                        FormViews: {
+                            connect: {
+                                id: input.formViewId
+                            }
+                        }
                     }
                 });
             } catch (error) {
