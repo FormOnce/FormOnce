@@ -9,12 +9,16 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
 } from "@components/ui";
 import { api } from "~/utils/api";
 import { useRouter } from "next/router";
 import type { GetServerSideProps } from "next";
 import { getServerAuthSession } from "~/server/auth";
 import { type Form, FormStatus } from "@prisma/client";
+import { useState } from "react";
 
 export default function Forms() {
   const router = useRouter();
@@ -42,7 +46,12 @@ export default function Forms() {
 export function AllFormsTable() {
   const router = useRouter();
 
-  const { data: forms, isLoading } = api.form.getAll.useQuery();
+  const { data: forms, isLoading, refetch } = api.form.getAll.useQuery();
+  const {
+    mutateAsync: deleteForm,
+    isLoading: isDeletingForm,
+    variables,
+  } = api.form.delete.useMutation();
 
   const handleClick = (form: Form) => {
     // if form is not published, redirect to form editor
@@ -52,6 +61,21 @@ export function AllFormsTable() {
 
     // if form is published, redirect to form summary
     return void router.push(`/dashboard/forms/${form.id}/summary`);
+  };
+
+  const [deletePopoverId, setDeletePopoverId] = useState<string | null>(null);
+
+  const onOpenChange = (open: boolean) => {
+    if (!open) {
+      setDeletePopoverId(null);
+    }
+  };
+
+  const onDeleteForm = async (formId: string) => {
+    await deleteForm({
+      id: formId,
+    });
+    await refetch();
   };
 
   return (
@@ -77,7 +101,7 @@ export function AllFormsTable() {
         ) : null}
         {forms?.map((form) => (
           <TableRow
-            key={form.name}
+            key={form.id}
             className="cursor-pointer"
             onClick={() => handleClick(form)}
           >
@@ -95,6 +119,61 @@ export function AllFormsTable() {
               </div>
             </TableCell>
             <TableCell className="text-xs">{form.author?.name}</TableCell>
+            <TableCell className="text-xs">
+              <Popover
+                open={deletePopoverId === form.id}
+                onOpenChange={onOpenChange}
+              >
+                <PopoverTrigger
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                >
+                  <Button
+                    variant={"secondary"}
+                    size={"icon"}
+                    className="hover:bg-destructive/90 hover:text-destructive-foreground"
+                    onClick={() => setDeletePopoverId(form.id)}
+                  >
+                    <Icons.trash className="h-5 w-5" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                  className="w-54 space-y-2"
+                >
+                  {form.status === FormStatus.DRAFT ? (
+                    <p className="w-48 text-sm">Delete this draft?</p>
+                  ) : (
+                    <>
+                      <p className="w-48 text-sm">Delete this form?</p>
+                      <span className="text-xs text-muted-foreground">
+                        This form has {form.FormResponses.length} responses,
+                      </span>{" "}
+                    </>
+                  )}
+                  <div className="flex gap-2">
+                    <Button
+                      variant="destructive"
+                      onClick={() => onDeleteForm(form.id)}
+                      loading={isDeletingForm && variables?.id === form.id}
+                      size={"sm"}
+                    >
+                      Delete
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      onClick={() => onOpenChange(false)}
+                      size={"sm"}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>

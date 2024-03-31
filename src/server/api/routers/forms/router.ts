@@ -171,6 +171,26 @@ export const formRouter = createTRPCRouter({
             }
         }),
 
+    delete: protectedProcedure
+        .input(z.object({
+            id: z.string()
+        }))
+        .mutation(async ({ input, ctx }) => {
+            try {
+                return await ctx.prisma.form.delete({
+                    where: {
+                        id: input.id
+                    }
+                });
+            } catch (error) {
+                console.log(error);
+                throw new TRPCError({
+                    code: "INTERNAL_SERVER_ERROR",
+                    message: "Something went wrong",
+                });
+            }
+        }),
+
     addQuestion: protectedProcedure.input(ZAddQuestion).mutation(async ({ ctx, input }) => {
         try {
             const form = await ctx.prisma.form.findUnique({

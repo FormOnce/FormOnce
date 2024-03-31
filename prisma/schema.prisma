@@ -84,8 +84,8 @@ model FormViews {
     formResponseId String?
     createdAt      DateTime      @default(now())
     updatedAt      DateTime      @updatedAt
-    Forms          Form          @relation(fields: [formId], references: [id])
-    FormResponse   FormResponse? @relation(fields: [formResponseId], references: [id])
+    Forms          Form          @relation(fields: [formId], references: [id], onDelete: Cascade)
+    FormResponse   FormResponse? @relation(fields: [formResponseId], references: [id], onDelete: SetNull)
 }
 
 model FormResponse {
@@ -99,7 +99,7 @@ model FormResponse {
     completed DateTime?
     createdAt DateTime    @default(now())
     updatedAt DateTime    @updatedAt
-    Forms     Form        @relation(fields: [formId], references: [id])
+    Forms     Form        @relation(fields: [formId], references: [id], onDelete: Cascade)
     FormViews FormViews[]
 }
 
