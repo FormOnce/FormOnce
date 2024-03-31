@@ -21,6 +21,7 @@ import { Preview } from "~/components/form-builder/preview";
 import { FormStatus } from "@prisma/client";
 import { Reorder } from "framer-motion";
 import { toast } from "sonner";
+import { ShareDialog } from "~/components/form-builder/share-dialog";
 
 type TProps = {
   formId: string;
@@ -64,6 +65,8 @@ export default function Form(props: TProps) {
   const [currentQuestion, setCurrentQuestion] = useState<number>(0);
   const [questions, setQuestions] = useState<TQuestion[]>([]);
   const [isEditingFormName, setIsEditingFormName] = useState<boolean>(false);
+
+  const [shareDialogOpen, setShareDialogOpen] = useState<boolean>(false);
 
   // check if formId is valid, if unvalid redirect to dashboard
   useEffect(() => {
@@ -161,14 +164,11 @@ export default function Form(props: TProps) {
         id: props.formId,
       }).then(async () => {
         await refreshFormData();
-        // copy form link to clipboard
-        void navigator.clipboard.writeText(
-          `${window.location.origin}/forms/${formData?.id}`
-        );
       });
-      toast.success("Form published and link copied to clipboard", {
+      setShareDialogOpen(true);
+      toast.success("Form published", {
         position: "top-center",
-        duration: 1000,
+        duration: 1500,
       });
     } else {
       await unpublishForm({
@@ -178,7 +178,7 @@ export default function Form(props: TProps) {
       });
       toast.success("Form unpublished", {
         position: "top-center",
-        duration: 1000,
+        duration: 1500,
       });
     }
   };
@@ -214,7 +214,7 @@ export default function Form(props: TProps) {
               </h1>
             )}
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
               {/* <Button type="button" onClick={() => void router.back()}>
                 Back
               </Button> */}
@@ -226,19 +226,26 @@ export default function Form(props: TProps) {
                     ? "destructive"
                     : "default"
                 }
-                disabled={
-                  isPublishingForm ||
-                  isUnpublishingForm ||
-                  !!!formData?.questions.length
-                }
+                disabled={!formData?.questions.length}
+                loading={isPublishingForm || isUnpublishingForm}
               >
-                {isPublishingForm || isUnpublishingForm ? (
-                  <Icons.spinner className="mr-3 h-5 w-5 animate-spin" />
-                ) : formData?.status === FormStatus.PUBLISHED ? (
-                  "Unpublish"
-                ) : (
-                  "Publish"
-                )}
+                {formData?.status === FormStatus.PUBLISHED
+                  ? "Unpublish"
+                  : "Publish"}
+              </Button>
+              <ShareDialog
+                disabled={formData?.status === FormStatus.DRAFT}
+                open={shareDialogOpen}
+                onOpenChange={setShareDialogOpen}
+                link={formData?.link ?? ""}
+              />
+              <Button
+                onClick={() =>
+                  void router.push(`/dashboard/forms/${props.formId}/summary`)
+                }
+                variant={"secondary"}
+              >
+                Responses
               </Button>
             </div>
           </div>
