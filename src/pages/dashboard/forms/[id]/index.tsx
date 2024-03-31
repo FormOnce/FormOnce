@@ -214,7 +214,7 @@ export default function Form(props: TProps) {
               </h1>
             )}
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
               {/* <Button type="button" onClick={() => void router.back()}>
                 Back
               </Button> */}
@@ -239,6 +239,14 @@ export default function Form(props: TProps) {
                 onOpenChange={setShareDialogOpen}
                 link={formData?.link ?? ""}
               />
+              <Button
+                onClick={() =>
+                  void router.push(`/dashboard/forms/${props.formId}/summary`)
+                }
+                variant={"secondary"}
+              >
+                Responses
+              </Button>
             </div>
           </div>
           <ResizablePanelGroup direction="horizontal">
