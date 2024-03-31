@@ -23,7 +23,7 @@ import OverViewChart from "~/components/responses/overview-chart";
 import { toast } from "sonner";
 import type { DateRange } from "react-day-picker";
 import ResponsesTable from "~/components/responses/responses-table";
-import { CopyIcon } from "@radix-ui/react-icons";
+import { ShareDialog } from "~/components/form-builder/share-dialog";
 
 type TProps = {
   formId: string;
@@ -57,6 +57,8 @@ export default function Summary(props: TProps) {
 
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
 
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+
   // check if formId is valid, if unvalid redirect to dashboard
   useEffect(() => {
     if (props.formId === "new") return;
@@ -75,11 +77,8 @@ export default function Summary(props: TProps) {
         id: props.formId,
       }).then(async () => {
         await refreshFormData();
-        // copy form link to clipboard
-        void navigator.clipboard.writeText(
-          `${window.location.origin}/forms/${formData?.id}`
-        );
-        toast.success("Form published and link copied to clipboard", {
+        setShareDialogOpen(true);
+        toast.success("Form published", {
           position: "top-center",
           duration: 1000,
         });
@@ -211,22 +210,14 @@ export default function Summary(props: TProps) {
               >
                 Edit
               </Button>
-              <Button
-                type="button"
-                // variant="secondary"
-                onClick={async () => {
-                  await navigator.clipboard.writeText(
-                    formData?.link ??
-                      `${window.location.origin}/forms/${formData?.id}`
-                  );
-                  toast.success("Link copied to clipboard", {
-                    position: "top-center",
-                    duration: 1000,
-                  });
-                }}
-              >
-                Copy Link <CopyIcon className="ml-2 h-4 w-4" />
-              </Button>
+              <ShareDialog
+                link={
+                  formData?.link ??
+                  `${window.location.origin}/forms/${formData?.id}`
+                }
+                open={shareDialogOpen}
+                onOpenChange={setShareDialogOpen}
+              />
               <Button
                 type="button"
                 onClick={() => void onTogglePublish()}
