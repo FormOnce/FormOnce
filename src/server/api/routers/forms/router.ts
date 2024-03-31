@@ -422,7 +422,8 @@ export const formRouter = createTRPCRouter({
                 return await ctx.prisma.formResponse.create({
                     data: {
                         formId: input.formId,
-                        response: input.response
+                        response: input.response,
+                        completed: new Date().toISOString()
                     }
                 });
             } catch (error) {
