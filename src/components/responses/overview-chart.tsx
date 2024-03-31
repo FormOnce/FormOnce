@@ -54,15 +54,15 @@ function OverViewChart({ formResponses, formViews, dateRange }: TProps) {
   const startsPerWeek = useMemo(() => {
     const startsPerWeek: Record<string, number> = {};
     formResponses.forEach((response) => {
-      if (!response.completed) {
-        const date = new Date(response.createdAt);
-        const week = date.toISOString().split("T")[0]!;
-        if (startsPerWeek[week]) {
-          startsPerWeek[week] += 1;
-        } else {
-          startsPerWeek[week] = 1;
-        }
+      // if (!response.completed) {
+      const date = new Date(response.createdAt);
+      const week = date.toISOString().split("T")[0]!;
+      if (startsPerWeek[week]) {
+        startsPerWeek[week] += 1;
+      } else {
+        startsPerWeek[week] = 1;
       }
+      // }
     });
     return startsPerWeek;
   }, [formResponses]);

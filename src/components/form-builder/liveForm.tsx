@@ -9,9 +9,15 @@ type TLiveFormProps = {
   formId: string;
   formSchema: TFormSchema;
   questions: TQuestion[];
+  formViewId?: string;
 };
 
-function LiveForm({ formId, formSchema, questions }: TLiveFormProps) {
+function LiveForm({
+  formId,
+  formSchema,
+  questions,
+  formViewId,
+}: TLiveFormProps) {
   const { mutateAsync: submitResponse, isSuccess: formSubmitted } =
     api.form.submitResponse.useMutation();
 
@@ -27,8 +33,8 @@ function LiveForm({ formId, formSchema, questions }: TLiveFormProps) {
     await submitResponse({
       formId: formId,
       response: values,
+      formViewId,
     });
-    // console.log("submit", values);
   };
 
   if (formSubmitted) {

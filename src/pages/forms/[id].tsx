@@ -21,6 +21,7 @@ export default function Form(props: TProps) {
   } = api.form.getPublicFormData.useQuery(
     {
       id: props.formId,
+      increaseViewCount: true,
     },
     {
       enabled: !!props.formId && props.formId !== "new",
@@ -47,11 +48,12 @@ export default function Form(props: TProps) {
         </div>
       ) : (
         <>
-          {formData?.formSchema && (
+          {formData?.form?.formSchema && (
             <LiveForm
               formId={props.formId}
-              formSchema={formData?.formSchema as TFormSchema}
-              questions={formData?.questions as TQuestion[]}
+              formSchema={formData.form?.formSchema as TFormSchema}
+              questions={formData.form?.questions as TQuestion[]}
+              formViewId={formData.formViewId}
             />
           )}
         </>

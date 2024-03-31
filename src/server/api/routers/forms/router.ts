@@ -410,11 +410,12 @@ export const formRouter = createTRPCRouter({
     // public procedure to get formData for a form, used to render the live forms
     getPublicFormData: publicProcedure
         .input(z.object({
-            id: z.string()
+            id: z.string(),
+            increaseViewCount: z.boolean().optional()
         }))
         .query(async ({ input, ctx }) => {
             try {
-                return await ctx.prisma.form.findUnique({
+                const form = await ctx.prisma.form.findUnique({
                     where: {
                         id: input.id
                     },
@@ -424,6 +425,17 @@ export const formRouter = createTRPCRouter({
                         name: true
                     }
                 });
+
+                let formView = undefined;
+                if (input.increaseViewCount) {
+                    formView = await ctx.prisma.formViews.create({
+                        data: {
+                            formId: input.id
+                        }
+                    });
+                }
+
+                return { form, formViewId: formView?.id };
             } catch (error) {
                 console.log(error);
                 throw new TRPCError({
@@ -437,7 +449,8 @@ export const formRouter = createTRPCRouter({
     submitResponse: publicProcedure
         .input(z.object({
             formId: z.string(),
-            response: z.object({}).passthrough()
+            response: z.object({}).passthrough(),
+            formViewId: z.string().optional()
         }))
         .mutation(async ({ input, ctx }) => {
             try {
@@ -445,7 +458,12 @@ export const formRouter = createTRPCRouter({
                     data: {
                         formId: input.formId,
                         response: input.response,
-                        completed: new Date().toISOString()
+                        completed: new Date().toISOString(),
+                        FormViews: {
+                            connect: {
+                                id: input.formViewId
+                            }
+                        }
                     }
                 });
             } catch (error) {
