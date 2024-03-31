@@ -410,11 +410,12 @@ export const formRouter = createTRPCRouter({
     // public procedure to get formData for a form, used to render the live forms
     getPublicFormData: publicProcedure
         .input(z.object({
-            id: z.string()
+            id: z.string(),
+            increaseViewCount: z.boolean().optional()
         }))
         .query(async ({ input, ctx }) => {
             try {
-                return await ctx.prisma.form.findUnique({
+                const form = await ctx.prisma.form.findUnique({
                     where: {
                         id: input.id
                     },
@@ -424,6 +425,16 @@ export const formRouter = createTRPCRouter({
                         name: true
                     }
                 });
+
+                if (input.increaseViewCount) {
+                    await ctx.prisma.formViews.create({
+                        data: {
+                            formId: input.id
+                        }
+                    });
+                }
+
+                return form;
             } catch (error) {
                 console.log(error);
                 throw new TRPCError({

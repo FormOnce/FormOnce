@@ -21,6 +21,7 @@ export default function Form(props: TProps) {
   } = api.form.getPublicFormData.useQuery(
     {
       id: props.formId,
+      increaseViewCount: true,
     },
     {
       enabled: !!props.formId && props.formId !== "new",
