@@ -42,7 +42,12 @@ export default function Forms() {
 export function AllFormsTable() {
   const router = useRouter();
 
-  const { data: forms, isLoading } = api.form.getAll.useQuery();
+  const { data: forms, isLoading, refetch } = api.form.getAll.useQuery();
+  const {
+    mutateAsync: deleteForm,
+    isLoading: isDeletingForm,
+    variables,
+  } = api.form.delete.useMutation();
 
   const handleClick = (form: Form) => {
     // if form is not published, redirect to form editor
@@ -52,6 +57,13 @@ export function AllFormsTable() {
 
     // if form is published, redirect to form summary
     return void router.push(`/dashboard/forms/${form.id}/summary`);
+  };
+
+  const onDeleteForm = async (formId: string) => {
+    await deleteForm({
+      id: formId,
+    });
+    await refetch();
   };
 
   return (
@@ -77,7 +89,7 @@ export function AllFormsTable() {
         ) : null}
         {forms?.map((form) => (
           <TableRow
-            key={form.name}
+            key={form.id}
             className="cursor-pointer"
             onClick={() => handleClick(form)}
           >
@@ -95,6 +107,25 @@ export function AllFormsTable() {
               </div>
             </TableCell>
             <TableCell className="text-xs">{form.author?.name}</TableCell>
+            <TableCell className="text-xs">
+              <Button
+                variant={
+                  isDeletingForm && variables?.id === form.id
+                    ? "destructive"
+                    : "secondary"
+                }
+                size={"icon"}
+                className="hover:bg-destructive/90 hover:text-destructive-foreground"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  void onDeleteForm(form.id);
+                }}
+                loading={isDeletingForm && variables?.id === form.id}
+                noChildOnLoading
+              >
+                <Icons.trash className="h-5 w-5" />
+              </Button>
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>
