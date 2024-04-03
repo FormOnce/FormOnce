@@ -70,10 +70,7 @@ export const formRouter = createTRPCRouter({
                 type TResponse = {
                     form?: Form;
                     FormResponses?: (FormResponse & {
-                        FormViews: {
-                            createdAt: Date;
-                            id: string;
-                        }
+                        FormViews: FormViews
                     })[];
                     FormViews?: FormViews[];
                 }
@@ -105,12 +102,7 @@ export const formRouter = createTRPCRouter({
                             formId: input.id
                         },
                         include: {
-                            FormViews: {
-                                select: {
-                                    createdAt: true,
-                                    id: true,
-                                }
-                            }
+                            FormViews: true
                         }
 
                     });
