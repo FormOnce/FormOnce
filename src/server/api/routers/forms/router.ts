@@ -402,7 +402,7 @@ export const formRouter = createTRPCRouter({
         }))
         .mutation(async ({ input, ctx }) => {
             try {
-                const link = `https://form-once.vercel.app/forms/${input.id}`
+                const link = `https://formonce.in/forms/${input.id}`
                 return await ctx.prisma.form.update({
                     where: {
                         id: input.id
