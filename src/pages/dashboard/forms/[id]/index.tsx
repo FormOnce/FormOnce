@@ -236,7 +236,7 @@ export default function Form(props: TProps) {
                   : "Publish"}
               </Button>
               <ShareDialog
-                disabled={formData?.status === FormStatus.DRAFT}
+                disabled={formData?.status !== FormStatus.PUBLISHED}
                 open={shareDialogOpen}
                 onOpenChange={setShareDialogOpen}
                 link={formData?.link ?? ""}
