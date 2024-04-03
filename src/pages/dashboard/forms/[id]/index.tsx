@@ -30,7 +30,7 @@ type TProps = {
 export default function Form(props: TProps) {
   const router = useRouter();
   const {
-    data: formData,
+    data: data,
     isLoading: isLoadingFormData,
     // isSuccess: formDataFetched,
     isError: isFormInvalid,
@@ -44,7 +44,7 @@ export default function Form(props: TProps) {
       refetchOnWindowFocus: false,
       retry: false,
       onSuccess(data) {
-        setQuestions(data.questions as TQuestion[]);
+        setQuestions(data.form?.questions as TQuestion[]);
       },
     }
   );
@@ -67,6 +67,8 @@ export default function Form(props: TProps) {
   const [isEditingFormName, setIsEditingFormName] = useState<boolean>(false);
 
   const [shareDialogOpen, setShareDialogOpen] = useState<boolean>(false);
+
+  const formData = data?.form;
 
   // check if formId is valid, if unvalid redirect to dashboard
   useEffect(() => {
