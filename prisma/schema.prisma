@@ -24,6 +24,7 @@ model User {
     Accounts        Account[]
     Sessions        Session[]
     Form            Form[]
+    Webhook         Webhook[]
 }
 
 model Account {
@@ -111,6 +112,7 @@ model Workspace {
     isPersonal       Boolean           @default(false)
     Forms            Form[]
     WorkspaceMembers WorkspaceMember[]
+    Webhooks         Webhook[]
 }
 
 model WorkspaceMember {
@@ -133,4 +135,38 @@ enum Role {
     OWNER
     ADMIN
     MEMBER
+}
+
+enum WebhookTriggerEvent {
+    RESPONSE_SUBMITTED
+    RESPONSE_UPDATED
+}
+
+model Webhook {
+    id            String              @id @default(uuid())
+    name          String
+    url           String
+    secret        String
+    enabled       Boolean             @default(true)
+    workspace     Workspace           @relation(fields: [workspaceId], references: [id])
+    workspaceId   String
+    createdBy     User                @relation(fields: [createdById], references: [id])
+    createdById   String
+    event         WebhookTriggerEvent
+    createdAt     DateTime            @default(now())
+    updatedAt     DateTime            @updatedAt
+    WebhookRecord WebhookRecord[]
+}
+
+model WebhookRecord {
+    id              String              @id @default(uuid())
+    webhookId       String
+    event           WebhookTriggerEvent
+    payload         Json
+    responseBody    Json
+    responseStatus  Int
+    responseHeaders Json
+    createdAt       DateTime            @default(now())
+    updatedAt       DateTime            @updatedAt
+    Webhook         Webhook             @relation(fields: [webhookId], references: [id])
 }
