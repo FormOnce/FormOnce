@@ -103,8 +103,10 @@ export const formRouter = createTRPCRouter({
                         },
                         include: {
                             FormViews: true
+                        },
+                        orderBy: {
+                            completed: "desc"
                         }
-
                     });
                     response.FormResponses = formResponses;
                 }
@@ -113,6 +115,9 @@ export const formRouter = createTRPCRouter({
                     const formViews = await ctx.prisma.formViews.findMany({
                         where: {
                             formId: input.id
+                        },
+                        orderBy: {
+                            createdAt: "desc"
                         }
                     });
                     response.FormViews = formViews;
