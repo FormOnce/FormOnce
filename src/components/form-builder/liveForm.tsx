@@ -9,7 +9,7 @@ type TLiveFormProps = {
   formId: string;
   formSchema: TFormSchema;
   questions: TQuestion[];
-  formViewId?: string;
+  formViewId: string;
 };
 
 function LiveForm({

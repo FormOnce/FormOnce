@@ -72,7 +72,7 @@ export default function Summary(props: TProps) {
   }, [isFormInvalid]);
 
   const onTogglePublish = async () => {
-    if (formData?.status === FormStatus.DRAFT) {
+    if (formData?.form?.status === FormStatus.DRAFT) {
       await publishForm({
         id: props.formId,
       }).then(async () => {
@@ -160,7 +160,8 @@ export default function Summary(props: TProps) {
 
       // calculate time spent in seconds
       const timeSpent =
-        new Date(curr.completed).getTime() - new Date(curr.createdAt).getTime();
+        new Date(curr.completed).getTime() -
+        new Date(curr.FormViews.createdAt).getTime();
       return acc + timeSpent / 1000;
     }, 0);
 
@@ -198,7 +199,7 @@ export default function Summary(props: TProps) {
     <DashboardLayout title="dashboard">
       <div className="flex h-full flex-col gap-4">
         <div className="flex w-full justify-between">
-          <h1 className="text-3xl font-bold">{formData?.name}</h1>
+          <h1 className="text-3xl font-bold">{formData?.form?.name}</h1>
           <div className="flex gap-4">
             <div className="flex gap-2">
               <Button
@@ -212,8 +213,8 @@ export default function Summary(props: TProps) {
               </Button>
               <ShareDialog
                 link={
-                  formData?.link ??
-                  `${window.location.origin}/forms/${formData?.id}`
+                  formData?.form?.link ??
+                  `${window.location.origin}/forms/${formData?.form?.id}`
                 }
                 open={shareDialogOpen}
                 onOpenChange={setShareDialogOpen}
@@ -222,19 +223,19 @@ export default function Summary(props: TProps) {
                 type="button"
                 onClick={() => void onTogglePublish()}
                 variant={
-                  formData?.status === FormStatus.PUBLISHED
+                  formData?.form?.status === FormStatus.PUBLISHED
                     ? "destructive"
                     : "default"
                 }
                 disabled={
                   isPublishingForm ||
                   isUnpublishingForm ||
-                  !!!formData?.questions.length
+                  !!!formData?.form?.questions.length
                 }
               >
                 {isPublishingForm || isUnpublishingForm ? (
                   <Icons.spinner className="mr-3 h-5 w-5 animate-spin" />
-                ) : formData?.status === FormStatus.PUBLISHED ? (
+                ) : formData?.form?.status === FormStatus.PUBLISHED ? (
                   "Unpublish"
                 ) : (
                   "Publish"
@@ -259,7 +260,7 @@ export default function Summary(props: TProps) {
           ))}
         </div>
         <div className="my-4 px-4">
-          {formData?.FormResponses ? (
+          {formData?.FormResponses && formData.FormViews ? (
             <Tabs defaultValue="overview" className="">
               <div className="flex justify-between">
                 <TabsList>

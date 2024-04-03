@@ -79,28 +79,28 @@ model Form {
 }
 
 model FormViews {
-    id             String        @id @default(uuid())
-    formId         String
-    formResponseId String?
-    createdAt      DateTime      @default(now())
-    updatedAt      DateTime      @updatedAt
-    Forms          Form          @relation(fields: [formId], references: [id], onDelete: Cascade)
-    FormResponse   FormResponse? @relation(fields: [formResponseId], references: [id], onDelete: SetNull)
+    id           String        @id @default(uuid())
+    formId       String
+    createdAt    DateTime      @default(now())
+    updatedAt    DateTime      @updatedAt
+    Forms        Form          @relation(fields: [formId], references: [id], onDelete: Cascade)
+    FormResponse FormResponse?
 }
 
 model FormResponse {
-    id        String      @id @default(uuid())
-    formId    String
-    response  Json        @default("{}")
-    browser   String?
-    ip        String?
-    os        String?
-    device    String?
-    completed DateTime?
-    createdAt DateTime    @default(now())
-    updatedAt DateTime    @updatedAt
-    Forms     Form        @relation(fields: [formId], references: [id], onDelete: Cascade)
-    FormViews FormViews[]
+    id          String    @id @default(uuid())
+    formId      String
+    response    Json      @default("{}")
+    browser     String?
+    ip          String?
+    os          String?
+    device      String?
+    completed   DateTime?
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
+    Forms       Form      @relation(fields: [formId], references: [id], onDelete: Cascade)
+    FormViews   FormViews @relation(fields: [formViewsId], references: [id])
+    formViewsId String    @unique
 }
 
 model Workspace {

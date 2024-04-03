@@ -53,7 +53,7 @@ export default function Form(props: TProps) {
               formId={props.formId}
               formSchema={formData.form?.formSchema as TFormSchema}
               questions={formData.form?.questions as TQuestion[]}
-              formViewId={formData.formViewId}
+              formViewId={formData.formViewId!}
             />
           )}
         </>

@@ -12,6 +12,7 @@ import type { TFormSchema } from "~/types/form.types";
 import { questionToJsonSchema } from "./helpers/questionToJsonSchema";
 import { type TQuestion } from "~/types/question.types";
 import { ZEditQuestion } from "./dtos/editQuestion";
+import type { Form, FormResponse, FormViews } from "@prisma/client";
 
 
 /** Index
@@ -66,7 +67,20 @@ export const formRouter = createTRPCRouter({
         }))
         .query(async ({ input, ctx }) => {
             try {
-                return await
+                type TResponse = {
+                    form?: Form;
+                    FormResponses?: (FormResponse & {
+                        FormViews: {
+                            createdAt: Date;
+                            id: string;
+                        }
+                    })[];
+                    FormViews?: FormViews[];
+                }
+
+                const response: TResponse = {}
+
+                const form = await
                     ctx.prisma.form.findUniqueOrThrow({
                         where: {
                             id: input.id,
@@ -80,14 +94,39 @@ export const formRouter = createTRPCRouter({
                                     id: true
                                 }
                             },
-                            FormResponses: input.includeResponses ? {
-                                orderBy: {
-                                    createdAt: "desc"
-                                }
-                            } : false,
-                            FormViews: input.includeViews ? true : false
                         },
                     });
+
+                response.form = form;
+
+                if (input.includeResponses) {
+                    const formResponses = await ctx.prisma.formResponse.findMany({
+                        where: {
+                            formId: input.id
+                        },
+                        include: {
+                            FormViews: {
+                                select: {
+                                    createdAt: true,
+                                    id: true,
+                                }
+                            }
+                        }
+
+                    });
+                    response.FormResponses = formResponses;
+                }
+
+                if (input.includeViews) {
+                    const formViews = await ctx.prisma.formViews.findMany({
+                        where: {
+                            formId: input.id
+                        }
+                    });
+                    response.FormViews = formViews;
+                }
+
+                return response;
             } catch (error) {
                 console.log(error);
                 throw new TRPCError({
@@ -450,7 +489,7 @@ export const formRouter = createTRPCRouter({
         .input(z.object({
             formId: z.string(),
             response: z.object({}).passthrough(),
-            formViewId: z.string().optional()
+            formViewId: z.string()
         }))
         .mutation(async ({ input, ctx }) => {
             try {
@@ -459,11 +498,7 @@ export const formRouter = createTRPCRouter({
                         formId: input.formId,
                         response: input.response,
                         completed: new Date().toISOString(),
-                        FormViews: {
-                            connect: {
-                                id: input.formViewId
-                            }
-                        }
+                        formViewsId: input.formViewId
                     }
                 });
             } catch (error) {
