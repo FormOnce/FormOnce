@@ -4,6 +4,7 @@ import Head from "next/head";
 import { useEffect } from "react";
 import { Toaster } from "sonner";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Analytics } from "@vercel/analytics/react";
 
 export type RootLayoutProps = {
   title: string;
@@ -32,6 +33,7 @@ export default function RootLayout({
       >
         {children}
         <SpeedInsights />
+        <Analytics />
         <Toaster />
       </ThemeProvider>
     </>
