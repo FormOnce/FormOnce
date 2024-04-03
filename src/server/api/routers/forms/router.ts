@@ -29,12 +29,13 @@ import type { Form, FormResponse, FormViews } from "@prisma/client";
 
 export const formRouter = createTRPCRouter({
     getAll: protectedProcedure
-        .query(async ({ ctx }) => {
+        .input(z.object({ workspaceId: z.string().optional() }))
+        .query(async ({ ctx, input }) => {
             try {
                 return await
                     ctx.prisma.form.findMany({
                         where: {
-                            workspaceId: ctx.session?.user?.workspaceId ?? null
+                            workspaceId: input.workspaceId ?? ctx.session?.user?.workspaceId
                         },
                         include: {
                             author: {

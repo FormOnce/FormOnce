@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { type GetServerSidePropsContext } from "next";
 import {
@@ -26,6 +27,10 @@ declare module "next-auth" {
       // ...other properties
     };
   }
+
+  interface User {
+    workspaceId: string;
+  }
 }
 
 /**
@@ -37,6 +42,20 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
 
   callbacks: {
+    jwt: ({ token, user, account, trigger, session }) => {
+      if (user) {
+        token.userId = user.id;
+        token.workspaceId = user.workspaceId;
+      }
+      if (account?.provider) {
+        token.provider = account.provider;
+      }
+      if (trigger === 'update' && session?.workspaceId) {
+        token.workspaceId = session.workspaceId;
+      }
+      return token;
+    },
+
     session: ({ session, token }) => {
       return {
         ...session,
@@ -48,19 +67,6 @@ export const authOptions: NextAuthOptions = {
         },
       }
     },
-    jwt: ({ token, user, account, trigger, session }) => {
-      if (user?.id)
-        token.userId = user.id;
-      if (account?.provider)
-        token.provider = account.provider;
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      if (trigger === 'update' && session?.workspaceId) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        token.workspaceId = session.workspaceId;
-      }
-
-      return token;
-    }
   },
   adapter: PrismaAdapter(prisma),
   providers: [
@@ -77,21 +83,36 @@ export const authOptions: NextAuthOptions = {
           password: z.string(),
         }).parseAsync(credentials);
 
-        const user = await prisma.user.findFirst({
+        const prismaUser = await prisma.user.findFirst({
           where: {
             email: validCredentials.email,
           },
+          include: {
+            WorkspaceMember: {
+              select: {
+                id: true,
+              }
+            },
+          }
         });
 
-        if (!user) throw new Error("User not found");
-        if (!user.password) throw new Error("Password not set");
+        if (!prismaUser) throw new Error("User not found");
+        if (!prismaUser.password) throw new Error("Password not set");
 
         const isPasswordValid = await argon2.verify(
-          user.password,
+          prismaUser.password,
           validCredentials.password
         );
 
         if (!isPasswordValid) throw new Error("Invalid password");
+
+        const defaultWorkspaceId = prismaUser.WorkspaceMember[0]!.id;
+
+        const user = {
+          ...prismaUser,
+          WorkspaceMember: undefined,
+          workspaceId: defaultWorkspaceId
+        };
         return user;
       }
     }),
