@@ -16,6 +16,8 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 
+import { UAParser } from "ua-parser-js";
+
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -33,140 +35,20 @@ import {
   Checkbox,
   Icons,
 } from "@components/ui";
-import type { FormResponse } from "@prisma/client";
+import type {
+  FormViews,
+  FormResponse as PrismaFormResponse,
+} from "@prisma/client";
 import { DataTableColumnHeader } from "./dataTableColumnHeader";
 import { Share } from "lucide-react";
+
+type FormResponse = PrismaFormResponse & {
+  FormViews: FormViews;
+};
 
 type TResponseTableProps = {
   data: FormResponse[];
 };
-
-export const columns: ColumnDef<FormResponse>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-        className="ml-2 justify-self-center"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-        className="ml-2 justify-self-center"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: "Browser",
-    header: "Browser",
-    cell: ({ row }) => row.original.browser ?? "Unknown",
-  },
-  {
-    accessorKey: "OS",
-    header: "OS",
-    cell: ({ row }) => row.original.os ?? "Windows",
-  },
-  {
-    accessorKey: "Device",
-    header: "Device",
-    cell: ({ row }) => row.original.device ?? "Desktop",
-  },
-  {
-    accessorKey: "response",
-    header: "Response",
-    cell: ({ row }) => (
-      <div className="capitalize">
-        <ul>
-          {Object.entries(row.original.response as object).map(
-            ([key, value]) => (
-              <li key={key}>
-                <span className="">{key.replaceAll("_", " ")} -</span>
-                <span className="ml-1">{value}</span>
-              </li>
-            )
-          )}
-        </ul>
-      </div>
-    ),
-  },
-  {
-    accessorKey: "updatedAt",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Date and Time" />
-    ),
-    cell: ({ row }) => (
-      <div className="capitalize">
-        {/* eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion */}
-        {(row.getValue("updatedAt") as Date).toLocaleString("en-US", {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-          hour: "numeric",
-          minute: "numeric",
-        })}
-      </div>
-    ),
-  },
-  {
-    id: "actions",
-    enableHiding: false,
-    cell: ({ row }) => {
-      const response = row.original;
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <DotsHorizontalIcon className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {/* <DropdownMenuLabel>Actions</DropdownMenuLabel> */}
-            <DropdownMenuItem
-              onClick={() =>
-                navigator.clipboard.writeText(JSON.stringify(response.response))
-              }
-            >
-              Copy responses
-              <Icons.copy className="ml-2 h-4 w-4" />
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() =>
-                navigator.clipboard.writeText(
-                  JSON.stringify({
-                    ...response,
-                    response: undefined,
-                    id: undefined,
-                    formId: undefined,
-                    createdAt: undefined,
-                    started: response.createdAt,
-                    updatedAt: response.updatedAt,
-                    lastUpdated: response.updatedAt,
-                    completed: response.completed,
-                  })
-                )
-              }
-            >
-              Copy metadata
-              <Icons.copy className="ml-2 h-4 w-4" />
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
-  },
-];
 
 export function ResponsesTable({ data }: TResponseTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -176,6 +58,155 @@ export function ResponsesTable({ data }: TResponseTableProps) {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
+
+  const parser = new UAParser();
+
+  const columns: ColumnDef<FormResponse>[] = [
+    {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+          className="ml-2 justify-self-center"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+          className="ml-2 justify-self-center"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: "Browser",
+      header: "Browser",
+      cell: ({ row }) => {
+        if (!row.original.FormViews.userAgent) return "Unknown";
+
+        parser.setUA(row.original.FormViews.userAgent);
+        const browser = parser.getBrowser().name;
+        return browser ?? "Unknown";
+      },
+    },
+    {
+      accessorKey: "OS",
+      header: "OS",
+      cell: ({ row }) => {
+        if (!row.original.FormViews.userAgent) return "Unknown";
+
+        parser.setUA(row.original.FormViews.userAgent);
+        const os = parser.getOS().name;
+        return os ?? "Unknown";
+      },
+    },
+    {
+      accessorKey: "Device",
+      header: "Device",
+      cell: ({ row }) => {
+        if (!row.original.FormViews.userAgent) return "Unknown";
+
+        parser.setUA(row.original.FormViews.userAgent);
+        const device = parser.getDevice().model;
+        return device ?? "Unknown";
+      },
+    },
+    {
+      accessorKey: "response",
+      header: "Response",
+      cell: ({ row }) => (
+        <div className="capitalize">
+          <ul>
+            {Object.entries(row.original.response as object).map(
+              ([key, value]) => (
+                <li key={key}>
+                  <span className="">{key.replaceAll("_", " ")} -</span>
+                  <span className="ml-1">{value}</span>
+                </li>
+              )
+            )}
+          </ul>
+        </div>
+      ),
+    },
+    {
+      accessorKey: "updatedAt",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Date and Time" />
+      ),
+      cell: ({ row }) => (
+        <div className="capitalize">
+          {/* eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion */}
+          {(row.getValue("updatedAt") as Date).toLocaleString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+          })}
+        </div>
+      ),
+    },
+    {
+      id: "actions",
+      enableHiding: false,
+      cell: ({ row }) => {
+        const response = row.original;
+
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <DotsHorizontalIcon className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {/* <DropdownMenuLabel>Actions</DropdownMenuLabel> */}
+              <DropdownMenuItem
+                onClick={() =>
+                  navigator.clipboard.writeText(
+                    JSON.stringify(response.response)
+                  )
+                }
+              >
+                Copy responses
+                <Icons.copy className="ml-2 h-4 w-4" />
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() =>
+                  navigator.clipboard.writeText(
+                    JSON.stringify({
+                      ...response,
+                      response: undefined,
+                      id: undefined,
+                      formId: undefined,
+                      createdAt: undefined,
+                      started: response.createdAt,
+                      updatedAt: response.updatedAt,
+                      lastUpdated: response.updatedAt,
+                      completed: response.completed,
+                    })
+                  )
+                }
+              >
+                Copy metadata
+                <Icons.copy className="ml-2 h-4 w-4" />
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
+    },
+  ];
 
   const table = useReactTable({
     data,

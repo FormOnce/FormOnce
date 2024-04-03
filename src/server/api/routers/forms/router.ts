@@ -70,10 +70,7 @@ export const formRouter = createTRPCRouter({
                 type TResponse = {
                     form?: Form;
                     FormResponses?: (FormResponse & {
-                        FormViews: {
-                            createdAt: Date;
-                            id: string;
-                        }
+                        FormViews: FormViews
                     })[];
                     FormViews?: FormViews[];
                 }
@@ -105,12 +102,7 @@ export const formRouter = createTRPCRouter({
                             formId: input.id
                         },
                         include: {
-                            FormViews: {
-                                select: {
-                                    createdAt: true,
-                                    id: true,
-                                }
-                            }
+                            FormViews: true
                         }
 
                     });
@@ -467,9 +459,19 @@ export const formRouter = createTRPCRouter({
 
                 let formView = undefined;
                 if (input.increaseViewCount) {
+
+                    const ZIpSchema = z.string().ip();
+
+                    const parsedIp = ZIpSchema.safeParse(ctx.req.headers['x-forwarded-for'] ?? ctx.req.socket.remoteAddress);
+
+                    const ip = parsedIp.success ? parsedIp.data : undefined;
+                    const userAgent = ctx.req.headers['user-agent'];
+
                     formView = await ctx.prisma.formViews.create({
                         data: {
-                            formId: input.id
+                            formId: input.id,
+                            ip: ip,
+                            userAgent: userAgent
                         }
                     });
                 }
@@ -491,14 +493,14 @@ export const formRouter = createTRPCRouter({
             response: z.object({}).passthrough(),
             formViewId: z.string()
         }))
-        .mutation(async ({ input, ctx }) => {
+        .mutation(async ({ input, ctx, }) => {
             try {
                 return await ctx.prisma.formResponse.create({
                     data: {
                         formId: input.formId,
                         response: input.response,
                         completed: new Date().toISOString(),
-                        formViewsId: input.formViewId
+                        formViewsId: input.formViewId,
                     }
                 });
             } catch (error) {
