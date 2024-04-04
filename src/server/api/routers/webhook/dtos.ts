@@ -5,7 +5,7 @@ export const ZAddWebhook = z.object({
     name: z.string(),
     url: z.string(),
     secret: z.string(),
-    event: z.nativeEnum(WebhookTriggerEvent),
+    events: z.array(z.nativeEnum(WebhookTriggerEvent)),
 });
 
 export const ZUpdateWebhook = z.object({

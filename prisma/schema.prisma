@@ -143,18 +143,18 @@ enum WebhookTriggerEvent {
 }
 
 model Webhook {
-    id            String              @id @default(uuid())
+    id            String                @id @default(uuid())
     name          String
     url           String
     secret        String
-    enabled       Boolean             @default(true)
-    workspace     Workspace           @relation(fields: [workspaceId], references: [id])
+    enabled       Boolean               @default(true)
+    workspace     Workspace             @relation(fields: [workspaceId], references: [id])
     workspaceId   String
-    createdBy     User                @relation(fields: [createdById], references: [id])
+    createdBy     User                  @relation(fields: [createdById], references: [id])
     createdById   String
-    event         WebhookTriggerEvent
-    createdAt     DateTime            @default(now())
-    updatedAt     DateTime            @updatedAt
+    events        WebhookTriggerEvent[]
+    createdAt     DateTime              @default(now())
+    updatedAt     DateTime              @updatedAt
     WebhookRecord WebhookRecord[]
 }
 

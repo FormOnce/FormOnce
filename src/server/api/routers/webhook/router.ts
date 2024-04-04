@@ -23,6 +23,9 @@ export const webhooksRouter = createTRPCRouter({
                     where: {
                         workspaceId: ctx.session.user.workspaceId
                     },
+                    orderBy: {
+                        createdAt: "desc"
+                    }
                 });
             } catch (error) {
                 console.log(error);
@@ -42,7 +45,7 @@ export const webhooksRouter = createTRPCRouter({
                         url: input.url,
                         name: input.name,
                         secret: input.secret,
-                        event: input.event,
+                        events: input.events,
                         createdById: ctx.session.user.id,
                         workspaceId: ctx.session.user.workspaceId,
                     },
@@ -132,7 +135,7 @@ export const webhooksRouter = createTRPCRouter({
                         url: input.url,
                         name: input.name,
                         secret: input.secret,
-                        event: input.event,
+                        events: input.events,
                     },
                 });
             } catch (error) {
