@@ -107,7 +107,7 @@ const WebhookTable = () => {
       <TableBody>
         {isLoading ? (
           <TableRow>
-            <TableCell colSpan={4}>
+            <TableCell colSpan={5}>
               <div className="my-4 flex justify-center">
                 <Loader2 className="animate-spin" />{" "}
               </div>
