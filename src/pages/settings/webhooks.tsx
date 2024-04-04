@@ -94,6 +94,7 @@ const WebhookTable = () => {
           <TableHead>URL</TableHead>
           {/* <TableHead>Created</TableHead> */}
           <TableHead>Enabled</TableHead>
+          <TableHead>Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -148,13 +149,16 @@ const WebhookTable = () => {
               </TableCell>
               <TableCell className="flex gap-2">
                 <DeleteWebhookDialog refetch={refetch} webhook={webhook} />
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  className="hover:bg-destructive/90 hover:text-destructive-foreground"
-                >
-                  <Edit className="h-4 w-4" />
-                </Button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Button variant="secondary" size="icon" disabled>
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Coming soon</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </TableCell>
             </TableRow>
           ))
