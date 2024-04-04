@@ -2,6 +2,7 @@ import { createTRPCRouter } from "~/server/api/trpc";
 import { authRouter } from "./routers/auth";
 import { workspaceRouter } from "./routers/workspace";
 import { formRouter } from "./routers/forms/router";
+import { webhooksRouter } from "./routers/webhook/router";
 
 /**
  * This is the primary router for your server.
@@ -11,7 +12,8 @@ import { formRouter } from "./routers/forms/router";
 export const appRouter = createTRPCRouter({
   auth: authRouter,
   workspace: workspaceRouter,
-  form: formRouter
+  form: formRouter,
+  webhook: webhooksRouter,
 });
 
 // export type definition of API

@@ -19,6 +19,7 @@ import type { GetServerSideProps } from "next";
 import { getServerAuthSession } from "~/server/auth";
 import { type Form, FormStatus } from "@prisma/client";
 import { useState } from "react";
+import { useSession } from "next-auth/react";
 
 export default function Forms() {
   const router = useRouter();
@@ -45,8 +46,15 @@ export default function Forms() {
 
 export function AllFormsTable() {
   const router = useRouter();
+  const session = useSession();
 
-  const { data: forms, isLoading, refetch } = api.form.getAll.useQuery();
+  const {
+    data: forms,
+    isLoading,
+    refetch,
+  } = api.form.getAll.useQuery({
+    workspaceId: session.data?.user.workspaceId,
+  });
   const {
     mutateAsync: deleteForm,
     isLoading: isDeletingForm,

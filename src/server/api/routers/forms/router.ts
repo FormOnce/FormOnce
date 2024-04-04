@@ -12,7 +12,7 @@ import type { TFormSchema } from "~/types/form.types";
 import { questionToJsonSchema } from "./helpers/questionToJsonSchema";
 import { type TQuestion } from "~/types/question.types";
 import { ZEditQuestion } from "./dtos/editQuestion";
-import type { Form, FormResponse, FormViews } from "@prisma/client";
+import { WebhookTriggerEvent, type Form, type FormResponse, type FormViews, type Prisma } from "@prisma/client";
 
 
 /** Index
@@ -29,12 +29,13 @@ import type { Form, FormResponse, FormViews } from "@prisma/client";
 
 export const formRouter = createTRPCRouter({
     getAll: protectedProcedure
-        .query(async ({ ctx }) => {
+        .input(z.object({ workspaceId: z.string().optional() }))
+        .query(async ({ ctx, input }) => {
             try {
                 return await
                     ctx.prisma.form.findMany({
                         where: {
-                            workspaceId: ctx.session?.user?.workspaceId ?? null
+                            workspaceId: input.workspaceId ?? ctx.session?.user?.workspaceId
                         },
                         include: {
                             author: {
@@ -500,14 +501,81 @@ export const formRouter = createTRPCRouter({
         }))
         .mutation(async ({ input, ctx, }) => {
             try {
-                return await ctx.prisma.formResponse.create({
+                const formresponse = await ctx.prisma.formResponse.create({
                     data: {
                         formId: input.formId,
                         response: input.response,
                         completed: new Date().toISOString(),
                         formViewsId: input.formViewId,
+                    },
+                    include: {
+                        Forms: true
                     }
                 });
+
+                // execute webhook
+                const webhooks = await ctx.prisma.webhook.findMany({
+                    where: {
+                        workspaceId: ctx.session?.user?.workspaceId,
+                        enabled: true,
+                        events: {
+                            has: WebhookTriggerEvent.RESPONSE_SUBMITTED,
+                        }
+                    }
+                });
+
+                if (webhooks.length > 0) {
+                    const payload = {
+                        form: formresponse.Forms.name,
+                        formId: input.formId,
+                        event: WebhookTriggerEvent.RESPONSE_SUBMITTED,
+                        response: input.response,
+                        submittedAt: formresponse.completed?.toISOString(),
+                    }
+                    webhooks.forEach(async (webhook) => {
+                        const response = await fetch(webhook.url, {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-FormOnce-Secret": webhook.secret
+                            },
+                            body: JSON.stringify(payload)
+                        });
+
+                        if (response.ok) {
+                            console.log("Webhook sent successfully");
+                        } else {
+                            console.log("Webhook failed to send");
+                        }
+
+                        const responseText = await response.text();
+                        let responseBody: Prisma.InputJsonValue;
+
+                        try {
+                            responseBody = JSON.parse(responseText) as Prisma.InputJsonValue;
+                        }
+                        catch (error) {
+                            responseBody = responseText;
+                        }
+
+                        // create WebhookRecord
+                        await ctx.prisma.webhookRecord.create({
+                            data: {
+                                // formId: input.formId,
+                                webhookId: webhook.id,
+                                event: WebhookTriggerEvent.RESPONSE_SUBMITTED,
+                                payload: payload,
+                                responseBody: responseBody,
+                                responseStatus: response.status,
+                                responseHeaders: Object.fromEntries(response.headers.entries()),
+                            }
+                        });
+
+
+                    });
+                }
+
+                return formresponse;
             } catch (error) {
                 console.log(error);
                 throw new TRPCError({
