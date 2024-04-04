@@ -199,18 +199,16 @@ const DeleteWebhookDialog = ({
       </AlertDialogTrigger>
       <AlertDialogContent className="min-w-max">
         <AlertDialogHeader>
-          <AlertDialogTitle>
-            Are you sure you want to delete webhook {webhook.name} ?
-          </AlertDialogTitle>
+          <AlertDialogTitle>Delete webhook {webhook.name}?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete your
-            account and remove your data from our servers.
+            This will permanently delete this webhook. This action cannot be
+            undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <div className="my-4 space-y-2">
           <Label className="flex items-center">
             <span className="text-sm">Confirm by typing : </span>
-            <span className="mx-1 text-base text-red-500">
+            <span className="mx-1 text-sm text-red-500">
               Delete {webhook.name}{" "}
             </span>{" "}
           </Label>
