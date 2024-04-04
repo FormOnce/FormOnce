@@ -11,7 +11,6 @@ import {
   DialogTrigger,
   Button,
   Input,
-  Label,
   FormItem,
   FormField,
   FormLabel,
@@ -21,7 +20,7 @@ import {
   Form,
   Checkbox,
 } from "@components/ui";
-import { Eye, EyeIcon, Webhook } from "lucide-react";
+import { EyeIcon, Webhook } from "lucide-react";
 import { toast } from "sonner";
 import { type TAddWebhookForm, ZAddWebhookForm } from "~/types/webhook.types";
 import { useForm } from "react-hook-form";
@@ -92,11 +91,11 @@ export function AddWebhookDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
         <Button size={"lg"} disabled={disabled}>
+          <Webhook className="mr-2 h-5 w-5" />
           Add Webhook
-          <Webhook className="ml-2 h-4 w-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="min-w-max">
         <DialogHeader className="my-2">
           <DialogTitle className="flex items-center gap-3">
             <Webhook className="h-6 w-6" /> <span>Add Webhook</span>
@@ -112,26 +111,6 @@ export function AddWebhookDialog({
             name="add-webhook-form"
             id="add-webhook-form"
           >
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Webhook name</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="text"
-                      placeholder="Eg. New user webhook"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    A unique name to easily identify this webhook
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             <FormField
               control={form.control}
               name="url"
@@ -228,65 +207,88 @@ export function AddWebhookDialog({
               </FormDescription>
               <FormMessage>{form.formState.errors.events?.message}</FormMessage>
             </FormItem>
-            <FormField
-              control={form.control}
-              name="secret"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Webhook secret</FormLabel>
-                  <FormControl>
-                    <div className="flex items-center gap-2">
-                      <div className="relative w-full">
-                        <Input
-                          type="password"
-                          placeholder="Eg. 1a2b3c4d5e"
-                          {...field}
-                        />
-                        <CopyIcon
-                          className="absolute right-2 top-2 h-4 w-4 cursor-pointer text-muted-foreground hover:text-accent-foreground"
-                          onClick={() => {
-                            void navigator.clipboard.writeText(field.value);
-                            toast.success("Secret copied to clipboard", {
-                              duration: 2000,
-                              position: "top-center",
-                            });
-                          }}
-                        />
-                        <EyeIcon
-                          className="absolute right-8 top-2 h-4 w-4 cursor-pointer text-muted-foreground hover:text-accent-foreground"
-                          onClick={() => {
-                            const input =
-                              // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
-                              document.querySelector(
-                                "input[name=secret]"
-                              ) as HTMLInputElement;
-                            input.type =
-                              input.type === "password" ? "text" : "password";
-                          }}
-                        />
+            <div className="flex gap-6">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Webhook name</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="text"
+                        placeholder="Eg. New user webhook"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      A unique name to easily identify this webhook
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="secret"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Webhook secret</FormLabel>
+                    <FormControl>
+                      <div className="flex items-center gap-2">
+                        <div className="relative w-full">
+                          <Input
+                            type="password"
+                            placeholder="Eg. 1a2b3c4d5e"
+                            {...field}
+                          />
+                          <CopyIcon
+                            className="absolute right-2 top-2 h-4 w-4 cursor-pointer text-muted-foreground hover:text-accent-foreground"
+                            onClick={() => {
+                              void navigator.clipboard.writeText(field.value);
+                              toast.success("Secret copied to clipboard", {
+                                duration: 2000,
+                                position: "top-center",
+                              });
+                            }}
+                          />
+                          <EyeIcon
+                            className="absolute right-8 top-2 h-4 w-4 cursor-pointer text-muted-foreground hover:text-accent-foreground"
+                            onClick={() => {
+                              const input =
+                                // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
+                                document.querySelector(
+                                  "input[name=secret]"
+                                ) as HTMLInputElement;
+                              input.type =
+                                input.type === "password" ? "text" : "password";
+                            }}
+                          />
+                        </div>
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          onClick={onGenerateSecret}
+                          size={"sm"}
+                        >
+                          Generate
+                        </Button>
                       </div>
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        onClick={onGenerateSecret}
-                      >
-                        Generate
-                      </Button>
-                    </div>
-                  </FormControl>
-                  <FormDescription>
-                    A secret key to make sure webhook is from{" "}
-                    <span className="mx-0 text-[hsl(280,100%,70%)]">
-                      FormOnce
-                    </span>
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    </FormControl>
+                    <FormDescription>
+                      A secret key to make sure webhook is from{" "}
+                      <span className="mx-0 text-[hsl(280,100%,70%)]">
+                        FormOnce
+                      </span>
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           </form>
         </Form>
-        <DialogFooter className="my-2 sm:justify-start">
+        <DialogFooter className="my-4 mt-6 sm:justify-start">
           <DialogClose asChild>
             <Button type="button" variant="ghost">
               Close
