@@ -62,7 +62,14 @@ export default function Webhooks() {
 }
 
 const WebhookTable = () => {
-  const { data: webhooks, isLoading, refetch } = api.webhook.getAll.useQuery();
+  const {
+    data: webhooks,
+    isLoading,
+    refetch,
+  } = api.webhook.getAll.useQuery(undefined, {
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+  });
 
   const { mutateAsync: enableWebhook } = api.webhook.enable.useMutation();
   const { mutateAsync: disableWebhook } = api.webhook.disable.useMutation();
