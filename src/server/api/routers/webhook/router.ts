@@ -25,6 +25,14 @@ export const webhooksRouter = createTRPCRouter({
                     },
                     orderBy: {
                         createdAt: "desc"
+                    },
+                    include: {
+                        createdBy: {
+                            select: {
+                                id: true,
+                                name: true,
+                            }
+                        }
                     }
                 });
             } catch (error) {

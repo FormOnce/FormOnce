@@ -99,7 +99,6 @@ const WebhookTable = () => {
           <TableHead>Webhook</TableHead>
           <TableHead>Events</TableHead>
           <TableHead>URL</TableHead>
-          {/* <TableHead>Created</TableHead> */}
           <TableHead>Enabled</TableHead>
           <TableHead>Actions</TableHead>
         </TableRow>
@@ -121,8 +120,9 @@ const WebhookTable = () => {
                   {webhook.name}
                   <br />
                   <span className="text-xs text-muted-foreground">
-                    {" "}
-                    {webhook.id}
+                    created on{" "}
+                    {new Date(webhook.createdAt).toLocaleDateString()} by{" "}
+                    {webhook.createdBy.name}{" "}
                   </span>
                 </p>
               </TableCell>
@@ -136,7 +136,6 @@ const WebhookTable = () => {
               <TableCell className="max-w-[12rem] truncate" title={webhook.url}>
                 {webhook.url}
               </TableCell>
-              {/* <TableCell>{webhook.createdAt.toLocaleDateString()}</TableCell> */}
               <TableCell>
                 <TooltipProvider>
                   <Tooltip>
