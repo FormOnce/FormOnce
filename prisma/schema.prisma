@@ -25,6 +25,7 @@ model User {
     Sessions        Session[]
     Form            Form[]
     Webhook         Webhook[]
+    ApiKey          ApiKey[]
 }
 
 model Account {
@@ -113,6 +114,7 @@ model Workspace {
     Forms            Form[]
     WorkspaceMembers WorkspaceMember[]
     Webhooks         Webhook[]
+    ApiKeys          ApiKey[]
 }
 
 model WorkspaceMember {
@@ -169,4 +171,17 @@ model WebhookRecord {
     createdAt       DateTime            @default(now())
     updatedAt       DateTime            @updatedAt
     Webhook         Webhook             @relation(fields: [webhookId], references: [id])
+}
+
+model ApiKey {
+    id          String    @id @default(uuid())
+    key         String    @unique
+    name        String
+    enabled     Boolean   @default(true)
+    workspaceId String
+    Workspace   Workspace @relation(fields: [workspaceId], references: [id])
+    createdBy   User      @relation(fields: [createdById], references: [id])
+    createdById String
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
 }
