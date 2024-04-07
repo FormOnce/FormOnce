@@ -18,7 +18,6 @@ export const workspaceRouter = createTRPCRouter({
                 ctx.prisma.workspace.create({
                     data: {
                         name: input.name,
-                        apiKey: Crypto.randomBytes(16).toString("hex"),
                         isPersonal: false,
                         WorkspaceMembers: {
                             create: {
