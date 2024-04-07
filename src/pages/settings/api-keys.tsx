@@ -28,10 +28,10 @@ import {
 } from "~/components/ui";
 import { api } from "~/utils/api";
 import { Edit, Loader2 } from "lucide-react";
-// import { AddWebhookDialog } from "~/components/key/add-key-dialog";
 import { toast } from "sonner";
 import type { ApiKey } from "@prisma/client";
 import { useState } from "react";
+import { AddApiKeyDialog } from "~/components/api-keys/add-api-key-dialog";
 
 export default function ApiKeys() {
   return (
@@ -40,7 +40,7 @@ export default function ApiKeys() {
         <div className="flex justify-between gap-4">
           <h2 className="text-3xl font-bold tracking-tight">Api Keys</h2>
           <div className="flex items-center space-x-2">
-            {/* <AddWebhookDialog /> */}
+            <AddApiKeyDialog />
           </div>
         </div>
         <div>

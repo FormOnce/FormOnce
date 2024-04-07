@@ -50,7 +50,7 @@ export const ApikeyRouter = createTRPCRouter({
                 return await ctx.prisma.apiKey.create({
                     data: {
                         name: input.name,
-                        key: input.key,
+                        key: Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2),
                         createdById: ctx.session.user.id,
                         workspaceId: ctx.session.user.workspaceId,
                     },
