@@ -6,8 +6,6 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 
-import Crypto from "crypto";
-
 /** Index
  * signup: publicProcedure - create user
  **/
@@ -33,7 +31,6 @@ export const authRouter = createTRPCRouter({
                   Workspace: {
                     create: {
                       name: `${input.name}'s Workspace`,
-                      apiKey: Crypto.randomBytes(16).toString("hex"),
                       isPersonal: true,
                     },
                   },
