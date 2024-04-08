@@ -4,7 +4,6 @@ import {
     createTRPCRouter,
     protectedProcedure,
 } from "~/server/api/trpc";
-import Crypto from "crypto";
 
 /** Index
  * create: privateProcedure - create new workspace and add current user as owner
@@ -18,7 +17,6 @@ export const workspaceRouter = createTRPCRouter({
                 ctx.prisma.workspace.create({
                     data: {
                         name: input.name,
-                        apiKey: Crypto.randomBytes(16).toString("hex"),
                         isPersonal: false,
                         WorkspaceMembers: {
                             create: {

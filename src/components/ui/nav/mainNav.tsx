@@ -18,10 +18,10 @@ export function MainNav({
         Forms
       </Link>
       <Link
-        href="/dashboard/responses"
+        href="/dashboard/templates"
         className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
       >
-        Responses
+        Templates
       </Link>
     </nav>
   );

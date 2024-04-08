@@ -2,7 +2,6 @@ import { z } from 'zod';
 
 export const ZAddkey = z.object({
     name: z.string(),
-    key: z.string(),
 });
 
 export const ZDeletekey = z.object({

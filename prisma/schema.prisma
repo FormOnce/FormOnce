@@ -106,7 +106,6 @@ model FormResponse {
 model Workspace {
     id               String            @id @default(uuid())
     name             String            @unique
-    apiKey           String            @unique
     icon             String?
     createdAt        DateTime          @default(now())
     updatedAt        DateTime          @updatedAt
