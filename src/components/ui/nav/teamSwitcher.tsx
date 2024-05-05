@@ -116,8 +116,9 @@ export function TeamSwitcher({ className }: TeamSwitcherProps) {
     void updateSession({
       workspaceId: selectedWorkspace.id,
     });
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [groups, selectedWorkspace.id]);
+  }, [groups]);
 
   const handleCreateTeam = async () => {
     const name = newWorkspaceInfo.name.trim();
@@ -168,9 +169,16 @@ export function TeamSwitcher({ className }: TeamSwitcherProps) {
                   {group.teams.map((team) => (
                     <CommandItem
                       key={team.id}
-                      onSelect={() => {
+                      onSelect={async () => {
                         setSelectedWorkspace(team);
                         setOpen(false);
+                        // update workspaceId in session
+                        await updateSession({
+                          workspaceId: team.id,
+                        });
+
+                        // refresh website when workspace changes
+                        window.location.reload();
                       }}
                       className="text-sm"
                     >
