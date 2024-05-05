@@ -107,6 +107,11 @@ const RenderTextInput = ({
           placeholder={placeholder}
           type="number"
           {...field}
+          onChange={(e) =>
+            field.onChange(
+              Number(e.target.value) ? Number(e.target.value) : e.target.value
+            )
+          }
         />
       );
     case "url":
