@@ -13,6 +13,7 @@ export interface UserAuthFormProps
 
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   const [isGithubLoading, setisGithubLoading] = useState(false);
+  const [isGoogleLoading, setisGoogleLoading] = useState(false);
 
   const {
     mutateAsync: signupUsingCredentials,
@@ -59,9 +60,16 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
     },
   });
 
-  const hanleGithubSignIn = () => {
+  const handleGithubSignIn = () => {
     setisGithubLoading(true);
     void signIn("github", { callbackUrl: "/dashboard" });
+    setisGithubLoading(false);
+  };
+
+  const handleGoogleSignIn = () => {
+    setisGoogleLoading(true);
+    void signIn("google", { callbackUrl: "/dashboard" });
+    setisGoogleLoading(false);
   };
 
   return (
@@ -129,8 +137,10 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
         <div className="flex flex-col-reverse gap-2">
           <Button
             variant="outline"
-            disabled={isCredentialSignUpLoading || isGithubLoading}
-            onClick={hanleGithubSignIn}
+            disabled={
+              isCredentialSignUpLoading || isGithubLoading || isGoogleLoading
+            }
+            onClick={handleGithubSignIn}
           >
             {isGithubLoading ? (
               <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
@@ -139,7 +149,14 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
             )}{" "}
             Github
           </Button>
-          <Button variant="outline" disabled={isCredentialSignUpLoading}>
+          <Button
+            variant="outline"
+            loading={isGoogleLoading}
+            disabled={
+              isCredentialSignUpLoading || isGoogleLoading || isGithubLoading
+            }
+            onClick={handleGoogleSignIn}
+          >
             <Icons.google className="mr-2 h-4 w-4" /> Google
           </Button>
         </div>
