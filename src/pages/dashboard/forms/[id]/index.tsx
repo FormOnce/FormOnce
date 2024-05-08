@@ -265,11 +265,28 @@ export default function Form(props: TProps) {
                     : "hidden"
                 }`}
               >
-                <div className="mb-28 flex">
-                  <LockClosedIcon className="mr-2 h-6 w-6" />
-                  <p className="text-xl">
-                    Published forms can&apos;t be edited.
-                  </p>
+                <div className="mb-28 flex flex-col gap-2">
+                  <div className="flex">
+                    <LockClosedIcon className="mr-2 h-6 w-6" />
+                    <p className="text-xl">
+                      Published forms can&apos;t be edited.
+                    </p>
+                  </div>
+                  <div className="flex justify-center">
+                    <Button
+                      type="button"
+                      onClick={() => void onTogglePublish()}
+                      variant={"destructive"}
+                      disabled={
+                        !formData?.questions.length ||
+                        isUnpublishingForm ||
+                        formData?.status !== FormStatus.PUBLISHED
+                      }
+                      loading={isUnpublishingForm}
+                    >
+                      Unpublish
+                    </Button>
+                  </div>
                 </div>
               </div>
               <ScrollArea className="h-full pr-8">
