@@ -43,8 +43,9 @@ export function UserNav() {
             </p>
           </div>
         </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuGroup>
+        {/* will add these in future */}
+        {/* <DropdownMenuSeparator /> */}
+        {/* <DropdownMenuGroup>
           <DropdownMenuItem>
             <Link className="w-full" href="/settings/profile">
               Profile
@@ -55,10 +56,7 @@ export function UserNav() {
               Billing
             </Link>
           </DropdownMenuItem>
-          {/* <DropdownMenuItem>
-            <Link href="/settings/workspaces/new">New Workspace</Link>
-          </DropdownMenuItem> */}
-        </DropdownMenuGroup>
+        </DropdownMenuGroup> */}
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignout}>Sign out</DropdownMenuItem>
       </DropdownMenuContent>
