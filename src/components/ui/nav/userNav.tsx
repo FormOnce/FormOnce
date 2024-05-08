@@ -3,14 +3,12 @@ import { Button } from "@components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@components/ui/dropdown-menu";
 import { signOut, useSession } from "next-auth/react";
-import Link from "next/link";
 
 export function UserNav() {
   const session = useSession();
