@@ -112,6 +112,15 @@ export function TeamSwitcher({ className }: TeamSwitcherProps) {
   const groups = React.useMemo(() => getGroups(workspaces), [workspaces]);
 
   React.useEffect(() => {
+    // see if selected workspace is in the list
+    const workspace = workspaces?.find(
+      (workspace) => workspace.id === selectedWorkspace.id
+    );
+
+    if (!workspace && groups?.length > 0 && groups[0]!.teams.length > 0) {
+      setSelectedWorkspace(groups[0]!.teams[0]!);
+    }
+
     // update workspaceId in session
     void updateSession({
       workspaceId: selectedWorkspace.id,
