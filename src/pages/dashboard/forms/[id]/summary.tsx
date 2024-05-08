@@ -121,9 +121,11 @@ export default function Summary(props: TProps) {
 
     if (formViewDeltaInNumber) {
       formViewDelta =
-        formViewDeltaInNumber > 0
-          ? `+${formViewDeltaInNumber}% in last 7 days`
-          : `${formViewDeltaInNumber}% in last 7 days`;
+        formViewDeltaInNumber !== Infinity
+          ? formViewDeltaInNumber > 0
+            ? `+${formViewDeltaInNumber}% in last 7 days`
+            : `${formViewDeltaInNumber}% in last 7 days`
+          : "";
     }
 
     // calculate formStarts percentage delta
@@ -134,9 +136,11 @@ export default function Summary(props: TProps) {
 
     if (formStartsDeltaInNumber) {
       formStartsDelta =
-        formStartsDeltaInNumber > 0
-          ? `+${formStartsDeltaInNumber}% in last 7 days`
-          : `${formStartsDeltaInNumber}% in last 7 days`;
+        formStartsDeltaInNumber !== Infinity
+          ? formStartsDeltaInNumber > 0
+            ? `+${formStartsDeltaInNumber}% in last 7 days`
+            : `${formStartsDeltaInNumber}% in last 7 days`
+          : "";
     }
 
     // calculate formResponse percentage delta
@@ -148,9 +152,11 @@ export default function Summary(props: TProps) {
 
     if (formResponseDeltaInNumber) {
       formResponseDelta =
-        formResponseDeltaInNumber > 0
-          ? `+${formResponseDelta}% in last 7 days`
-          : `${formResponseDelta}% in last 7 days`;
+        formResponseDeltaInNumber !== Infinity
+          ? formResponseDeltaInNumber > 0
+            ? `+${formResponseDelta}% in last 7 days`
+            : `${formResponseDelta}% in last 7 days`
+          : "";
     }
 
     // calculate average time
