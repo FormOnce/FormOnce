@@ -22,6 +22,7 @@ import { FormStatus } from "@prisma/client";
 import { Reorder } from "framer-motion";
 import { toast } from "sonner";
 import { ShareDialog } from "~/components/form-builder/share-dialog";
+import { LockClosedIcon } from "@radix-ui/react-icons";
 
 type TProps = {
   formId: string;
@@ -252,7 +253,25 @@ export default function Form(props: TProps) {
             </div>
           </div>
           <ResizablePanelGroup direction="horizontal">
-            <ResizablePanel minSize={40} maxSize={60} className="h-full">
+            <ResizablePanel
+              minSize={40}
+              maxSize={60}
+              className="relative h-full"
+            >
+              <div
+                className={`${
+                  formData?.status === FormStatus.PUBLISHED
+                    ? "absolute left-0 top-0 z-10 flex h-full w-full cursor-not-allowed items-center justify-center bg-black bg-opacity-75"
+                    : "hidden"
+                }`}
+              >
+                <div className="mb-28 flex">
+                  <LockClosedIcon className="mr-2 h-6 w-6" />
+                  <p className="text-xl">
+                    Published forms can&apos;t be edited.
+                  </p>
+                </div>
+              </div>
               <ScrollArea className="h-full pr-8">
                 <div className="flex h-full flex-col gap-6">
                   <Reorder.Group
