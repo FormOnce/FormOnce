@@ -1,6 +1,7 @@
-import { CopyIcon } from "@radix-ui/react-icons";
+import { CopyIcon } from '@radix-ui/react-icons'
 
 import {
+  Button,
   Dialog,
   DialogClose,
   DialogContent,
@@ -9,19 +10,18 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  Button,
   Input,
   Label,
-} from "@components/ui";
-import { Share } from "lucide-react";
-import { toast } from "sonner";
+} from '@components/ui'
+import { Share } from 'lucide-react'
+import { toast } from 'sonner'
 
 type TShareDialogProps = {
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
-  disabled?: boolean;
-  link: string;
-};
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+  disabled?: boolean
+  link: string
+}
 
 export function ShareDialog({
   open,
@@ -30,12 +30,12 @@ export function ShareDialog({
   link,
 }: TShareDialogProps) {
   const handleCopy = () => {
-    void navigator.clipboard.writeText(link);
-    toast.success("Link copied to clipboard", {
-      position: "top-center",
+    void navigator.clipboard.writeText(link)
+    toast.success('Link copied to clipboard', {
+      position: 'top-center',
       duration: 1500,
-    });
-  };
+    })
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -73,5 +73,5 @@ export function ShareDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

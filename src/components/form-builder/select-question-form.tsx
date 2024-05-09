@@ -1,6 +1,5 @@
-import React from "react";
 import {
-  Input,
+  Button,
   Form,
   FormControl,
   FormDescription,
@@ -8,39 +7,40 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-  Button,
-  Switch,
   Icons,
-} from "@components/ui";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useFieldArray, useForm } from "react-hook-form";
-import { type z } from "zod";
+  Input,
+  Switch,
+} from '@components/ui'
+import { zodResolver } from '@hookform/resolvers/zod'
+import React from 'react'
+import { useFieldArray, useForm } from 'react-hook-form'
+import { type z } from 'zod'
 import {
   EQuestionType,
   ESelectSubType,
-  ZSelectQuestion,
   type TSelectQuestion,
-} from "~/types/question.types";
+  ZSelectQuestion,
+} from '~/types/question.types'
 
-const formSchema = ZSelectQuestion;
+const formSchema = ZSelectQuestion
 
 type TSelectQuestionForm =
   | {
-      mode: "add";
-      onSubmit: (values: z.infer<typeof formSchema>) => Promise<void>;
+      mode: 'add'
+      onSubmit: (values: z.infer<typeof formSchema>) => Promise<void>
     }
   | (TSelectQuestion & {
-      mode: "edit";
-      onEdit: (values: z.infer<typeof formSchema>) => Promise<void>;
-    });
+      mode: 'edit'
+      onEdit: (values: z.infer<typeof formSchema>) => Promise<void>
+    })
 
 const SelectQuestionForm = (props: TSelectQuestionForm) => {
-  const [isLoading, setIsloading] = React.useState(false);
+  const [isLoading, setIsloading] = React.useState(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues:
-      props.mode === "edit"
+      props.mode === 'edit'
         ? {
             title: props.title,
             description: props.description,
@@ -50,38 +50,38 @@ const SelectQuestionForm = (props: TSelectQuestionForm) => {
             options: props.options,
           }
         : {
-            title: "",
-            description: "",
-            placeholder: "",
+            title: '',
+            description: '',
+            placeholder: '',
             type: EQuestionType.Select,
             subType: ESelectSubType.Single,
-            options: ["Option 1", "Option 2"],
+            options: ['Option 1', 'Option 2'],
           },
-    mode: "onTouched",
-  });
+    mode: 'onTouched',
+  })
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
-    name: "options" as unknown as never,
+    name: 'options' as unknown as never,
     rules: {
       minLength: {
         value: 2,
-        message: "You need to have at least 2 options",
+        message: 'You need to have at least 2 options',
       },
     },
-  });
+  })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsloading(true);
+    setIsloading(true)
     // This will be type-safe and validated.
-    if (props.mode === "add") await props.onSubmit(values);
-    else await props.onEdit(values);
-    setIsloading(false);
-    form.reset();
+    if (props.mode === 'add') await props.onSubmit(values)
+    else await props.onEdit(values)
+    setIsloading(false)
+    form.reset()
   }
 
   function onError(errors: unknown) {
-    console.log(errors);
+    console.log(errors)
   }
 
   return (
@@ -189,7 +189,7 @@ const SelectQuestionForm = (props: TSelectQuestionForm) => {
                     <Button
                       type="button"
                       size="icon"
-                      variant={"ghost"}
+                      variant={'ghost'}
                       onClick={() => remove(index)}
                       className="text-muted-foreground hover:bg-destructive/90 hover:text-destructive-foreground"
                     >
@@ -204,13 +204,13 @@ const SelectQuestionForm = (props: TSelectQuestionForm) => {
             type="button"
             size="icon"
             variant="ghost"
-            onClick={() => append("Option")}
+            onClick={() => append('Option')}
             className="text-muted-foreground hover:bg-primary/90 hover:text-primary-foreground"
           >
             <Icons.plus className="h-5 w-5" />
           </Button>
         </div>
-        {props.mode === "add" ? (
+        {props.mode === 'add' ? (
           <Button type="submit">Add Question</Button>
         ) : (
           <Button
@@ -223,7 +223,7 @@ const SelectQuestionForm = (props: TSelectQuestionForm) => {
         )}
       </form>
     </Form>
-  );
-};
+  )
+}
 
-export { SelectQuestionForm };
+export { SelectQuestionForm }

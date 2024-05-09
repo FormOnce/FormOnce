@@ -1,14 +1,14 @@
-import type { Metadata } from "next";
+import type { Metadata } from 'next'
 
-import { MainNav, UserNav, Sidebar } from "~/components/ui";
-import RootLayout, { type RootLayoutProps } from "@layouts/rootLayout";
+import RootLayout, { type RootLayoutProps } from '@layouts/rootLayout'
+import { MainNav, Sidebar, UserNav } from '~/components/ui'
 
 export const metadata: Metadata = {
-  title: "Dashboard",
-  description: "App Dashboard",
-};
+  title: 'Dashboard',
+  description: 'App Dashboard',
+}
 
-export type dashboardLayoutProps = RootLayoutProps;
+export type dashboardLayoutProps = RootLayoutProps
 
 export default function DashboardLayout({
   title,
@@ -29,5 +29,5 @@ export default function DashboardLayout({
         </div>
       </div>
     </RootLayout>
-  );
+  )
 }

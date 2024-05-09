@@ -1,4 +1,5 @@
 import {
+  Button,
   Dialog,
   DialogClose,
   DialogContent,
@@ -7,87 +8,86 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  Button,
-  Input,
-  FormItem,
-  FormField,
-  FormLabel,
-  FormDescription,
-  FormControl,
-  FormMessage,
   Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  Input,
   Label,
-} from "@components/ui";
-import { CopyIcon, KeyRoundIcon } from "lucide-react";
-import { toast } from "sonner";
-import { type TAddApiKeyForm, ZAddApiKeyForm } from "~/types/api-keys.types";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { api } from "~/utils/api";
-import { useState } from "react";
+} from '@components/ui'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { CopyIcon, KeyRoundIcon } from 'lucide-react'
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
+import { type TAddApiKeyForm, ZAddApiKeyForm } from '~/types/api-keys.types'
+import { api } from '~/utils/api'
 
 type TAddApiKeyDialogProps = {
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
-  disabled?: boolean;
-};
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+  disabled?: boolean
+}
 
 export function AddApiKeyDialog({ disabled, ...props }: TAddApiKeyDialogProps) {
   const { mutateAsync: createApiKey, isLoading } =
-    api.apiKey.create.useMutation();
+    api.apiKey.create.useMutation()
 
-  const [open, setOpen] = useState(props.open ?? false);
-  const [key, setKey] = useState<string>("");
+  const [open, setOpen] = useState(props.open ?? false)
+  const [key, setKey] = useState<string>('')
 
-  const formSchema = ZAddApiKeyForm;
+  const formSchema = ZAddApiKeyForm
 
   const form = useForm<TAddApiKeyForm>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
+      name: '',
     },
-    mode: "onSubmit",
-  });
+    mode: 'onSubmit',
+  })
 
   const onSubmit = async (values: TAddApiKeyForm) => {
     try {
-      const generatedKey = await createApiKey(values);
-      toast.success("Api Key created successfully", {
+      const generatedKey = await createApiKey(values)
+      toast.success('Api Key created successfully', {
         duration: 3000,
-        position: "top-center",
-      });
+        position: 'top-center',
+      })
 
       if (generatedKey) {
-        setKey(generatedKey.key);
+        setKey(generatedKey.key)
       }
     } catch (error) {
-      toast.error("Failed to create Api Key", {
+      toast.error('Failed to create Api Key', {
         duration: 3000,
-        position: "top-center",
-      });
+        position: 'top-center',
+      })
     }
-  };
+  }
 
   const onError = (error: unknown) => {
-    console.error(error);
-  };
+    console.error(error)
+  }
 
   const onOpenChange = (open: boolean) => {
-    setOpen(open);
-    props.onOpenChange?.(open);
+    setOpen(open)
+    props.onOpenChange?.(open)
     if (!open) {
-      form.reset();
-      setKey("");
+      form.reset()
+      setKey('')
     }
-  };
+  }
 
   const handleCopy = () => {
-    void navigator.clipboard.writeText(key);
-    toast.success("Link copied to clipboard", {
-      position: "top-center",
+    void navigator.clipboard.writeText(key)
+    toast.success('Link copied to clipboard', {
+      position: 'top-center',
       duration: 1500,
-    });
-  };
+    })
+  }
 
   return key ? (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -122,7 +122,7 @@ export function AddApiKeyDialog({ disabled, ...props }: TAddApiKeyDialogProps) {
   ) : (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
-        <Button size={"lg"} disabled={disabled}>
+        <Button size={'lg'} disabled={disabled}>
           <KeyRoundIcon className="mr-2 h-5 w-5" />
           Create new key
         </Button>
@@ -173,10 +173,10 @@ export function AddApiKeyDialog({ disabled, ...props }: TAddApiKeyDialogProps) {
             </Button>
           </DialogClose>
           <Button type="submit" form="add-ApiKey-form" loading={isLoading}>
-            {isLoading ? "Creating..." : "Create key"}
+            {isLoading ? 'Creating...' : 'Create key'}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

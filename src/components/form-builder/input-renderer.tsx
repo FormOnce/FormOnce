@@ -1,5 +1,11 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import React from "react";
+import type { CheckedState } from '@radix-ui/react-checkbox'
+import React from 'react'
+import type { Control, ControllerRenderProps } from 'react-hook-form'
+import {
+  EQuestionType,
+  ESelectSubType,
+  type TQuestion,
+} from '~/types/question.types'
 import {
   FormControl,
   FormDescription,
@@ -9,21 +15,16 @@ import {
   FormMessage,
   Input,
   Textarea,
-} from "../ui";
-import {
-  EQuestionType,
-  ESelectSubType,
-  type TQuestion,
-} from "~/types/question.types";
-import type { Control, ControllerRenderProps } from "react-hook-form";
-import { Checkbox } from "../ui/checkbox";
-import type { CheckedState } from "@radix-ui/react-checkbox";
+} from '../ui'
+import { Checkbox } from '../ui/checkbox'
 
 type TInputRenderProps = {
-  question: TQuestion;
-  field: ControllerRenderProps<Record<string, any>, string>;
-  formControl: Control<Record<string, any>, string>;
-};
+  question: TQuestion
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  field: ControllerRenderProps<Record<string, any>, string>
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  formControl: Control<Record<string, any>, string>
+}
 
 export const InputRenderer = ({
   question,
@@ -40,13 +41,13 @@ TInputRenderProps) => {
             <RenderTextInput
               type={question.subType}
               field={field}
-              placeholder={question.placeholder ?? ""}
+              placeholder={question.placeholder ?? ''}
             />
           </FormControl>
           <FormDescription>{question.description}</FormDescription>
           <FormMessage />
         </FormItem>
-      );
+      )
 
     case EQuestionType.Select:
       return (
@@ -55,7 +56,7 @@ TInputRenderProps) => {
           field={field}
           formControl={formControl}
         />
-      );
+      )
     default:
       return (
         <Input
@@ -64,15 +65,15 @@ TInputRenderProps) => {
           type="text"
           name="answer"
         />
-      );
+      )
   }
-};
+}
 
 type TRenderTextInputProps = {
-  type: string;
-  field: TInputRenderProps["field"];
-  placeholder: string;
-};
+  type: string
+  field: TInputRenderProps['field']
+  placeholder: string
+}
 
 const RenderTextInput = ({
   type,
@@ -80,7 +81,7 @@ const RenderTextInput = ({
   placeholder,
 }: TRenderTextInputProps) => {
   switch (type) {
-    case "short":
+    case 'short':
       return (
         <Input
           className="mt-2"
@@ -88,10 +89,10 @@ const RenderTextInput = ({
           type="text"
           {...field}
         />
-      );
-    case "long":
-      return <Textarea className="mt-2" placeholder={placeholder} {...field} />;
-    case "email":
+      )
+    case 'long':
+      return <Textarea className="mt-2" placeholder={placeholder} {...field} />
+    case 'email':
       return (
         <Input
           className="mt-2"
@@ -99,8 +100,8 @@ const RenderTextInput = ({
           type="email"
           {...field}
         />
-      );
-    case "number":
+      )
+    case 'number':
       return (
         <Input
           className="mt-2"
@@ -109,12 +110,12 @@ const RenderTextInput = ({
           {...field}
           onChange={(e) =>
             field.onChange(
-              Number(e.target.value) ? Number(e.target.value) : e.target.value
+              Number(e.target.value) ? Number(e.target.value) : e.target.value,
             )
           }
         />
-      );
-    case "url":
+      )
+    case 'url':
       return (
         <Input
           className="mt-2"
@@ -122,8 +123,8 @@ const RenderTextInput = ({
           type="url"
           {...field}
         />
-      );
-    case "phone":
+      )
+    case 'phone':
       return (
         <Input
           className="mt-2"
@@ -132,8 +133,8 @@ const RenderTextInput = ({
           pattern="[0-9]{3}[0-9]{3}[0-9]{4}"
           {...field}
         />
-      );
-    case "password":
+      )
+    case 'password':
       return (
         <Input
           className="mt-2"
@@ -141,7 +142,7 @@ const RenderTextInput = ({
           type="password"
           {...field}
         />
-      );
+      )
     default:
       return (
         <Input
@@ -150,26 +151,27 @@ const RenderTextInput = ({
           type="text"
           {...field}
         />
-      );
+      )
   }
-};
+}
 
 type TRenderSelectInputProps = {
-  question: TQuestion;
-  field: TInputRenderProps["field"];
-  formControl: TInputRenderProps["formControl"];
-};
+  question: TQuestion
+  field: TInputRenderProps['field']
+  formControl: TInputRenderProps['formControl']
+}
 
 const RenderSelectInput = ({
   question,
   formControl,
 }: TRenderSelectInputProps) => {
   type THandleCheckboxChange = {
-    item: string;
-    checked: CheckedState;
-    field: ControllerRenderProps<Record<string, any>, string>;
-    mode: ESelectSubType;
-  };
+    item: string
+    checked: CheckedState
+    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+    field: ControllerRenderProps<Record<string, any>, string>
+    mode: ESelectSubType
+  }
 
   const handleCheckboxChange = ({
     item,
@@ -178,22 +180,22 @@ const RenderSelectInput = ({
     mode,
   }: THandleCheckboxChange) => {
     // set field.value empty array if it's undefined, (this happens for new questions)
-    field.value = (field.value as string[]) ?? [];
+    field.value = (field.value as string[]) ?? []
 
     if (mode === ESelectSubType.Single) {
       return checked
         ? field.onChange([item])
         : field.onChange(
-            (field?.value as string[])?.filter((value) => value !== item)
-          );
+            (field?.value as string[])?.filter((value) => value !== item),
+          )
     } else {
       return checked
         ? field.onChange([...(field?.value as string[]), item])
         : field.onChange(
-            (field?.value as string[])?.filter((value) => value !== item)
-          );
+            (field?.value as string[])?.filter((value) => value !== item),
+          )
     }
-  };
+  }
 
   switch (question.subType) {
     case ESelectSubType.Multiple:
@@ -232,14 +234,14 @@ const RenderSelectInput = ({
                       {item}
                     </FormLabel>
                   </FormItem>
-                );
+                )
               }}
             />
           ))}
           <FormMessage />
         </FormItem>
-      );
+      )
     default:
-      return <></>;
+      return <></>
   }
-};
+}

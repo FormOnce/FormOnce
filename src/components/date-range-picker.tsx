@@ -1,62 +1,62 @@
-"use client";
+'use client'
 
-import * as React from "react";
-import { CalendarIcon } from "@radix-ui/react-icons";
-import { format, addSeconds } from "date-fns";
-import type { DateRange } from "react-day-picker";
+import { CalendarIcon } from '@radix-ui/react-icons'
+import { addSeconds, format } from 'date-fns'
+import * as React from 'react'
+import type { DateRange } from 'react-day-picker'
 
-import { cn } from "~/utils/cn";
 import {
   Button,
   Calendar,
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@components/ui";
+} from '@components/ui'
+import { cn } from '~/utils/cn'
 
 type TCalendarDateRangePickerProps = {
-  className?: string;
-  validRange?: DateRange;
-  onChange: (date: DateRange | undefined) => void;
-};
+  className?: string
+  validRange?: DateRange
+  onChange: (date: DateRange | undefined) => void
+}
 
 export function CalendarDateRangePicker({
   className,
   validRange,
   onChange,
 }: TCalendarDateRangePickerProps) {
-  const [date, setDate] = React.useState<DateRange | undefined>(validRange);
+  const [date, setDate] = React.useState<DateRange | undefined>(validRange)
 
   const onSelectRange = (date: DateRange | undefined) => {
     const adjustedDate = {
       from: date?.from,
       to: date?.to ? addSeconds(date.to, 86399) : undefined,
-    };
-    setDate(adjustedDate);
-    onChange(adjustedDate);
-  };
+    }
+    setDate(adjustedDate)
+    onChange(adjustedDate)
+  }
 
   return (
-    <div className={cn("grid gap-2", className)}>
+    <div className={cn('grid gap-2', className)}>
       <Popover>
         <PopoverTrigger asChild>
           <Button
             id="date"
-            variant={"outline"}
+            variant={'outline'}
             className={cn(
-              "w-[260px] justify-start text-left font-normal",
-              !date && "text-muted-foreground"
+              'w-[260px] justify-start text-left font-normal',
+              !date && 'text-muted-foreground',
             )}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
             {date?.from ? (
               date.to ? (
                 <>
-                  {format(date.from, "LLL dd, y")} -{" "}
-                  {format(date.to, "LLL dd, y")}
+                  {format(date.from, 'LLL dd, y')} -{' '}
+                  {format(date.to, 'LLL dd, y')}
                 </>
               ) : (
-                format(date.from, "LLL dd, y")
+                format(date.from, 'LLL dd, y')
               )
             ) : (
               <span>Pick a date</span>
@@ -75,5 +75,5 @@ export function CalendarDateRangePicker({
         </PopoverContent>
       </Popover>
     </div>
-  );
+  )
 }

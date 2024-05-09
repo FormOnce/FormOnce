@@ -1,30 +1,30 @@
-import { Button, buttonVariants } from "~/components/ui/button";
-import { Icons } from "~/components/ui/icons";
-import { cn } from "~/utils/cn";
-import type { GetServerSideProps } from "next";
-import { signOut } from "next-auth/react";
-import Head from "next/head";
-import Link from "next/link";
-import { useState } from "react";
-import { getServerAuthSession } from "~/server/auth";
-import { useRouter } from "next/router";
+import type { GetServerSideProps } from 'next'
+import { signOut } from 'next-auth/react'
+import Head from 'next/head'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
+import { useState } from 'react'
+import { Button, buttonVariants } from '~/components/ui/button'
+import { Icons } from '~/components/ui/icons'
+import { getServerAuthSession } from '~/server/auth'
+import { cn } from '~/utils/cn'
 
 export default function Home({ id }: { id: string }) {
-  const router = useRouter();
+  const router = useRouter()
 
-  const [isSigningOut, setIsSigningOut] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false)
   const handleSignout = () => {
-    setIsSigningOut(true);
+    setIsSigningOut(true)
     void signOut({
-      callbackUrl: "/auth/signin",
+      callbackUrl: '/auth/signin',
     }).then(() => {
-      setIsSigningOut(false);
-    });
-  };
+      setIsSigningOut(false)
+    })
+  }
 
   const handleRedirectToDashboard = () => {
-    void router.push("/dashboard/forms");
-  };
+    void router.push('/dashboard/forms')
+  }
 
   return (
     <>
@@ -55,7 +55,7 @@ export default function Home({ id }: { id: string }) {
           ) : (
             <Link
               href="/auth/signin"
-              className={cn(buttonVariants({ variant: "ghost" }))}
+              className={cn(buttonVariants({ variant: 'ghost' }))}
             >
               <span className="text-foreground">Sign in</span>
             </Link>
@@ -64,7 +64,7 @@ export default function Home({ id }: { id: string }) {
         <div className="flex flex-col items-center justify-center bg-background">
           <div className="container flex flex-col items-center gap-16 px-4 py-16">
             <h1 className="text-center text-6xl font-extrabold leading-none tracking-tight text-foreground">
-              Create your{" "}
+              Create your{' '}
               <span className="text-[hsl(280,100%,70%)]">FormOnce</span> and use
               it anywhere
             </h1>
@@ -117,11 +117,11 @@ export default function Home({ id }: { id: string }) {
         </div>
       </main>
     </>
-  );
+  )
 }
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
-  const session = await getServerAuthSession(ctx);
+  const session = await getServerAuthSession(ctx)
 
   if (session?.user?.id) {
     return {
@@ -129,10 +129,10 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
         id: session.user.id,
         name: session.user.name,
       },
-    };
+    }
   }
 
   return {
     props: {},
-  };
-};
+  }
+}

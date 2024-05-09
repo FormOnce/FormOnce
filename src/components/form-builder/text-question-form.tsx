@@ -1,6 +1,5 @@
-import React from "react";
 import {
-  Input,
+  Button,
   Form,
   FormControl,
   FormDescription,
@@ -8,46 +7,47 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-  Button,
-  RadioGroupItem,
-  RadioGroup,
   Icons,
-} from "@components/ui";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { type z } from "zod";
+  Input,
+  RadioGroup,
+  RadioGroupItem,
+} from '@components/ui'
+import { zodResolver } from '@hookform/resolvers/zod'
+import React from 'react'
+import { useForm } from 'react-hook-form'
+import { type z } from 'zod'
 import {
   EQuestionType,
   ETextSubType,
   type TTextQuestion,
   ZTextQuestion,
-} from "~/types/question.types";
+} from '~/types/question.types'
 
-const formSchema = ZTextQuestion;
+const formSchema = ZTextQuestion
 
 const questionSubTypes = Object.values(ETextSubType).map((type) => ({
   label: type,
   value: type,
   icon: Icons[type as keyof typeof Icons],
-}));
+}))
 
 type TTextQuestionProps =
   | {
-      mode: "add";
-      onSubmit: (values: z.infer<typeof formSchema>) => Promise<void>;
+      mode: 'add'
+      onSubmit: (values: z.infer<typeof formSchema>) => Promise<void>
     }
   | (TTextQuestion & {
-      mode: "edit";
-      onEdit: (values: z.infer<typeof formSchema>) => Promise<void>;
-    });
+      mode: 'edit'
+      onEdit: (values: z.infer<typeof formSchema>) => Promise<void>
+    })
 
 const TextQuestionForm = (props: TTextQuestionProps) => {
-  const [isLoading, setIsloading] = React.useState(false);
+  const [isLoading, setIsloading] = React.useState(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues:
-      props.mode === "edit"
+      props.mode === 'edit'
         ? {
             title: props.title,
             description: props.description,
@@ -56,26 +56,26 @@ const TextQuestionForm = (props: TTextQuestionProps) => {
             subType: props.subType,
           }
         : {
-            title: "",
-            description: "",
-            placeholder: "",
+            title: '',
+            description: '',
+            placeholder: '',
             type: EQuestionType.Text,
             subType: ETextSubType.Short,
           },
-    mode: "onTouched",
-  });
+    mode: 'onTouched',
+  })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsloading(true);
+    setIsloading(true)
     // This will be type-safe and validated.
-    if (props.mode === "add") await props.onSubmit(values);
-    else await props.onEdit(values);
-    setIsloading(false);
-    form.reset();
+    if (props.mode === 'add') await props.onSubmit(values)
+    else await props.onEdit(values)
+    setIsloading(false)
+    form.reset()
   }
 
   function onError(errors: unknown) {
-    console.log(errors);
+    console.log(errors)
   }
 
   return (
@@ -173,7 +173,7 @@ const TextQuestionForm = (props: TTextQuestionProps) => {
             </FormItem>
           )}
         />
-        {props.mode === "add" ? (
+        {props.mode === 'add' ? (
           <Button type="submit">Add Question</Button>
         ) : (
           <Button
@@ -186,7 +186,7 @@ const TextQuestionForm = (props: TTextQuestionProps) => {
         )}
       </form>
     </Form>
-  );
-};
+  )
+}
 
-export { TextQuestionForm };
+export { TextQuestionForm }

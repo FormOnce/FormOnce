@@ -1,7 +1,7 @@
-"use client";
+'use client'
 
-import React from "react";
-import { EQuestionType, type TQuestion } from "~/types/question.types";
+import React from 'react'
+import { EQuestionType, type TQuestion } from '~/types/question.types'
 
 import {
   Button,
@@ -10,16 +10,16 @@ import {
   CollapsibleTrigger,
   Icons,
   Separator,
-} from "@components/ui";
-import { TextQuestionForm } from "./text-question-form";
-import { SelectQuestionForm } from "./select-question-form";
+} from '@components/ui'
+import { SelectQuestionForm } from './select-question-form'
+import { TextQuestionForm } from './text-question-form'
 
 type TEditableQuestionProps = TQuestion & {
-  index: number;
-  editQuestion: (values: TQuestion) => Promise<void>;
-  deleteQuestion: (id: string) => Promise<void>;
-  setCurrentQuestion: (QIdx: number) => void;
-};
+  index: number
+  editQuestion: (values: TQuestion) => Promise<void>
+  deleteQuestion: (id: string) => Promise<void>
+  setCurrentQuestion: (QIdx: number) => void
+}
 
 const EditableQuestion = ({
   editQuestion,
@@ -27,28 +27,28 @@ const EditableQuestion = ({
   setCurrentQuestion,
   ...question
 }: TEditableQuestionProps) => {
-  const [isOpen, setIsColapsed] = React.useState(false);
+  const [isOpen, setIsColapsed] = React.useState(false)
 
-  const [isDeletingQuestion, setIsDeletingQuestion] = React.useState(false);
+  const [isDeletingQuestion, setIsDeletingQuestion] = React.useState(false)
 
   const onEditQuestion = async (values: TQuestion) => {
     await editQuestion({
       ...values,
       id: question.id,
-    } as TQuestion);
-    setIsColapsed(false);
-  };
+    } as TQuestion)
+    setIsColapsed(false)
+  }
 
   const onDeleteQuestion = async (questionId: string) => {
-    setIsDeletingQuestion(true);
-    await deleteQuestion(questionId);
-    setIsDeletingQuestion(false);
-  };
+    setIsDeletingQuestion(true)
+    await deleteQuestion(questionId)
+    setIsDeletingQuestion(false)
+  }
 
   const onOpenChange = (open: boolean) => {
-    setCurrentQuestion(question.index);
-    setIsColapsed(open);
-  };
+    setCurrentQuestion(question.index)
+    setIsColapsed(open)
+  }
 
   return (
     <div className="flex w-full items-center justify-between gap-4">
@@ -59,7 +59,7 @@ const EditableQuestion = ({
       >
         <CollapsibleTrigger
           className={`flex w-full flex-col rounded-md p-4 pb-3 text-start ${
-            !isOpen && "hover:bg-accent hover:text-accent-foreground"
+            !isOpen && 'hover:bg-accent hover:text-accent-foreground'
           }`}
         >
           <div className="flex items-center">
@@ -73,7 +73,7 @@ const EditableQuestion = ({
           </div>
           {isOpen && (
             <Separator
-              className={`ml-4 mt-2 w-[95%] ${isOpen ? null : "hidden"}`}
+              className={`ml-4 mt-2 w-[95%] ${isOpen ? null : 'hidden'}`}
             />
           )}
         </CollapsibleTrigger>
@@ -95,8 +95,8 @@ const EditableQuestion = ({
         </CollapsibleContent>
       </Collapsible>
       <Button
-        variant={"destructive"}
-        size={"icon"}
+        variant={'destructive'}
+        size={'icon'}
         loading={isDeletingQuestion}
         noChildOnLoading={true}
         onClick={() => onDeleteQuestion(question.id!)}
@@ -104,7 +104,7 @@ const EditableQuestion = ({
         <Icons.trash className="h-5 w-5" />
       </Button>
     </div>
-  );
-};
+  )
+}
 
-export { EditableQuestion };
+export { EditableQuestion }

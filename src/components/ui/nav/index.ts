@@ -1,3 +1,3 @@
-export * from './mainNav';
-export * from './userNav';
-export * from './teamSwitcher';
+export * from './mainNav'
+export * from './userNav'
+export * from './teamSwitcher'

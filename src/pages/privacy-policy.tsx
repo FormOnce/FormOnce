@@ -1,5 +1,5 @@
-import React from "react";
-import RootLayout from "~/layouts/rootLayout";
+import React from 'react'
+import RootLayout from '~/layouts/rootLayout'
 
 function PrivacyPolicy() {
   return (
@@ -70,7 +70,7 @@ function PrivacyPolicy() {
         </div>
       </div>
     </RootLayout>
-  );
+  )
 }
 
-export default PrivacyPolicy;
+export default PrivacyPolicy

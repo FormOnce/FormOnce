@@ -1,7 +1,7 @@
-"use client";
+'use client'
 
-import React from "react";
-import { EQuestionType, type TQuestion } from "~/types/question.types";
+import React from 'react'
+import { EQuestionType, type TQuestion } from '~/types/question.types'
 
 import {
   Collapsible,
@@ -13,33 +13,33 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@components/ui";
-import { TextQuestionForm } from "./text-question-form";
-import { SelectQuestionForm } from "./select-question-form";
+} from '@components/ui'
+import { SelectQuestionForm } from './select-question-form'
+import { TextQuestionForm } from './text-question-form'
 
 type TAddNewQuestionProps = {
-  onAddQuestion: (values: TQuestion) => Promise<void>;
-};
+  onAddQuestion: (values: TQuestion) => Promise<void>
+}
 
 const questionTypes = Object.values(EQuestionType).map((type) => ({
   label: type,
   value: type,
-}));
+}))
 
 const AddNewQuestion = (props: TAddNewQuestionProps) => {
-  const [isOpen, setIsColapsed] = React.useState(false);
+  const [isOpen, setIsColapsed] = React.useState(false)
   const [inputType, setInputType] = React.useState<EQuestionType>(
-    EQuestionType.Text
-  );
+    EQuestionType.Text,
+  )
 
   const onInputTypeChange = (value: EQuestionType) => {
-    setInputType(value);
-  };
+    setInputType(value)
+  }
 
   const onAddQuestion = async (values: TQuestion) => {
-    await props.onAddQuestion({ ...values, type: inputType } as TQuestion);
-    setIsColapsed(false);
-  };
+    await props.onAddQuestion({ ...values, type: inputType } as TQuestion)
+    setIsColapsed(false)
+  }
 
   return (
     <Collapsible
@@ -49,12 +49,12 @@ const AddNewQuestion = (props: TAddNewQuestionProps) => {
     >
       <CollapsibleTrigger
         className={`flex w-full items-center justify-between rounded-md p-4 text-start ${
-          !isOpen && "hover:bg-accent hover:text-accent-foreground"
+          !isOpen && 'hover:bg-accent hover:text-accent-foreground'
         }`}
       >
         <div className="flex h-9 items-center">
           <Icons.plus
-            className={`mr-2 h-6 w-6 transition ${isOpen && "rotate-90"}`}
+            className={`mr-2 h-6 w-6 transition ${isOpen && 'rotate-90'}`}
           />
           <span className="text">Add new question</span>
         </div>
@@ -74,7 +74,7 @@ const AddNewQuestion = (props: TAddNewQuestionProps) => {
                       <SelectItem key={type.label} value={type.value}>
                         {type.label}
                       </SelectItem>
-                    )
+                    ),
                 )}
               </SelectContent>
             </Select>
@@ -90,7 +90,7 @@ const AddNewQuestion = (props: TAddNewQuestionProps) => {
         )}
       </CollapsibleContent>
     </Collapsible>
-  );
-};
+  )
+}
 
-export { AddNewQuestion };
+export { AddNewQuestion }

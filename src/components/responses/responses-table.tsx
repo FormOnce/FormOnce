@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-"use client";
+'use client'
 
-import * as React from "react";
-import { ChevronDownIcon, DotsHorizontalIcon } from "@radix-ui/react-icons";
+import { ChevronDownIcon, DotsHorizontalIcon } from '@radix-ui/react-icons'
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -14,61 +13,62 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-} from "@tanstack/react-table";
+} from '@tanstack/react-table'
+import * as React from 'react'
 
-import { UAParser } from "ua-parser-js";
+import { UAParser } from 'ua-parser-js'
 
 import {
+  // Input,
+  Button,
+  Checkbox,
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  Icons,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-  // Input,
-  Button,
-  Checkbox,
-  Icons,
-} from "@components/ui";
+} from '@components/ui'
 import type {
   FormViews,
   FormResponse as PrismaFormResponse,
-} from "@prisma/client";
-import { DataTableColumnHeader } from "./dataTableColumnHeader";
-import { Share } from "lucide-react";
+} from '@prisma/client'
+import { Share } from 'lucide-react'
+import { DataTableColumnHeader } from './dataTableColumnHeader'
 
 type FormResponse = PrismaFormResponse & {
-  FormViews: FormViews;
-};
+  FormViews: FormViews
+}
 
 type TResponseTableProps = {
-  data: FormResponse[];
-};
+  data: FormResponse[]
+}
 
 export function ResponsesTable({ data }: TResponseTableProps) {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
+    [],
+  )
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState({});
+    React.useState<VisibilityState>({})
+  const [rowSelection, setRowSelection] = React.useState({})
 
-  const parser = new UAParser();
+  const parser = new UAParser()
 
   const columns: ColumnDef<FormResponse>[] = [
     {
-      id: "select",
+      id: 'select',
       header: ({ table }) => (
         <Checkbox
           checked={
             table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
+            (table.getIsSomePageRowsSelected() && 'indeterminate')
           }
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
           aria-label="Select all"
@@ -87,79 +87,79 @@ export function ResponsesTable({ data }: TResponseTableProps) {
       enableHiding: false,
     },
     {
-      accessorKey: "Browser",
-      header: "Browser",
+      accessorKey: 'Browser',
+      header: 'Browser',
       cell: ({ row }) => {
-        if (!row.original.FormViews.userAgent) return "Unknown";
+        if (!row.original.FormViews.userAgent) return 'Unknown'
 
-        parser.setUA(row.original.FormViews.userAgent);
-        const browser = parser.getBrowser().name;
-        return browser ?? "Unknown";
+        parser.setUA(row.original.FormViews.userAgent)
+        const browser = parser.getBrowser().name
+        return browser ?? 'Unknown'
       },
     },
     {
-      accessorKey: "OS",
-      header: "OS",
+      accessorKey: 'OS',
+      header: 'OS',
       cell: ({ row }) => {
-        if (!row.original.FormViews.userAgent) return "Unknown";
+        if (!row.original.FormViews.userAgent) return 'Unknown'
 
-        parser.setUA(row.original.FormViews.userAgent);
-        const os = parser.getOS().name;
-        return os ?? "Unknown";
+        parser.setUA(row.original.FormViews.userAgent)
+        const os = parser.getOS().name
+        return os ?? 'Unknown'
       },
     },
     {
-      accessorKey: "Device",
-      header: "Device",
+      accessorKey: 'Device',
+      header: 'Device',
       cell: ({ row }) => {
-        if (!row.original.FormViews.userAgent) return "Unknown";
+        if (!row.original.FormViews.userAgent) return 'Unknown'
 
-        parser.setUA(row.original.FormViews.userAgent);
-        const device = parser.getDevice().model;
-        return device ?? "Unknown";
+        parser.setUA(row.original.FormViews.userAgent)
+        const device = parser.getDevice().model
+        return device ?? 'Unknown'
       },
     },
     {
-      accessorKey: "response",
-      header: "Response",
+      accessorKey: 'response',
+      header: 'Response',
       cell: ({ row }) => (
         <div className="capitalize">
           <ul>
             {Object.entries(row.original.response as object).map(
               ([key, value]) => (
                 <li key={key}>
-                  <span className="">{key.replaceAll("_", " ")} -</span>
+                  <span className="">{key.replaceAll('_', ' ')} -</span>
                   <span className="ml-1">{value}</span>
                 </li>
-              )
+              ),
             )}
           </ul>
         </div>
       ),
     },
     {
-      accessorKey: "updatedAt",
+      accessorKey: 'updatedAt',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Date and Time" />
       ),
       cell: ({ row }) => (
         <div className="capitalize">
           {/* eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion */}
-          {(row.getValue("updatedAt") as Date).toLocaleString("en-US", {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-            hour: "numeric",
-            minute: "numeric",
+          {(row.getValue('updatedAt') as Date).toLocaleString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
           })}
         </div>
       ),
     },
     {
-      id: "actions",
+      id: 'actions',
       enableHiding: false,
       cell: ({ row }) => {
-        const response = row.original;
+        const response = row.original
 
         return (
           <DropdownMenu>
@@ -174,7 +174,7 @@ export function ResponsesTable({ data }: TResponseTableProps) {
               <DropdownMenuItem
                 onClick={() =>
                   navigator.clipboard.writeText(
-                    JSON.stringify(response.response)
+                    JSON.stringify(response.response),
                   )
                 }
               >
@@ -194,7 +194,7 @@ export function ResponsesTable({ data }: TResponseTableProps) {
                       updatedAt: response.updatedAt,
                       lastUpdated: response.updatedAt,
                       completed: response.completed,
-                    })
+                    }),
                   )
                 }
               >
@@ -203,10 +203,10 @@ export function ResponsesTable({ data }: TResponseTableProps) {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        );
+        )
       },
     },
-  ];
+  ]
 
   const table = useReactTable({
     data,
@@ -225,43 +225,43 @@ export function ResponsesTable({ data }: TResponseTableProps) {
       columnVisibility,
       rowSelection,
     },
-  });
+  })
 
   function flattenObject(ob: Record<string, unknown>) {
-    const toReturn = {} as Record<string, unknown>;
+    const toReturn = {} as Record<string, unknown>
 
     for (const i in ob) {
-      if (!ob.hasOwnProperty(i)) continue;
+      if (!ob.hasOwnProperty(i)) continue
 
-      if (typeof ob[i] == "object" && ob[i] !== null) {
-        const flatObject = flattenObject(ob[i] as Record<string, unknown>);
+      if (typeof ob[i] == 'object' && ob[i] !== null) {
+        const flatObject = flattenObject(ob[i] as Record<string, unknown>)
         for (const x in flatObject) {
-          if (!flatObject.hasOwnProperty(x)) continue;
+          if (!flatObject.hasOwnProperty(x)) continue
 
-          toReturn[i + "__" + x] = flatObject[x];
+          toReturn[i + '__' + x] = flatObject[x]
         }
       } else {
-        toReturn[i] = ob[i];
+        toReturn[i] = ob[i]
       }
     }
-    return toReturn;
+    return toReturn
   }
 
   function convertToCSV(arr: Record<string, unknown>[]) {
-    const flatJsonArray = arr.map(flattenObject);
+    const flatJsonArray = arr.map(flattenObject)
     const array = [Object.keys(flatJsonArray[0]!)].concat(
-      flatJsonArray as unknown as string[][]
-    );
+      flatJsonArray as unknown as string[][],
+    )
 
     return array
       .map((it) => {
-        return Object.values(it).toString();
+        return Object.values(it).toString()
       })
-      .join("\n");
+      .join('\n')
   }
 
-  const handleExport = (type: "csv" | "json") => {
-    const data = table.getFilteredRowModel().rows.map((row) => row.original);
+  const handleExport = (type: 'csv' | 'json') => {
+    const data = table.getFilteredRowModel().rows.map((row) => row.original)
 
     const formattedData = data.map((response) => {
       const toReturn = {
@@ -273,31 +273,31 @@ export function ResponsesTable({ data }: TResponseTableProps) {
         updatedAt: response.updatedAt,
         lastUpdated: response.updatedAt,
         completed: response.completed,
-      };
-      delete toReturn.id;
-      delete toReturn.formId;
-      delete toReturn.createdAt;
-      return toReturn;
-    });
+      }
+      delete toReturn.id
+      delete toReturn.formId
+      delete toReturn.createdAt
+      return toReturn
+    })
 
     let blob = new Blob([JSON.stringify(formattedData)], {
-      type: "application/json",
-    });
+      type: 'application/json',
+    })
 
-    if (type === "csv") {
-      const csv = convertToCSV(formattedData);
+    if (type === 'csv') {
+      const csv = convertToCSV(formattedData)
       blob = new Blob([csv], {
-        type: "text/csv;charset=utf-8",
-      });
+        type: 'text/csv;charset=utf-8',
+      })
     }
 
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `responses.${type}`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `responses.${type}`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
 
   return (
     <div className="w-full">
@@ -324,7 +324,7 @@ export function ResponsesTable({ data }: TResponseTableProps) {
                   >
                     {column.id}
                   </DropdownMenuCheckboxItem>
-                );
+                )
               })}
           </DropdownMenuContent>
         </DropdownMenu>
@@ -336,10 +336,10 @@ export function ResponsesTable({ data }: TResponseTableProps) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => handleExport("csv")}>
+            <DropdownMenuItem onClick={() => handleExport('csv')}>
               CSV
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleExport("json")}>
+            <DropdownMenuItem onClick={() => handleExport('json')}>
               JSON
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -357,10 +357,10 @@ export function ResponsesTable({ data }: TResponseTableProps) {
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                     </TableHead>
-                  );
+                  )
                 })}
               </TableRow>
             ))}
@@ -370,13 +370,13 @@ export function ResponsesTable({ data }: TResponseTableProps) {
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
+                  data-state={row.getIsSelected() && 'selected'}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}
@@ -397,7 +397,7 @@ export function ResponsesTable({ data }: TResponseTableProps) {
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} of{" "}
+          {table.getFilteredSelectedRowModel().rows.length} of{' '}
           {table.getFilteredRowModel().rows.length} row(s) selected.
         </div>
         <div className=" flex space-x-2">
@@ -420,7 +420,7 @@ export function ResponsesTable({ data }: TResponseTableProps) {
         </div>
       </div>
     </div>
-  );
+  )
 }
 
-export default ResponsesTable;
+export default ResponsesTable

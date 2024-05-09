@@ -1,12 +1,12 @@
-import type { Metadata } from "next";
-import RootLayout, { type RootLayoutProps } from "@layouts/rootLayout";
+import RootLayout, { type RootLayoutProps } from '@layouts/rootLayout'
+import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: "Form",
-  description: "Form Page",
-};
+  title: 'Form',
+  description: 'Form Page',
+}
 
-export type FormLayoutProps = RootLayoutProps;
+export type FormLayoutProps = RootLayoutProps
 
 export const FormLayout = ({ children, ...props }: FormLayoutProps) => {
   return (
@@ -23,7 +23,7 @@ export const FormLayout = ({ children, ...props }: FormLayoutProps) => {
             rel="noopener noreferrer"
             className="flex items-center gap-1"
           >
-            powered by{" "}
+            powered by{' '}
             <span className="text-2xl font-extrabold text-[hsl(280,100%,70%)]">
               FormOnce
             </span>
@@ -31,5 +31,5 @@ export const FormLayout = ({ children, ...props }: FormLayoutProps) => {
         </div>
       </div>
     </RootLayout>
-  );
-};
+  )
+}

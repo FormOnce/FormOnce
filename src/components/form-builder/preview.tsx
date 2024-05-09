@@ -1,36 +1,36 @@
-import React from "react";
-import type { TFormSchema } from "~/types/form.types";
-import type { TQuestion } from "~/types/question.types";
+import React from 'react'
+import type { TFormSchema } from '~/types/form.types'
+import type { TQuestion } from '~/types/question.types'
 
-import FormRenderer from "./form-renderer";
-import { Button, Icons } from "../ui";
+import { Button, Icons } from '../ui'
+import FormRenderer from './form-renderer'
 
 type TPreviewProps = {
-  formSchema?: TFormSchema;
-  currentQuestionIdx?: number;
-  questions?: TQuestion[];
-};
+  formSchema?: TFormSchema
+  currentQuestionIdx?: number
+  questions?: TQuestion[]
+}
 
 function Preview({ formSchema, currentQuestionIdx, questions }: TPreviewProps) {
   // resetSignal passed to form renderer, which resets local form when resetSingal is true and calls onReset
-  const [resetSignal, setResetSignal] = React.useState(false);
+  const [resetSignal, setResetSignal] = React.useState(false)
 
   const onNext = () => {
-    console.log("next");
-  };
+    console.log('next')
+  }
 
   const onPrev = () => {
-    console.log("prev");
-  };
+    console.log('prev')
+  }
 
   const onSubmit = async (values: unknown) => {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    console.log("submit", values);
-  };
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+    console.log('submit', values)
+  }
 
   const onReset = () => {
-    setResetSignal((prev) => !prev);
-  };
+    setResetSignal((prev) => !prev)
+  }
 
   return (
     <div className="rounded-md border px-4 py-6">
@@ -64,7 +64,7 @@ function Preview({ formSchema, currentQuestionIdx, questions }: TPreviewProps) {
         </div>
       )}
     </div>
-  );
+  )
 }
 
-export { Preview };
+export { Preview }
