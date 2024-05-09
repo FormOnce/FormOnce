@@ -1,1 +1,15 @@
-echo "npm test" > .husky/pre-commit
+# pre-commit hook does the following: 
+# 1. Run the lint command
+
+# Run the lint command
+npm run lint
+
+# If the lint command fails, exit with a non-zero status
+if [ $? -ne 0 ]; then
+  echo "Lint failed, commit aborted"
+  exit 1
+fi
+
+# If the lint command passes, exit with a zero status
+echo "Lint passed, commit allowed"
+exit 0
