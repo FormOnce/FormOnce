@@ -1,18 +1,18 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { type GetServerSidePropsContext } from "next";
+import { PrismaAdapter } from '@next-auth/prisma-adapter'
+import { type GetServerSidePropsContext } from 'next'
 import {
-  getServerSession,
-  type NextAuthOptions,
   type DefaultSession,
-} from "next-auth";
-import { z } from "zod";
-import { prisma } from "~/server/db";
+  type NextAuthOptions,
+  getServerSession,
+} from 'next-auth'
+import { z } from 'zod'
+import { prisma } from '~/server/db'
 
-import CredentialsProvider from 'next-auth/providers/credentials';
-import GithubProvider from 'next-auth/providers/github';
-import GoogleProvider from 'next-auth/providers/google';
-import argon2 from "argon2";
+import argon2 from 'argon2'
+import CredentialsProvider from 'next-auth/providers/credentials'
+import GithubProvider from 'next-auth/providers/github'
+import GoogleProvider from 'next-auth/providers/google'
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -20,17 +20,17 @@ import argon2 from "argon2";
  *
  * @see https://next-auth.js.org/getting-started/typescript#module-augmentation
  */
-declare module "next-auth" {
+declare module 'next-auth' {
   interface Session extends DefaultSession {
-    user: DefaultSession["user"] & {
-      id: string;
-      workspaceId: string;
+    user: DefaultSession['user'] & {
+      id: string
+      workspaceId: string
       // ...other properties
-    };
+    }
   }
 
   interface User {
-    workspaceId: string;
+    workspaceId: string
   }
 }
 
@@ -45,16 +45,16 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     jwt: ({ token, user, account, trigger, session }) => {
       if (user) {
-        token.userId = user.id;
-        token.workspaceId = user.workspaceId;
+        token.userId = user.id
+        token.workspaceId = user.workspaceId
       }
       if (account?.provider) {
-        token.provider = account.provider;
+        token.provider = account.provider
       }
       if (trigger === 'update' && session?.workspaceId) {
-        token.workspaceId = session.workspaceId;
+        token.workspaceId = session.workspaceId
       }
-      return token;
+      return token
     },
 
     session: ({ session, token }) => {
@@ -72,17 +72,19 @@ export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({
-      name: "Credentials",
-      type: "credentials",
+      name: 'Credentials',
+      type: 'credentials',
       credentials: {
-        email: { label: "Email", type: "text" },
-        password: { label: "Password", type: "password" },
+        email: { label: 'Email', type: 'text' },
+        password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        const validCredentials = await z.object({
-          email: z.string().email(),
-          password: z.string(),
-        }).parseAsync(credentials);
+        const validCredentials = await z
+          .object({
+            email: z.string().email(),
+            password: z.string(),
+          })
+          .parseAsync(credentials)
 
         const prismaUser = await prisma.user.findFirst({
           where: {
@@ -92,55 +94,55 @@ export const authOptions: NextAuthOptions = {
             WorkspaceMember: {
               select: {
                 id: true,
-              }
+              },
             },
-          }
-        });
+          },
+        })
 
-        if (!prismaUser) throw new Error("User not found");
-        if (!prismaUser.password) throw new Error("Password not set");
+        if (!prismaUser) throw new Error('User not found')
+        if (!prismaUser.password) throw new Error('Password not set')
 
         const isPasswordValid = await argon2.verify(
           prismaUser.password,
-          validCredentials.password
-        );
+          validCredentials.password,
+        )
 
-        if (!isPasswordValid) throw new Error("Invalid password");
+        if (!isPasswordValid) throw new Error('Invalid password')
 
-        const defaultWorkspaceId = prismaUser.WorkspaceMember[0]!.id;
+        const defaultWorkspaceId = prismaUser.WorkspaceMember[0]!.id
 
         const user = {
           ...prismaUser,
           WorkspaceMember: undefined,
-          workspaceId: defaultWorkspaceId
-        };
-        return user;
-      }
+          workspaceId: defaultWorkspaceId,
+        }
+        return user
+      },
     }),
     GithubProvider({
-      clientId: process.env.GITHUB_CLIENT_ID ?? "",
-      clientSecret: process.env.GITHUB_CLIENT_SECRET ?? "",
+      clientId: process.env.GITHUB_CLIENT_ID ?? '',
+      clientSecret: process.env.GITHUB_CLIENT_SECRET ?? '',
       allowDangerousEmailAccountLinking: true,
     }),
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID ?? "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
+      clientId: process.env.GOOGLE_CLIENT_ID ?? '',
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
       allowDangerousEmailAccountLinking: true,
     }),
     /**
-     * 
-     * 
+     *
+     *
      * ...add more providers here.
      */
   ],
   pages: {
-    signIn: "/auth/signin",
+    signIn: '/auth/signin',
   },
   session: {
     // Set to jwt in order to make CredentialsProvider work properly
-    strategy: 'jwt'
-  }
-};
+    strategy: 'jwt',
+  },
+}
 
 /**
  * Wrapper for `getServerSession` so that you don't need to import the `authOptions` in every file.
@@ -148,8 +150,8 @@ export const authOptions: NextAuthOptions = {
  * @see https://next-auth.js.org/configuration/nextjs
  */
 export const getServerAuthSession = (ctx: {
-  req: GetServerSidePropsContext["req"];
-  res: GetServerSidePropsContext["res"];
+  req: GetServerSidePropsContext['req']
+  res: GetServerSidePropsContext['res']
 }) => {
-  return getServerSession(ctx.req, ctx.res, authOptions);
-};
+  return getServerSession(ctx.req, ctx.res, authOptions)
+}

@@ -1,8 +1,8 @@
-import React from "react";
+import React from 'react'
 
 type Tprops = {
-  feature: string;
-};
+  feature: string
+}
 function ComingSoon({ feature }: Tprops) {
   return (
     <div className="flex h-full w-full flex-col items-center justify-between p-6">
@@ -27,7 +27,7 @@ function ComingSoon({ feature }: Tprops) {
         </p>
       </div>
     </div>
-  );
+  )
 }
 
-export default ComingSoon;
+export default ComingSoon

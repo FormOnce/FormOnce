@@ -1,29 +1,29 @@
-import { cn } from "~/utils/cn";
-import { buttonVariants } from "~/components/ui/button";
-import Link from "next/link";
-import { TeamSwitcher } from "./nav";
+import Link from 'next/link'
+import { buttonVariants } from '~/components/ui/button'
+import { cn } from '~/utils/cn'
+import { TeamSwitcher } from './nav'
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
-  className?: string;
+  className?: string
 }
 type SidebarItem = {
-  name: string;
-  link: string;
-  icon: React.ReactNode;
-};
+  name: string
+  link: string
+  icon: React.ReactNode
+}
 
 type SidebarGroup = {
-  name: string;
-  items: SidebarItem[];
-};
+  name: string
+  items: SidebarItem[]
+}
 
 const sidebarGroups: SidebarGroup[] = [
   {
-    name: "Dashboard",
+    name: 'Dashboard',
     items: [
       {
-        name: "All Forms",
-        link: "/dashboard/forms",
+        name: 'All Forms',
+        link: '/dashboard/forms',
         icon: (
           <svg
             viewBox="0 0 15 15"
@@ -60,8 +60,8 @@ const sidebarGroups: SidebarGroup[] = [
       //   ),
       // },
       {
-        name: "Templates",
-        link: "/dashboard/templates",
+        name: 'Templates',
+        link: '/dashboard/templates',
         icon: (
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -82,11 +82,11 @@ const sidebarGroups: SidebarGroup[] = [
     ],
   },
   {
-    name: "Settings",
+    name: 'Settings',
     items: [
       {
-        name: "Keys",
-        link: "/settings/api-keys",
+        name: 'Keys',
+        link: '/settings/api-keys',
         icon: (
           <svg
             width="15"
@@ -105,8 +105,8 @@ const sidebarGroups: SidebarGroup[] = [
         ),
       },
       {
-        name: "Webhooks",
-        link: "/settings/webhooks",
+        name: 'Webhooks',
+        link: '/settings/webhooks',
         icon: (
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -128,7 +128,7 @@ const sidebarGroups: SidebarGroup[] = [
       },
     ],
   },
-];
+]
 
 const SideBarGroup = ({ name, items }: SidebarGroup) => {
   return (
@@ -140,27 +140,27 @@ const SideBarGroup = ({ name, items }: SidebarGroup) => {
         ))}
       </div>
     </div>
-  );
-};
+  )
+}
 
 const SidebarItem = ({ name, icon, link }: SidebarItem) => {
   return (
     <Link
       href={link}
       className={cn(
-        buttonVariants({ variant: "ghost" }),
-        "w-full justify-start"
+        buttonVariants({ variant: 'ghost' }),
+        'w-full justify-start',
       )}
     >
       <span className="mr-2 h-4 w-4">{icon}</span>
       {name}
     </Link>
-  );
-};
+  )
+}
 
 export function Sidebar({ className }: SidebarProps) {
   return (
-    <div className={cn("border-r pb-12", className)}>
+    <div className={cn('border-r pb-12', className)}>
       <div className="px-4 py-4">
         <TeamSwitcher />
       </div>
@@ -170,5 +170,5 @@ export function Sidebar({ className }: SidebarProps) {
         ))}
       </div>
     </div>
-  );
+  )
 }

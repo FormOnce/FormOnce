@@ -1,5 +1,5 @@
-import DashboardLayout from "~/layouts/dashboardLayout";
-import { Button } from "~/components/ui/button";
+import { Button } from '~/components/ui/button'
+import DashboardLayout from '~/layouts/dashboardLayout'
 
 export default function Folders() {
   return (
@@ -13,5 +13,5 @@ export default function Folders() {
         </div>
       </>
     </DashboardLayout>
-  );
+  )
 }

@@ -1,15 +1,15 @@
-import { type Metadata } from "next";
-import Link from "next/link";
+import { type Metadata } from 'next'
+import Link from 'next/link'
 
-import { cn } from "~/utils/cn";
-import { buttonVariants } from "~/components/ui/button";
-import { UserAuthForm } from "~/components/auth";
-import RootLayout from "~/layouts/rootLayout";
+import { UserAuthForm } from '~/components/auth'
+import { buttonVariants } from '~/components/ui/button'
+import RootLayout from '~/layouts/rootLayout'
+import { cn } from '~/utils/cn'
 
 export const metadata: Metadata = {
-  title: "Authentication",
-  description: "Authentication form",
-};
+  title: 'Authentication',
+  description: 'Authentication form',
+}
 
 export default function AuthenticationPage() {
   return (
@@ -18,8 +18,8 @@ export default function AuthenticationPage() {
         <Link
           href="/auth/signin"
           className={cn(
-            buttonVariants({ variant: "ghost" }),
-            "absolute right-4 top-4 md:right-8 md:top-8"
+            buttonVariants({ variant: 'ghost' }),
+            'absolute right-4 top-4 md:right-8 md:top-8',
           )}
         >
           Sign in
@@ -57,5 +57,5 @@ export default function AuthenticationPage() {
         </div>
       </div>
     </RootLayout>
-  );
+  )
 }

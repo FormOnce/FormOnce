@@ -1,15 +1,14 @@
-"use client";
+'use client'
 
-import * as React from "react";
 import {
   CaretSortIcon,
   CheckIcon,
   PlusCircledIcon,
-} from "@radix-ui/react-icons";
+} from '@radix-ui/react-icons'
+import * as React from 'react'
 
-import { cn } from "@utils/cn";
-import { Avatar, AvatarFallback, AvatarImage } from "@components/ui/avatar";
-import { Button } from "@components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from '@components/ui/avatar'
+import { Button } from '@components/ui/button'
 import {
   Command,
   CommandEmpty,
@@ -18,7 +17,7 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from "@components/ui/command";
+} from '@components/ui/command'
 import {
   Dialog,
   DialogContent,
@@ -27,124 +26,119 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@components/ui/dialog";
-import { Input } from "@components/ui/input";
-import { Label } from "@components/ui/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@components/ui/popover";
+} from '@components/ui/dialog'
+import { Input } from '@components/ui/input'
+import { Label } from '@components/ui/label'
+import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@components/ui/select";
-import { api } from "@utils/api";
-import type { Workspace } from "@prisma/client";
-import { Icons } from "../icons";
-import { useWorkspaceStore } from "~/store";
-import { useSession } from "next-auth/react";
+} from '@components/ui/select'
+import type { Workspace } from '@prisma/client'
+import { api } from '@utils/api'
+import { cn } from '@utils/cn'
+import { useSession } from 'next-auth/react'
+import { useWorkspaceStore } from '~/store'
+import { Icons } from '../icons'
 
 const getGroups = (workspaces: Workspace[] | undefined) => {
   const groups = [
     {
-      label: "Personal",
+      label: 'Personal',
       teams: [] as Team[],
     },
     {
-      label: "Teams",
+      label: 'Teams',
       teams: [] as Team[],
     },
-  ];
+  ]
 
   workspaces?.forEach((workspace) => {
     if (workspace.isPersonal) {
       groups[0]?.teams.push({
-        name: "Personal",
+        name: 'Personal',
         id: workspace.id,
-      });
+      })
     } else {
       groups[1]?.teams.push({
         name: workspace.name,
         id: workspace.id,
-      });
+      })
     }
-  });
+  })
 
-  return groups;
-};
+  return groups
+}
 
 type Team = {
-  name: string;
-  id: string;
-};
+  name: string
+  id: string
+}
 
-type PopoverTriggerProps = React.ComponentPropsWithoutRef<
-  typeof PopoverTrigger
->;
+type PopoverTriggerProps = React.ComponentPropsWithoutRef<typeof PopoverTrigger>
 
 interface TeamSwitcherProps extends PopoverTriggerProps {
-  className?: string;
+  className?: string
 }
 
 export function TeamSwitcher({ className }: TeamSwitcherProps) {
-  const { update: updateSession } = useSession();
+  const { update: updateSession } = useSession()
 
   const { data: workspaces, refetch: refetchWorkspaces } =
     api.workspace.getAll.useQuery(undefined, {
       refetchOnMount: false,
       refetchOnWindowFocus: false,
-    });
+    })
 
-  const addWorkspace = api.workspace.create.useMutation();
+  const addWorkspace = api.workspace.create.useMutation()
 
-  const { selectedWorkspace, setSelectedWorkspace } = useWorkspaceStore();
-  const [open, setOpen] = React.useState(false);
-  const [showNewTeamDialog, setShowNewTeamDialog] = React.useState(false);
+  const { selectedWorkspace, setSelectedWorkspace } = useWorkspaceStore()
+  const [open, setOpen] = React.useState(false)
+  const [showNewTeamDialog, setShowNewTeamDialog] = React.useState(false)
   const [newWorkspaceInfo, setNewWorkspaceInfo] = React.useState({
-    name: "",
-    plan: "free",
-  });
+    name: '',
+    plan: 'free',
+  })
 
-  const groups = React.useMemo(() => getGroups(workspaces), [workspaces]);
+  const groups = React.useMemo(() => getGroups(workspaces), [workspaces])
 
   React.useEffect(() => {
     // see if selected workspace is in the list
     const workspace = workspaces?.find(
-      (workspace) => workspace.id === selectedWorkspace.id
-    );
+      (workspace) => workspace.id === selectedWorkspace.id,
+    )
 
     if (!workspace && groups?.length > 0 && groups[0]!.teams.length > 0) {
-      setSelectedWorkspace(groups[0]!.teams[0]!);
+      setSelectedWorkspace(groups[0]!.teams[0]!)
     }
 
     // update workspaceId in session
     void updateSession({
       workspaceId: selectedWorkspace.id,
-    });
+    })
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [groups]);
+  }, [groups])
 
   const handleCreateTeam = async () => {
-    const name = newWorkspaceInfo.name.trim();
+    const name = newWorkspaceInfo.name.trim()
     try {
-      await addWorkspace.mutateAsync({ name });
-      await refetchWorkspaces();
-      setShowNewTeamDialog(false);
+      await addWorkspace.mutateAsync({ name })
+      await refetchWorkspaces()
+      setShowNewTeamDialog(false)
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
-  };
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    const name = e.target.name;
-    setNewWorkspaceInfo({ ...newWorkspaceInfo, [name]: val });
-  };
+    const val = e.target.value
+    const name = e.target.name
+    setNewWorkspaceInfo({ ...newWorkspaceInfo, [name]: val })
+  }
 
   return (
     <Dialog open={showNewTeamDialog} onOpenChange={setShowNewTeamDialog}>
@@ -155,7 +149,7 @@ export function TeamSwitcher({ className }: TeamSwitcherProps) {
             role="combobox"
             aria-expanded={open}
             aria-label="Select a team"
-            className={cn("w-[220px] justify-between", className)}
+            className={cn('w-[220px] justify-between', className)}
           >
             <Avatar className="mr-2 h-5 w-5">
               <AvatarImage
@@ -179,15 +173,15 @@ export function TeamSwitcher({ className }: TeamSwitcherProps) {
                     <CommandItem
                       key={team.id}
                       onSelect={async () => {
-                        setSelectedWorkspace(team);
-                        setOpen(false);
+                        setSelectedWorkspace(team)
+                        setOpen(false)
                         // update workspaceId in session
                         await updateSession({
                           workspaceId: team.id,
-                        });
+                        })
 
                         // refresh website when workspace changes
-                        window.location.reload();
+                        window.location.reload()
                       }}
                       className="text-sm"
                     >
@@ -202,10 +196,10 @@ export function TeamSwitcher({ className }: TeamSwitcherProps) {
                       {team.name}
                       <CheckIcon
                         className={cn(
-                          "ml-auto h-4 w-4",
+                          'ml-auto h-4 w-4',
                           selectedWorkspace?.id === team.id
-                            ? "opacity-100"
-                            : "opacity-0"
+                            ? 'opacity-100'
+                            : 'opacity-0',
                         )}
                       />
                     </CommandItem>
@@ -219,8 +213,8 @@ export function TeamSwitcher({ className }: TeamSwitcherProps) {
                 <DialogTrigger asChild>
                   <CommandItem
                     onSelect={() => {
-                      setOpen(false);
-                      setShowNewTeamDialog(true);
+                      setOpen(false)
+                      setShowNewTeamDialog(true)
                     }}
                   >
                     <PlusCircledIcon className="mr-2 h-5 w-5" />
@@ -259,13 +253,13 @@ export function TeamSwitcher({ className }: TeamSwitcherProps) {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="free">
-                    <span className="font-medium">Free</span> -{" "}
+                    <span className="font-medium">Free</span> -{' '}
                     <span className="text-muted-foreground">
                       Trial for two months
                     </span>
                   </SelectItem>
                   <SelectItem value="pro">
-                    <span className="font-medium">Pro</span> -{" "}
+                    <span className="font-medium">Pro</span> -{' '}
                     <span className="text-muted-foreground">
                       $5/month per user
                     </span>
@@ -288,5 +282,5 @@ export function TeamSwitcher({ className }: TeamSwitcherProps) {
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

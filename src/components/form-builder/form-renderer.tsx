@@ -1,23 +1,23 @@
-import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { formSchemaToZod } from "~/utils/forms/formSchemaToZod";
-import { Button, Form, FormField, Icons, Progress } from "@components/ui";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { InputRenderer } from "./input-renderer";
-import type { TQuestion } from "~/types/question.types";
-import type { TFormSchema } from "~/types/form.types";
-import type { z } from "zod";
+import { Button, Form, FormField, Icons, Progress } from '@components/ui'
+import { zodResolver } from '@hookform/resolvers/zod'
+import React, { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import type { z } from 'zod'
+import type { TFormSchema } from '~/types/form.types'
+import type { TQuestion } from '~/types/question.types'
+import { formSchemaToZod } from '~/utils/forms/formSchemaToZod'
+import { InputRenderer } from './input-renderer'
 
 type TProps = {
-  formSchema: TFormSchema;
-  questions: TQuestion[];
-  onSubmit: (values: Record<string, unknown>) => Promise<void>;
-  onNext: () => void;
-  onPrev: () => void;
-  currentQuestionIdx?: number;
-  onReset?: () => void;
-  resetSignal?: boolean;
-};
+  formSchema: TFormSchema
+  questions: TQuestion[]
+  onSubmit: (values: Record<string, unknown>) => Promise<void>
+  onNext: () => void
+  onPrev: () => void
+  currentQuestionIdx?: number
+  onReset?: () => void
+  resetSignal?: boolean
+}
 
 function FormRenderer({
   formSchema,
@@ -27,84 +27,84 @@ function FormRenderer({
   onReset,
   ...props
 }: TProps) {
-  const [qIdx, setQuestionIdx] = useState(currentQuestionIdx ?? 0);
-  const [progress, setProgress] = useState(0);
-  const [isNextLoading, setIsNextLoading] = useState(false);
+  const [qIdx, setQuestionIdx] = useState(currentQuestionIdx ?? 0)
+  const [progress, setProgress] = useState(0)
+  const [isNextLoading, setIsNextLoading] = useState(false)
 
-  const ZFormSchema = formSchemaToZod(formSchema);
+  const ZFormSchema = formSchemaToZod(formSchema)
 
   useEffect(() => {
-    setQuestionIdx(currentQuestionIdx ?? 0);
+    setQuestionIdx(currentQuestionIdx ?? 0)
 
     const currProgress =
-      (((currentQuestionIdx ?? 0) + 1) * 100) / questions.length;
-    setProgress(currProgress);
-  }, [currentQuestionIdx, questions]);
+      (((currentQuestionIdx ?? 0) + 1) * 100) / questions.length
+    setProgress(currProgress)
+  }, [currentQuestionIdx, questions])
 
   const handleNext = async () => {
-    await form.trigger(questions[qIdx]?.id);
-    if (form.formState.errors[questions[qIdx]!.id!]) return;
+    await form.trigger(questions[qIdx]?.id)
+    if (form.formState.errors[questions[qIdx]!.id!]) return
 
-    setIsNextLoading(true);
+    setIsNextLoading(true)
 
     if (qIdx === questions.length - 1) {
-      await props.onSubmit(form.getValues());
-      form.reset();
+      await props.onSubmit(form.getValues())
+      form.reset()
     } else {
-      props.onNext();
+      props.onNext()
     }
 
-    setQuestionIdx((i) => (i + 1 > questions.length - 1 ? 0 : i + 1));
+    setQuestionIdx((i) => (i + 1 > questions.length - 1 ? 0 : i + 1))
 
     const currProgress =
-      ((qIdx + 1 < questions.length ? qIdx + 2 : 1) * 100) / questions.length;
-    setProgress(currProgress);
+      ((qIdx + 1 < questions.length ? qIdx + 2 : 1) * 100) / questions.length
+    setProgress(currProgress)
 
-    setIsNextLoading(false);
-  };
+    setIsNextLoading(false)
+  }
 
   const defaultValues = questions.reduce(
     (acc: Record<string, unknown>, curr) => {
       if (curr.id) {
         switch (curr.type) {
-          case "text":
-            acc[curr.id] = "";
-            break;
-          case "select":
-            acc[curr.id] = [];
-            break;
+          case 'text':
+            acc[curr.id] = ''
+            break
+          case 'select':
+            acc[curr.id] = []
+            break
           default:
-            acc[curr.id] = "";
-            break;
+            acc[curr.id] = ''
+            break
         }
       }
-      return acc;
+      return acc
     },
-    {}
-  );
+    {},
+  )
 
   const form = useForm<z.infer<typeof ZFormSchema>>({
     resolver: zodResolver(ZFormSchema),
     defaultValues: defaultValues,
-    mode: "all",
-  });
+    mode: 'all',
+  })
 
   // watch for reset signal and reset form
   useEffect(() => {
     if (resetSignal) {
       // reset form
-      form.reset();
+      form.reset()
 
-      setQuestionIdx(0);
-      currentQuestionIdx;
-      setProgress(100 / questions.length);
+      setQuestionIdx(0)
+      currentQuestionIdx
+      setProgress(100 / questions.length)
 
       if (onReset) {
-        onReset();
+        onReset()
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [resetSignal]);
+  }, [resetSignal])
 
   return (
     <div>
@@ -112,8 +112,8 @@ function FormRenderer({
         <form
           // onSubmit={form.handleSubmit(onSubmit, onError)}
           onSubmit={(e) => {
-            e.preventDefault();
-            void handleNext();
+            e.preventDefault()
+            void handleNext()
           }}
           className="my-8"
         >
@@ -127,8 +127,8 @@ function FormRenderer({
                   <div
                     className={`transition-all duration-150 ease-out ${
                       qIdx === idx
-                        ? "not-sr-only translate-x-0"
-                        : "sr-only -translate-x-full"
+                        ? 'not-sr-only translate-x-0'
+                        : 'sr-only -translate-x-full'
                     }`}
                   >
                     <InputRenderer
@@ -148,9 +148,9 @@ function FormRenderer({
           {isNextLoading ? (
             <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
           ) : qIdx === questions.length - 1 ? (
-            "Submit"
+            'Submit'
           ) : (
-            "Next"
+            'Next'
           )}
         </Button>
       </div>
@@ -158,7 +158,7 @@ function FormRenderer({
         <Progress className="h-[5px]" value={progress} />
       </div>
     </div>
-  );
+  )
 }
 
-export default FormRenderer;
+export default FormRenderer

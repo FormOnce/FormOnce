@@ -1,5 +1,5 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@components/ui/avatar";
-import { Button } from "@components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from '@components/ui/avatar'
+import { Button } from '@components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,18 +7,18 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@components/ui/dropdown-menu";
-import { signOut, useSession } from "next-auth/react";
+} from '@components/ui/dropdown-menu'
+import { signOut, useSession } from 'next-auth/react'
 
 export function UserNav() {
-  const session = useSession();
-  const user = session.data?.user;
+  const session = useSession()
+  const user = session.data?.user
 
   const handleSignout = () => {
     void signOut({
-      callbackUrl: "/auth/signin",
-    });
-  };
+      callbackUrl: '/auth/signin',
+    })
+  }
 
   //   TODO: Add functionality to dropdown menu
 
@@ -27,7 +27,7 @@ export function UserNav() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            <AvatarImage src={user?.image ?? ""} alt={user?.name ?? ""} />
+            <AvatarImage src={user?.image ?? ''} alt={user?.name ?? ''} />
             <AvatarFallback>{user?.name?.slice(0, 1)}</AvatarFallback>
           </Avatar>
         </Button>
@@ -59,5 +59,5 @@ export function UserNav() {
         <DropdownMenuItem onClick={handleSignout}>Sign out</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  );
+  )
 }

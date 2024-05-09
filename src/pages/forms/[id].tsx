@@ -1,19 +1,19 @@
-import { Icons } from "@components/ui";
-import { useEffect } from "react";
-import { type TQuestion } from "~/types/question.types";
-import { api } from "~/utils/api";
-import { useRouter } from "next/router";
-import type { GetServerSideProps } from "next";
-import type { TFormSchema } from "~/types/form.types";
-import { FormLayout } from "~/layouts/formLayout";
-import { LiveForm } from "~/components/form-builder/liveForm";
+import { Icons } from '@components/ui'
+import type { GetServerSideProps } from 'next'
+import { useRouter } from 'next/router'
+import { useEffect } from 'react'
+import { LiveForm } from '~/components/form-builder/liveForm'
+import { FormLayout } from '~/layouts/formLayout'
+import type { TFormSchema } from '~/types/form.types'
+import { type TQuestion } from '~/types/question.types'
+import { api } from '~/utils/api'
 
 type TProps = {
-  formId: string;
-};
+  formId: string
+}
 
 export default function Form(props: TProps) {
-  const router = useRouter();
+  const router = useRouter()
   const {
     data: formData,
     isLoading: isLoadingFormData,
@@ -24,21 +24,21 @@ export default function Form(props: TProps) {
       increaseViewCount: true,
     },
     {
-      enabled: !!props.formId && props.formId !== "new",
+      enabled: !!props.formId && props.formId !== 'new',
       refetchOnMount: false,
       refetchOnWindowFocus: false,
       retry: false,
-    }
-  );
+    },
+  )
 
   // check if formId is valid, if unvalid redirect to fallback page
   useEffect(() => {
     if (isFormInvalid) {
       // invalid form id
-      void router.push("/forms/invalid-form");
+      void router.push('/forms/invalid-form')
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isFormInvalid]);
+  }, [isFormInvalid])
 
   return (
     <FormLayout title="Form">
@@ -59,14 +59,14 @@ export default function Form(props: TProps) {
         </>
       )}
     </FormLayout>
-  );
+  )
 }
 
-// eslint-disable-next-line @typescript-eslint/require-await
+// biome-ignore lint/suspicious/useAwait: <Expects a promise return>
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   return {
     props: {
       formId: ctx.query.id,
     },
-  };
-};
+  }
+}

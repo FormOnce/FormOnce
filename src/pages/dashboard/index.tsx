@@ -1,13 +1,13 @@
-import DashboardLayout from "~/layouts/dashboardLayout";
-import { useRouter } from "next/router";
-import type { GetServerSideProps } from "next";
-import { getServerAuthSession } from "~/server/auth";
-import { Loader } from "lucide-react";
+import { Loader } from 'lucide-react'
+import type { GetServerSideProps } from 'next'
+import { useRouter } from 'next/router'
+import DashboardLayout from '~/layouts/dashboardLayout'
+import { getServerAuthSession } from '~/server/auth'
 
 export default function Forms() {
-  const router = useRouter();
+  const router = useRouter()
 
-  void router.push("/dashboard/forms");
+  void router.push('/dashboard/forms')
 
   return (
     <DashboardLayout title="dashboard">
@@ -15,22 +15,22 @@ export default function Forms() {
         <Loader className="h-6 w-6 animate-spin" />
       </div>
     </DashboardLayout>
-  );
+  )
 }
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
-  const session = await getServerAuthSession(ctx);
+  const session = await getServerAuthSession(ctx)
 
   if (!session?.user?.id) {
     return {
       redirect: {
-        destination: "/auth/signin",
+        destination: '/auth/signin',
         permanent: false,
       },
-    };
+    }
   }
 
   return {
     props: {},
-  };
-};
+  }
+}

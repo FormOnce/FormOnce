@@ -1,5 +1,8 @@
-import DashboardLayout from "~/layouts/dashboardLayout";
-import { Button } from "~/components/ui/button";
+import type { ApiKey } from '@prisma/client'
+import { Edit, Loader2 } from 'lucide-react'
+import { useState } from 'react'
+import { toast } from 'sonner'
+import { AddApiKeyDialog } from '~/components/api-keys/add-api-key-dialog'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,13 +28,10 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "~/components/ui";
-import { api } from "~/utils/api";
-import { Edit, Loader2 } from "lucide-react";
-import { toast } from "sonner";
-import type { ApiKey } from "@prisma/client";
-import { useState } from "react";
-import { AddApiKeyDialog } from "~/components/api-keys/add-api-key-dialog";
+} from '~/components/ui'
+import { Button } from '~/components/ui/button'
+import DashboardLayout from '~/layouts/dashboardLayout'
+import { api } from '~/utils/api'
 
 export default function ApiKeys() {
   return (
@@ -58,7 +58,7 @@ export default function ApiKeys() {
         </div>
       </div>
     </DashboardLayout>
-  );
+  )
 }
 
 const ApiKeysTable = () => {
@@ -69,27 +69,27 @@ const ApiKeysTable = () => {
   } = api.apiKey.getAll.useQuery(undefined, {
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
-  });
+  })
 
-  const { mutateAsync: enableKey } = api.apiKey.enable.useMutation();
-  const { mutateAsync: disableKey } = api.apiKey.disable.useMutation();
+  const { mutateAsync: enableKey } = api.apiKey.enable.useMutation()
+  const { mutateAsync: disableKey } = api.apiKey.disable.useMutation()
 
   const onToggleWebhook = async (id: string, enabled: boolean) => {
     if (enabled) {
-      await enableKey({ id });
-      toast.success("key enabled", {
+      await enableKey({ id })
+      toast.success('key enabled', {
         duration: 3000,
-        position: "top-center",
-      });
+        position: 'top-center',
+      })
     } else {
-      await disableKey({ id });
-      toast.success("key disabled", {
+      await disableKey({ id })
+      toast.success('key disabled', {
         duration: 3000,
-        position: "top-center",
-      });
+        position: 'top-center',
+      })
     }
-    await refetch();
-  };
+    await refetch()
+  }
 
   return (
     <Table>
@@ -108,7 +108,7 @@ const ApiKeysTable = () => {
           <TableRow>
             <TableCell colSpan={5}>
               <div className="my-4 flex justify-center">
-                <Loader2 className="animate-spin" />{" "}
+                <Loader2 className="animate-spin" />{' '}
               </div>
             </TableCell>
           </TableRow>
@@ -120,7 +120,7 @@ const ApiKeysTable = () => {
                   {key.name}
                   <br />
                   <span className="text-xs text-muted-foreground">
-                    created by {key.createdBy.name}{" "}
+                    created by {key.createdBy.name}{' '}
                   </span>
                 </p>
               </TableCell>
@@ -141,7 +141,7 @@ const ApiKeysTable = () => {
                       />
                     </TooltipTrigger>
                     <TooltipContent>
-                      {key.enabled ? "Disable" : "Enable"} key
+                      {key.enabled ? 'Disable' : 'Enable'} key
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
@@ -149,7 +149,7 @@ const ApiKeysTable = () => {
               <TableCell className="max-w-[12rem]">
                 {new Date(key.createdAt).toLocaleDateString()}
               </TableCell>
-              <TableCell className="max-w-[12rem]">{"Never"}</TableCell>
+              <TableCell className="max-w-[12rem]">{'Never'}</TableCell>
               <TableCell className="flex gap-2">
                 <TooltipProvider>
                   <Tooltip>
@@ -175,27 +175,27 @@ const ApiKeysTable = () => {
         )}
       </TableBody>
     </Table>
-  );
-};
+  )
+}
 
 type DeleteWebhookDialogProps = {
-  apiKey: ApiKey;
-  refetch: () => Promise<unknown>;
-};
+  apiKey: ApiKey
+  refetch: () => Promise<unknown>
+}
 const DeleteApiKeyDialog = ({ refetch, apiKey }: DeleteWebhookDialogProps) => {
   const { mutateAsync: deleteApiKey, isLoading } =
-    api.apiKey.delete.useMutation();
+    api.apiKey.delete.useMutation()
 
   const onDeleteApiKey = async () => {
-    await deleteApiKey({ id: apiKey.id });
-    toast.success("key deleted", {
+    await deleteApiKey({ id: apiKey.id })
+    toast.success('key deleted', {
       duration: 3000,
-      position: "top-center",
-    });
-    await refetch();
-  };
+      position: 'top-center',
+    })
+    await refetch()
+  }
 
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState('')
 
   return (
     <AlertDialog>
@@ -219,8 +219,8 @@ const DeleteApiKeyDialog = ({ refetch, apiKey }: DeleteWebhookDialogProps) => {
           <Label className="flex items-center">
             <span className="text-sm">Confirm by typing : </span>
             <span className="mx-1 text-sm text-red-500">
-              Delete {apiKey.name}{" "}
-            </span>{" "}
+              Delete {apiKey.name}{' '}
+            </span>{' '}
           </Label>
           <Input onChange={(e) => setValue(e.target.value)} />
         </div>
@@ -231,10 +231,10 @@ const DeleteApiKeyDialog = ({ refetch, apiKey }: DeleteWebhookDialogProps) => {
             disabled={value !== `Delete ${apiKey.name}`}
             className="bg-destructive/90 text-destructive-foreground hover:bg-destructive"
           >
-            {isLoading ? <Loader2 className="animate-spin" /> : "Delete"}
+            {isLoading ? <Loader2 className="animate-spin" /> : 'Delete'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  );
-};
+  )
+}

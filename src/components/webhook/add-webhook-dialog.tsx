@@ -1,6 +1,8 @@
-import { CopyIcon } from "@radix-ui/react-icons";
+import { CopyIcon } from '@radix-ui/react-icons'
 
 import {
+  Button,
+  Checkbox,
   Dialog,
   DialogClose,
   DialogContent,
@@ -9,88 +11,86 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  Button,
-  Input,
-  FormItem,
-  FormField,
-  FormLabel,
-  FormDescription,
-  FormControl,
-  FormMessage,
   Form,
-  Checkbox,
-} from "@components/ui";
-import { EyeIcon, Webhook } from "lucide-react";
-import { toast } from "sonner";
-import { type TAddWebhookForm, ZAddWebhookForm } from "~/types/webhook.types";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { WebhookTriggerEvent } from "@prisma/client";
-import { api } from "~/utils/api";
-import { useState } from "react";
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  Input,
+} from '@components/ui'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { WebhookTriggerEvent } from '@prisma/client'
+import { EyeIcon, Webhook } from 'lucide-react'
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
+import { type TAddWebhookForm, ZAddWebhookForm } from '~/types/webhook.types'
+import { api } from '~/utils/api'
 
 type TAddWebhookDialogProps = {
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
-  disabled?: boolean;
-};
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+  disabled?: boolean
+}
 
 export function AddWebhookDialog({
   disabled,
   ...props
 }: TAddWebhookDialogProps) {
   const { mutateAsync: createWebhook, isLoading } =
-    api.webhook.create.useMutation();
+    api.webhook.create.useMutation()
 
-  const formSchema = ZAddWebhookForm;
+  const formSchema = ZAddWebhookForm
 
   const form = useForm<TAddWebhookForm>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      url: "",
-      name: "",
-      secret: "",
+      url: '',
+      name: '',
+      secret: '',
       events: [],
     },
-    mode: "onBlur",
-  });
+    mode: 'onBlur',
+  })
 
   const onSubmit = async (values: TAddWebhookForm) => {
     try {
-      await createWebhook(values);
-      toast.success("Webhook created successfully", {
+      await createWebhook(values)
+      toast.success('Webhook created successfully', {
         duration: 3000,
-        position: "top-center",
-      });
-      onOpenChange(false);
+        position: 'top-center',
+      })
+      onOpenChange(false)
     } catch (error) {
-      toast.error("Failed to create webhook", {
+      toast.error('Failed to create webhook', {
         duration: 3000,
-        position: "top-center",
-      });
+        position: 'top-center',
+      })
     }
-  };
+  }
 
   const onError = (error: unknown) => {
-    console.error(error);
-  };
+    console.error(error)
+  }
 
   const onGenerateSecret = () => {
-    form.setValue("secret", Math.random().toString(36).substring(2));
-  };
+    form.setValue('secret', Math.random().toString(36).substring(2))
+  }
 
   const onOpenChange = (open: boolean) => {
-    setOpen(open);
-    props.onOpenChange?.(open);
-    if (!open) form.reset();
-  };
+    setOpen(open)
+    props.onOpenChange?.(open)
+    if (!open) form.reset()
+  }
 
-  const [open, setOpen] = useState(props.open ?? false);
+  const [open, setOpen] = useState(props.open ?? false)
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
-        <Button size={"lg"} disabled={disabled}>
+        <Button size={'lg'} disabled={disabled}>
           <Webhook className="mr-2 h-5 w-5" />
           Add Webhook
         </Button>
@@ -146,7 +146,7 @@ export function AddWebhookDialog({
                       <FormControl>
                         <Checkbox
                           checked={field.value.includes(
-                            WebhookTriggerEvent.RESPONSE_SUBMITTED
+                            WebhookTriggerEvent.RESPONSE_SUBMITTED,
                           )}
                           onCheckedChange={(checked) =>
                             field.onChange(
@@ -158,8 +158,8 @@ export function AddWebhookDialog({
                                 : field.value.filter(
                                     (v) =>
                                       v !==
-                                      WebhookTriggerEvent.RESPONSE_SUBMITTED
-                                  )
+                                      WebhookTriggerEvent.RESPONSE_SUBMITTED,
+                                  ),
                             )
                           }
                         />
@@ -178,7 +178,7 @@ export function AddWebhookDialog({
                       <FormControl>
                         <Checkbox
                           checked={field.value.includes(
-                            WebhookTriggerEvent.RESPONSE_UPDATED
+                            WebhookTriggerEvent.RESPONSE_UPDATED,
                           )}
                           onCheckedChange={(checked) =>
                             field.onChange(
@@ -189,8 +189,9 @@ export function AddWebhookDialog({
                                   ]
                                 : field.value.filter(
                                     (v) =>
-                                      v !== WebhookTriggerEvent.RESPONSE_UPDATED
-                                  )
+                                      v !==
+                                      WebhookTriggerEvent.RESPONSE_UPDATED,
+                                  ),
                             )
                           }
                         />
@@ -245,11 +246,11 @@ export function AddWebhookDialog({
                           <CopyIcon
                             className="absolute right-2 top-2 h-4 w-4 cursor-pointer text-muted-foreground hover:text-accent-foreground"
                             onClick={() => {
-                              void navigator.clipboard.writeText(field.value);
-                              toast.success("Secret copied to clipboard", {
+                              void navigator.clipboard.writeText(field.value)
+                              toast.success('Secret copied to clipboard', {
                                 duration: 2000,
-                                position: "top-center",
-                              });
+                                position: 'top-center',
+                              })
                             }}
                           />
                           <EyeIcon
@@ -258,10 +259,10 @@ export function AddWebhookDialog({
                               const input =
                                 // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
                                 document.querySelector(
-                                  "input[name=secret]"
-                                ) as HTMLInputElement;
+                                  'input[name=secret]',
+                                ) as HTMLInputElement
                               input.type =
-                                input.type === "password" ? "text" : "password";
+                                input.type === 'password' ? 'text' : 'password'
                             }}
                           />
                         </div>
@@ -269,14 +270,14 @@ export function AddWebhookDialog({
                           type="button"
                           variant="secondary"
                           onClick={onGenerateSecret}
-                          size={"sm"}
+                          size={'sm'}
                         >
                           Generate
                         </Button>
                       </div>
                     </FormControl>
                     <FormDescription>
-                      A secret key to make sure webhook is from{" "}
+                      A secret key to make sure webhook is from{' '}
                       <span className="mx-0 text-[hsl(280,100%,70%)]">
                         FormOnce
                       </span>
@@ -295,10 +296,10 @@ export function AddWebhookDialog({
             </Button>
           </DialogClose>
           <Button type="submit" form="add-webhook-form" loading={isLoading}>
-            {isLoading ? "Creating..." : "Create Webhook"}
+            {isLoading ? 'Creating...' : 'Create Webhook'}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

@@ -1,6 +1,6 @@
-import Link from "next/link";
+import Link from 'next/link'
 
-import { cn } from "@utils/cn";
+import { cn } from '@utils/cn'
 
 export function MainNav({
   className,
@@ -8,7 +8,7 @@ export function MainNav({
 }: React.HTMLAttributes<HTMLElement>) {
   return (
     <nav
-      className={cn("flex items-center space-x-4 lg:space-x-6", className)}
+      className={cn('flex items-center space-x-4 lg:space-x-6', className)}
       {...props}
     >
       <Link
@@ -24,5 +24,5 @@ export function MainNav({
         Templates
       </Link>
     </nav>
-  );
+  )
 }

@@ -1,4 +1,3 @@
-import DashboardLayout from "~/layouts/dashboardLayout";
 import {
   Button,
   Icons,
@@ -7,29 +6,30 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
   ScrollArea,
-} from "@components/ui";
-import { useEffect, useState } from "react";
-import { type TQuestion } from "~/types/question.types";
-import { AddNewQuestion } from "~/components/form-builder/add-new-question";
-import { api } from "~/utils/api";
-import { useRouter } from "next/router";
-import type { GetServerSideProps } from "next";
-import { getServerAuthSession } from "~/server/auth";
-import { EditableQuestion } from "~/components/form-builder/editable-question";
-import type { TFormSchema } from "~/types/form.types";
-import { Preview } from "~/components/form-builder/preview";
-import { FormStatus } from "@prisma/client";
-import { Reorder } from "framer-motion";
-import { toast } from "sonner";
-import { ShareDialog } from "~/components/form-builder/share-dialog";
-import { LockClosedIcon } from "@radix-ui/react-icons";
+} from '@components/ui'
+import { FormStatus } from '@prisma/client'
+import { LockClosedIcon } from '@radix-ui/react-icons'
+import { Reorder } from 'framer-motion'
+import type { GetServerSideProps } from 'next'
+import { useRouter } from 'next/router'
+import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
+import { AddNewQuestion } from '~/components/form-builder/add-new-question'
+import { EditableQuestion } from '~/components/form-builder/editable-question'
+import { Preview } from '~/components/form-builder/preview'
+import { ShareDialog } from '~/components/form-builder/share-dialog'
+import DashboardLayout from '~/layouts/dashboardLayout'
+import { getServerAuthSession } from '~/server/auth'
+import type { TFormSchema } from '~/types/form.types'
+import { type TQuestion } from '~/types/question.types'
+import { api } from '~/utils/api'
 
 type TProps = {
-  formId: string;
-};
+  formId: string
+}
 
 export default function Form(props: TProps) {
-  const router = useRouter();
+  const router = useRouter()
   const {
     data: data,
     isLoading: isLoadingFormData,
@@ -41,58 +41,58 @@ export default function Form(props: TProps) {
       id: props.formId,
     },
     {
-      enabled: !!props.formId && props.formId !== "new",
+      enabled: !!props.formId && props.formId !== 'new',
       refetchOnWindowFocus: false,
       retry: false,
       onSuccess(data) {
-        setQuestions(data.form?.questions as TQuestion[]);
+        setQuestions(data.form?.questions as TQuestion[])
       },
-    }
-  );
+    },
+  )
 
   const { mutateAsync: createForm, isLoading: isCreatingForm } =
-    api.form.create.useMutation();
-  const { mutateAsync: updateForm } = api.form.update.useMutation();
+    api.form.create.useMutation()
+  const { mutateAsync: updateForm } = api.form.update.useMutation()
   const { mutateAsync: publishForm, isLoading: isPublishingForm } =
-    api.form.publish.useMutation();
+    api.form.publish.useMutation()
   const { mutateAsync: unpublishForm, isLoading: isUnpublishingForm } =
-    api.form.unpublish.useMutation();
+    api.form.unpublish.useMutation()
 
   const { mutateAsync: addQuestion, isLoading: isAddingQuestion } =
-    api.form.addQuestion.useMutation();
-  const { mutateAsync: editQuestion } = api.form.editQuestion.useMutation();
-  const { mutateAsync: deleteQuestion } = api.form.deleteQuestion.useMutation();
+    api.form.addQuestion.useMutation()
+  const { mutateAsync: editQuestion } = api.form.editQuestion.useMutation()
+  const { mutateAsync: deleteQuestion } = api.form.deleteQuestion.useMutation()
 
-  const [currentQuestion, setCurrentQuestion] = useState<number>(0);
-  const [questions, setQuestions] = useState<TQuestion[]>([]);
-  const [isEditingFormName, setIsEditingFormName] = useState<boolean>(false);
+  const [currentQuestion, setCurrentQuestion] = useState<number>(0)
+  const [questions, setQuestions] = useState<TQuestion[]>([])
+  const [isEditingFormName, setIsEditingFormName] = useState<boolean>(false)
 
-  const [shareDialogOpen, setShareDialogOpen] = useState<boolean>(false);
+  const [shareDialogOpen, setShareDialogOpen] = useState<boolean>(false)
 
-  const formData = data?.form;
+  const formData = data?.form
 
   // check if formId is valid, if unvalid redirect to dashboard
   useEffect(() => {
-    if (props.formId === "new") return;
+    if (props.formId === 'new') return
 
     if (isFormInvalid) {
       // invalid form id
-      console.log("here");
-      void router.push("/dashboard/forms/new");
+      console.log('here')
+      void router.push('/dashboard/forms/new')
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isFormInvalid]);
+  }, [isFormInvalid])
 
   const onAddQuestion = async (values: TQuestion) => {
     // if formId is new, create form first
-    if (props.formId === "new") {
+    if (props.formId === 'new') {
       await createForm({
-        name: "New Form",
+        name: 'New Form',
         questions: [values],
       }).then((res) => {
-        void router.push(`/dashboard/forms/${res.id}`);
-      });
-      return;
+        void router.push(`/dashboard/forms/${res.id}`)
+      })
+      return
     }
 
     // else add question to form
@@ -100,12 +100,12 @@ export default function Form(props: TProps) {
       formId: props.formId,
       question: values,
     }).then(() => {
-      void refreshFormData();
-    });
-  };
+      void refreshFormData()
+    })
+  }
 
   const onEditQuestion = async (values: TQuestion) => {
-    const question = questions[currentQuestion]!;
+    const question = questions[currentQuestion]!
     await editQuestion({
       formId: props.formId,
       question: {
@@ -113,43 +113,43 @@ export default function Form(props: TProps) {
         id: question.id!,
       },
     }).then(() => {
-      void refreshFormData();
-    });
-  };
+      void refreshFormData()
+    })
+  }
 
   const onDeleteQuestion = async (questionId: string) => {
     await deleteQuestion({
       formId: props.formId,
       questionId: questionId,
     }).then(() => {
-      void refreshFormData();
-    });
-  };
+      void refreshFormData()
+    })
+  }
 
   const reorderQuestions = async (questions: TQuestion[]) => {
-    setQuestions(questions);
+    setQuestions(questions)
     await updateForm({
       id: props.formId,
       questions: questions,
     }).then(() => {
-      void refreshFormData();
-    });
-  };
+      void refreshFormData()
+    })
+  }
 
   const updateFormName = async () => {
-    setIsEditingFormName(false);
+    setIsEditingFormName(false)
 
-    const formName = document.getElementById("form-name") as HTMLInputElement;
+    const formName = document.getElementById('form-name') as HTMLInputElement
 
     // if formId is new, create form
-    if (props.formId === "new") {
+    if (props.formId === 'new') {
       await createForm({
         name: formName.value,
         questions: [],
       }).then((res) => {
-        void router.push(`/dashboard/forms/${res.id}`);
-      });
-      return;
+        void router.push(`/dashboard/forms/${res.id}`)
+      })
+      return
     }
 
     // else update form name
@@ -157,38 +157,38 @@ export default function Form(props: TProps) {
       id: props.formId,
       name: formName.value,
     }).then(() => {
-      void refreshFormData();
-    });
-  };
+      void refreshFormData()
+    })
+  }
 
   const onTogglePublish = async () => {
     if (formData?.status === FormStatus.DRAFT) {
       await publishForm({
         id: props.formId,
       }).then(async () => {
-        await refreshFormData();
-      });
-      setShareDialogOpen(true);
-      toast.success("Form published", {
-        position: "top-center",
+        await refreshFormData()
+      })
+      setShareDialogOpen(true)
+      toast.success('Form published', {
+        position: 'top-center',
         duration: 1500,
-      });
+      })
     } else {
       await unpublishForm({
         id: props.formId,
       }).then(() => {
-        void refreshFormData();
-      });
-      toast.success("Form unpublished", {
-        position: "top-center",
+        void refreshFormData()
+      })
+      toast.success('Form unpublished', {
+        position: 'top-center',
         duration: 1500,
-      });
+      })
     }
-  };
+  }
 
   return (
     <DashboardLayout title="dashboard">
-      {props.formId !== "new" && isLoadingFormData ? (
+      {props.formId !== 'new' && isLoadingFormData ? (
         <div className="flex h-full items-center justify-center">
           <Icons.spinner className="mb-10 h-8 w-8 animate-spin" />
         </div>
@@ -201,9 +201,9 @@ export default function Form(props: TProps) {
                   id="form-name"
                   size={56}
                   placeholder="Search"
-                  defaultValue={formData?.name ?? "New Form"}
+                  defaultValue={formData?.name ?? 'New Form'}
                   onMouseEnter={() =>
-                    document.getElementById("form-name")?.focus()
+                    document.getElementById('form-name')?.focus()
                   }
                   onMouseLeave={() => setIsEditingFormName(false)}
                 />
@@ -213,7 +213,7 @@ export default function Form(props: TProps) {
                 className="cursor-pointer text-3xl font-semibold"
                 onClick={() => setIsEditingFormName(true)}
               >
-                {formData?.name ?? "New Form"}
+                {formData?.name ?? 'New Form'}
               </h1>
             )}
 
@@ -226,27 +226,27 @@ export default function Form(props: TProps) {
                 onClick={() => void onTogglePublish()}
                 variant={
                   formData?.status === FormStatus.PUBLISHED
-                    ? "destructive"
-                    : "default"
+                    ? 'destructive'
+                    : 'default'
                 }
                 disabled={!formData?.questions.length}
                 loading={isPublishingForm || isUnpublishingForm}
               >
                 {formData?.status === FormStatus.PUBLISHED
-                  ? "Unpublish"
-                  : "Publish"}
+                  ? 'Unpublish'
+                  : 'Publish'}
               </Button>
               <ShareDialog
                 disabled={formData?.status !== FormStatus.PUBLISHED}
                 open={shareDialogOpen}
                 onOpenChange={setShareDialogOpen}
-                link={formData?.link ?? ""}
+                link={formData?.link ?? ''}
               />
               <Button
                 onClick={() =>
                   void router.push(`/dashboard/forms/${props.formId}/summary`)
                 }
-                variant={"secondary"}
+                variant={'secondary'}
               >
                 Responses
               </Button>
@@ -261,8 +261,8 @@ export default function Form(props: TProps) {
               <div
                 className={`${
                   formData?.status === FormStatus.PUBLISHED
-                    ? "absolute left-0 top-0 z-10 flex h-full w-full cursor-not-allowed items-center justify-center bg-black bg-opacity-75"
-                    : "hidden"
+                    ? 'absolute left-0 top-0 z-10 flex h-full w-full cursor-not-allowed items-center justify-center bg-black bg-opacity-75'
+                    : 'hidden'
                 }`}
               >
                 <div className="mb-28 flex flex-col gap-2">
@@ -276,7 +276,7 @@ export default function Form(props: TProps) {
                     <Button
                       type="button"
                       onClick={() => void onTogglePublish()}
-                      variant={"destructive"}
+                      variant={'destructive'}
                       disabled={
                         !formData?.questions.length ||
                         isUnpublishingForm ||
@@ -312,7 +312,7 @@ export default function Form(props: TProps) {
                             setCurrentQuestion={setCurrentQuestion}
                           />
                         </Reorder.Item>
-                      );
+                      )
                     })}
                   </Reorder.Group>
                   {isAddingQuestion || isCreatingForm ? (
@@ -339,25 +339,25 @@ export default function Form(props: TProps) {
         </div>
       )}
     </DashboardLayout>
-  );
+  )
 }
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
-  const session = await getServerAuthSession(ctx);
+  const session = await getServerAuthSession(ctx)
 
   if (session?.user?.id) {
     return {
       props: {
         formId: ctx.query.id,
       },
-    };
+    }
   }
 
   return {
     redirect: {
-      destination: "/auth/signin",
+      destination: '/auth/signin',
       permanent: false,
     },
     props: {},
-  };
-};
+  }
+}

@@ -1,7 +1,9 @@
-import DashboardLayout from "~/layouts/dashboardLayout";
 import {
-  Icons,
   Button,
+  Icons,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
   Table,
   TableBody,
   TableCaption,
@@ -9,24 +11,22 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from "@components/ui";
-import { api } from "~/utils/api";
-import { useRouter } from "next/router";
-import type { GetServerSideProps } from "next";
-import { getServerAuthSession } from "~/server/auth";
-import { type Form, FormStatus } from "@prisma/client";
-import { useState } from "react";
-import { useSession } from "next-auth/react";
+} from '@components/ui'
+import { type Form, FormStatus } from '@prisma/client'
+import type { GetServerSideProps } from 'next'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/router'
+import { useState } from 'react'
+import DashboardLayout from '~/layouts/dashboardLayout'
+import { getServerAuthSession } from '~/server/auth'
+import { api } from '~/utils/api'
 
 export default function Forms() {
-  const router = useRouter();
+  const router = useRouter()
 
   const onCreateNewForm = () => {
-    void router.push("/dashboard/forms/new");
-  };
+    void router.push('/dashboard/forms/new')
+  }
 
   return (
     <DashboardLayout title="dashboard">
@@ -41,12 +41,12 @@ export default function Forms() {
         <AllFormsTable />
       </div>
     </DashboardLayout>
-  );
+  )
 }
 
 export function AllFormsTable() {
-  const router = useRouter();
-  const session = useSession();
+  const router = useRouter()
+  const session = useSession()
 
   const {
     data: forms,
@@ -54,37 +54,37 @@ export function AllFormsTable() {
     refetch,
   } = api.form.getAll.useQuery({
     workspaceId: session.data?.user.workspaceId,
-  });
+  })
   const {
     mutateAsync: deleteForm,
     isLoading: isDeletingForm,
     variables,
-  } = api.form.delete.useMutation();
+  } = api.form.delete.useMutation()
 
   const handleClick = (form: Form) => {
     // if form is not published, redirect to form editor
     if (form.status == FormStatus.DRAFT) {
-      return void router.push(`/dashboard/forms/${form.id}`);
+      return void router.push(`/dashboard/forms/${form.id}`)
     }
 
     // if form is published, redirect to form summary
-    return void router.push(`/dashboard/forms/${form.id}/summary`);
-  };
+    return void router.push(`/dashboard/forms/${form.id}/summary`)
+  }
 
-  const [deletePopoverId, setDeletePopoverId] = useState<string | null>(null);
+  const [deletePopoverId, setDeletePopoverId] = useState<string | null>(null)
 
   const onOpenChange = (open: boolean) => {
     if (!open) {
-      setDeletePopoverId(null);
+      setDeletePopoverId(null)
     }
-  };
+  }
 
   const onDeleteForm = async (formId: string) => {
     await deleteForm({
       id: formId,
-    });
-    await refetch();
-  };
+    })
+    await refetch()
+  }
 
   return (
     <Table>
@@ -134,12 +134,12 @@ export function AllFormsTable() {
               >
                 <PopoverTrigger
                   onClick={(e) => {
-                    e.stopPropagation();
+                    e.stopPropagation()
                   }}
                 >
                   <Button
-                    variant={"secondary"}
-                    size={"icon"}
+                    variant={'secondary'}
+                    size={'icon'}
                     className="hover:bg-destructive/90 hover:text-destructive-foreground"
                     onClick={() => setDeletePopoverId(form.id)}
                   >
@@ -148,7 +148,7 @@ export function AllFormsTable() {
                 </PopoverTrigger>
                 <PopoverContent
                   onClick={(e) => {
-                    e.stopPropagation();
+                    e.stopPropagation()
                   }}
                   className="w-54 space-y-2"
                 >
@@ -159,7 +159,7 @@ export function AllFormsTable() {
                       <p className="w-48 text-sm">Delete this form?</p>
                       <span className="text-xs text-muted-foreground">
                         This form has {form.FormResponses.length} responses,
-                      </span>{" "}
+                      </span>{' '}
                     </>
                   )}
                   <div className="flex gap-2">
@@ -167,14 +167,14 @@ export function AllFormsTable() {
                       variant="destructive"
                       onClick={() => onDeleteForm(form.id)}
                       loading={isDeletingForm && variables?.id === form.id}
-                      size={"sm"}
+                      size={'sm'}
                     >
                       Delete
                     </Button>
                     <Button
                       variant="secondary"
                       onClick={() => onOpenChange(false)}
-                      size={"sm"}
+                      size={'sm'}
                     >
                       Cancel
                     </Button>
@@ -186,22 +186,22 @@ export function AllFormsTable() {
         ))}
       </TableBody>
     </Table>
-  );
+  )
 }
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
-  const session = await getServerAuthSession(ctx);
+  const session = await getServerAuthSession(ctx)
 
   if (!session?.user?.id) {
     return {
       redirect: {
-        destination: "/auth/signin",
+        destination: '/auth/signin',
         permanent: false,
       },
-    };
+    }
   }
 
   return {
     props: {},
-  };
-};
+  }
+}

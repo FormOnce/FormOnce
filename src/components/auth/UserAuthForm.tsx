@@ -1,80 +1,80 @@
-import RootLayout from "~/layouts/rootLayout";
-import { Input, Button, Icons } from "@components/ui";
-import { cn } from "@utils/cn";
-import { api } from "@utils/api";
-import { useFormik } from "formik";
-import { signIn } from "next-auth/react";
-import { useState } from "react";
+import { Button, Icons, Input } from '@components/ui'
+import { api } from '@utils/api'
+import { cn } from '@utils/cn'
+import { useFormik } from 'formik'
+import { signIn } from 'next-auth/react'
+import { useState } from 'react'
+import RootLayout from '~/layouts/rootLayout'
 
 export interface UserAuthFormProps
   extends React.HTMLAttributes<HTMLDivElement> {
-  role: "signin" | "signup";
+  role: 'signin' | 'signup'
 }
 
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
-  const [isGithubLoading, setisGithubLoading] = useState(false);
-  const [isGoogleLoading, setisGoogleLoading] = useState(false);
+  const [isGithubLoading, setisGithubLoading] = useState(false)
+  const [isGoogleLoading, setisGoogleLoading] = useState(false)
 
   const {
     mutateAsync: signupUsingCredentials,
     isLoading: isCredentialSignUpLoading,
-  } = api.auth.signup.useMutation();
+  } = api.auth.signup.useMutation()
 
   function onSubmit(event: React.SyntheticEvent<HTMLFormElement>) {
-    event.preventDefault();
-    void formik.submitForm();
+    event.preventDefault()
+    void formik.submitForm()
   }
 
   const formik = useFormik({
     initialValues: {
-      email: "",
-      password: "",
-      name: "",
+      email: '',
+      password: '',
+      name: '',
     },
     validate: (values) => {
-      const errors: Record<string, string> = {};
+      const errors: Record<string, string> = {}
       if (!values.email) {
-        errors.email = "Email is required";
+        errors.email = 'Email is required'
       }
       if (!values.password) {
-        errors.password = "Password is required";
+        errors.password = 'Password is required'
       }
-      if (props.role === "signup" && !values.name) {
-        errors.name = "Username is required";
+      if (props.role === 'signup' && !values.name) {
+        errors.name = 'Username is required'
       }
-      return errors;
+      return errors
     },
     onSubmit: async (values) => {
       try {
-        if (props.role === "signup") {
-          await signupUsingCredentials(values);
+        if (props.role === 'signup') {
+          await signupUsingCredentials(values)
         }
-        await signIn("credentials", {
+        await signIn('credentials', {
           email: values.email,
           password: values.password,
-          callbackUrl: "/dashboard",
-        });
+          callbackUrl: '/dashboard',
+        })
       } catch (error) {
-        console.error(error);
+        console.error(error)
       }
     },
-  });
+  })
 
   const handleGithubSignIn = () => {
-    setisGithubLoading(true);
-    void signIn("github", { callbackUrl: "/dashboard" });
-    setisGithubLoading(false);
-  };
+    setisGithubLoading(true)
+    void signIn('github', { callbackUrl: '/dashboard' })
+    setisGithubLoading(false)
+  }
 
   const handleGoogleSignIn = () => {
-    setisGoogleLoading(true);
-    void signIn("google", { callbackUrl: "/dashboard" });
-    setisGoogleLoading(false);
-  };
+    setisGoogleLoading(true)
+    void signIn('google', { callbackUrl: '/dashboard' })
+    setisGoogleLoading(false)
+  }
 
   return (
     <RootLayout title="Authentication">
-      <div className={cn("grid gap-6", className)} {...props}>
+      <div className={cn('grid gap-6', className)} {...props}>
         <form onSubmit={onSubmit}>
           <div className="grid gap-2">
             <div className="grid gap-4">
@@ -90,7 +90,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
                 value={formik.values.email}
                 onChange={formik.handleChange}
               />
-              {props.role === "signup" && (
+              {props.role === 'signup' && (
                 <Input
                   id="name"
                   label="Username"
@@ -120,7 +120,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
                 (formik.isSubmitting && (
                   <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
                 ))}
-              {props.role === "signin" ? "Sign in" : "Sign up"} with Email
+              {props.role === 'signin' ? 'Sign in' : 'Sign up'} with Email
             </Button>
           </div>
         </form>
@@ -146,7 +146,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
               <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
             ) : (
               <Icons.gitHub className="mr-2 h-4 w-4" />
-            )}{" "}
+            )}{' '}
             Github
           </Button>
           <Button
@@ -162,5 +162,5 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
         </div>
       </div>
     </RootLayout>
-  );
+  )
 }

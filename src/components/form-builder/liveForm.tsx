@@ -1,16 +1,16 @@
-import React from "react";
-import type { TFormSchema } from "~/types/form.types";
-import type { TQuestion } from "~/types/question.types";
+import React from 'react'
+import type { TFormSchema } from '~/types/form.types'
+import type { TQuestion } from '~/types/question.types'
 
-import FormRenderer from "./form-renderer";
-import { api } from "~/utils/api";
+import { api } from '~/utils/api'
+import FormRenderer from './form-renderer'
 
 type TLiveFormProps = {
-  formId: string;
-  formSchema: TFormSchema;
-  questions: TQuestion[];
-  formViewId: string;
-};
+  formId: string
+  formSchema: TFormSchema
+  questions: TQuestion[]
+  formViewId: string
+}
 
 function LiveForm({
   formId,
@@ -19,23 +19,23 @@ function LiveForm({
   formViewId,
 }: TLiveFormProps) {
   const { mutateAsync: submitResponse, isSuccess: formSubmitted } =
-    api.form.submitResponse.useMutation();
+    api.form.submitResponse.useMutation()
 
   const onNext = () => {
-    console.log("next");
-  };
+    console.log('next')
+  }
 
   const onPrev = () => {
-    console.log("prev");
-  };
+    console.log('prev')
+  }
 
   const onSubmit = async (values: Record<string, unknown>) => {
     await submitResponse({
       formId: formId,
       response: values,
       formViewId,
-    });
-  };
+    })
+  }
 
   if (formSubmitted) {
     return (
@@ -45,7 +45,7 @@ function LiveForm({
           Your response has been submitted successfully.
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -58,7 +58,7 @@ function LiveForm({
         onSubmit={onSubmit}
       />
     </div>
-  );
+  )
 }
 
-export { LiveForm };
+export { LiveForm }

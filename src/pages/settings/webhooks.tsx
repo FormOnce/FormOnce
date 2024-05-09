@@ -1,5 +1,7 @@
-import DashboardLayout from "~/layouts/dashboardLayout";
-import { Button } from "~/components/ui/button";
+import type { Webhook } from '@prisma/client'
+import { Edit, Loader2 } from 'lucide-react'
+import { useState } from 'react'
+import { toast } from 'sonner'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,13 +27,11 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "~/components/ui";
-import { api } from "~/utils/api";
-import { Edit, Loader2 } from "lucide-react";
-import { AddWebhookDialog } from "~/components/webhook/add-webhook-dialog";
-import { toast } from "sonner";
-import type { Webhook } from "@prisma/client";
-import { useState } from "react";
+} from '~/components/ui'
+import { Button } from '~/components/ui/button'
+import { AddWebhookDialog } from '~/components/webhook/add-webhook-dialog'
+import DashboardLayout from '~/layouts/dashboardLayout'
+import { api } from '~/utils/api'
 
 export default function Webhooks() {
   return (
@@ -58,7 +58,7 @@ export default function Webhooks() {
         </div>
       </div>
     </DashboardLayout>
-  );
+  )
 }
 
 const WebhookTable = () => {
@@ -69,27 +69,27 @@ const WebhookTable = () => {
   } = api.webhook.getAll.useQuery(undefined, {
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
-  });
+  })
 
-  const { mutateAsync: enableWebhook } = api.webhook.enable.useMutation();
-  const { mutateAsync: disableWebhook } = api.webhook.disable.useMutation();
+  const { mutateAsync: enableWebhook } = api.webhook.enable.useMutation()
+  const { mutateAsync: disableWebhook } = api.webhook.disable.useMutation()
 
   const onToggleWebhook = async (id: string, enabled: boolean) => {
     if (enabled) {
-      await enableWebhook({ id });
-      toast.success("Webhook enabled", {
+      await enableWebhook({ id })
+      toast.success('Webhook enabled', {
         duration: 3000,
-        position: "top-center",
-      });
+        position: 'top-center',
+      })
     } else {
-      await disableWebhook({ id });
-      toast.success("Webhook disabled", {
+      await disableWebhook({ id })
+      toast.success('Webhook disabled', {
         duration: 3000,
-        position: "top-center",
-      });
+        position: 'top-center',
+      })
     }
-    await refetch();
-  };
+    await refetch()
+  }
 
   return (
     <Table>
@@ -108,7 +108,7 @@ const WebhookTable = () => {
           <TableRow>
             <TableCell colSpan={5}>
               <div className="my-4 flex justify-center">
-                <Loader2 className="animate-spin" />{" "}
+                <Loader2 className="animate-spin" />{' '}
               </div>
             </TableCell>
           </TableRow>
@@ -120,16 +120,16 @@ const WebhookTable = () => {
                   {webhook.name}
                   <br />
                   <span className="text-xs text-muted-foreground">
-                    created on{" "}
-                    {new Date(webhook.createdAt).toLocaleDateString()} by{" "}
-                    {webhook.createdBy.name}{" "}
+                    created on{' '}
+                    {new Date(webhook.createdAt).toLocaleDateString()} by{' '}
+                    {webhook.createdBy.name}{' '}
                   </span>
                 </p>
               </TableCell>
               <TableCell>
                 <ul className="text-xs capitalize">
                   {webhook.events.map((event) => (
-                    <li key={event}>{event.replace("_", " ").toLowerCase()}</li>
+                    <li key={event}>{event.replace('_', ' ').toLowerCase()}</li>
                   ))}
                 </ul>
               </TableCell>
@@ -148,7 +148,7 @@ const WebhookTable = () => {
                       />
                     </TooltipTrigger>
                     <TooltipContent>
-                      {webhook.enabled ? "Disable" : "Enable"} webhook
+                      {webhook.enabled ? 'Disable' : 'Enable'} webhook
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
@@ -171,30 +171,30 @@ const WebhookTable = () => {
         )}
       </TableBody>
     </Table>
-  );
-};
+  )
+}
 
 type DeleteWebhookDialogProps = {
-  webhook: Webhook;
-  refetch: () => Promise<unknown>;
-};
+  webhook: Webhook
+  refetch: () => Promise<unknown>
+}
 const DeleteWebhookDialog = ({
   refetch,
   webhook,
 }: DeleteWebhookDialogProps) => {
   const { mutateAsync: deleteWebhook, isLoading } =
-    api.webhook.delete.useMutation();
+    api.webhook.delete.useMutation()
 
   const onDeleteWebhook = async () => {
-    await deleteWebhook({ id: webhook.id });
-    toast.success("Webhook deleted", {
+    await deleteWebhook({ id: webhook.id })
+    toast.success('Webhook deleted', {
       duration: 3000,
-      position: "top-center",
-    });
-    await refetch();
-  };
+      position: 'top-center',
+    })
+    await refetch()
+  }
 
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState('')
 
   return (
     <AlertDialog>
@@ -219,8 +219,8 @@ const DeleteWebhookDialog = ({
           <Label className="flex items-center">
             <span className="text-sm">Confirm by typing : </span>
             <span className="mx-1 text-sm text-red-500">
-              Delete {webhook.name}{" "}
-            </span>{" "}
+              Delete {webhook.name}{' '}
+            </span>{' '}
           </Label>
           <Input onChange={(e) => setValue(e.target.value)} />
         </div>
@@ -231,10 +231,10 @@ const DeleteWebhookDialog = ({
             disabled={value !== `Delete ${webhook.name}`}
             className="bg-destructive/90 text-destructive-foreground hover:bg-destructive"
           >
-            {isLoading ? <Loader2 className="animate-spin" /> : "Delete"}
+            {isLoading ? <Loader2 className="animate-spin" /> : 'Delete'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  );
-};
+  )
+}
