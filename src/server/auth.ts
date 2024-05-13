@@ -93,7 +93,11 @@ export const authOptions: NextAuthOptions = {
           include: {
             WorkspaceMember: {
               select: {
-                id: true,
+                Workspace: {
+                  select: {
+                    id: true,
+                  },
+                },
               },
             },
           },
@@ -109,7 +113,7 @@ export const authOptions: NextAuthOptions = {
 
         if (!isPasswordValid) throw new Error('Invalid password')
 
-        const defaultWorkspaceId = prismaUser.WorkspaceMember[0]!.id
+        const defaultWorkspaceId = prismaUser.WorkspaceMember[0]!.Workspace.id
 
         const user = {
           ...prismaUser,
