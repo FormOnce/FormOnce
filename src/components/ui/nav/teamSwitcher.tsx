@@ -85,7 +85,7 @@ interface TeamSwitcherProps extends PopoverTriggerProps {
 }
 
 export function TeamSwitcher({ className }: TeamSwitcherProps) {
-  const { update: updateSession } = useSession()
+  const { update: updateSession, data: session } = useSession()
 
   const { data: workspaces, refetch: refetchWorkspaces } =
     api.workspace.getAll.useQuery(undefined, {
@@ -106,22 +106,32 @@ export function TeamSwitcher({ className }: TeamSwitcherProps) {
   const groups = React.useMemo(() => getGroups(workspaces), [workspaces])
 
   React.useEffect(() => {
-    // see if selected workspace is in the list
-    const workspace = workspaces?.find(
-      (workspace) => workspace.id === selectedWorkspace.id,
-    )
+    const sessionHasWorkspace = session?.user.workspaceId
 
-    if (!workspace && groups?.length > 0 && groups[0]!.teams.length > 0) {
-      setSelectedWorkspace(groups[0]!.teams[0]!)
+    if (sessionHasWorkspace) {
+      const workspace = workspaces?.find(
+        (workspace) => workspace.id === session.user.workspaceId,
+      )
+      setSelectedWorkspace({
+        name: workspace?.isPersonal ? 'Personal' : workspace?.name ?? '',
+        id: workspace?.id ?? '',
+      })
+    } else {
+      const defaultWorkspace = groups[0]?.teams[0]!
+      if (defaultWorkspace) handleUpdateWorkspace(defaultWorkspace)
     }
-
-    // update workspaceId in session
-    void updateSession({
-      workspaceId: selectedWorkspace.id,
-    })
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [groups])
+
+  const handleUpdateWorkspace = async (team: Team) => {
+    setSelectedWorkspace(team)
+    setOpen(false)
+    // update workspaceId in session
+    await updateSession({
+      workspaceId: team.id,
+    })
+    // refresh
+    window.location.reload()
+  }
 
   const handleCreateTeam = async () => {
     const name = newWorkspaceInfo.name.trim()
@@ -172,17 +182,7 @@ export function TeamSwitcher({ className }: TeamSwitcherProps) {
                   {group.teams.map((team) => (
                     <CommandItem
                       key={team.id}
-                      onSelect={async () => {
-                        setSelectedWorkspace(team)
-                        setOpen(false)
-                        // update workspaceId in session
-                        await updateSession({
-                          workspaceId: team.id,
-                        })
-
-                        // refresh website when workspace changes
-                        window.location.reload()
-                      }}
+                      onSelect={() => handleUpdateWorkspace(team)}
                       className="text-sm"
                     >
                       <Avatar className="mr-2 h-5 w-5">

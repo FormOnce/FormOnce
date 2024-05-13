@@ -9,12 +9,21 @@ import {
   DropdownMenuTrigger,
 } from '@components/ui/dropdown-menu'
 import { signOut, useSession } from 'next-auth/react'
+import { useWorkspaceStore } from '~/store'
 
 export function UserNav() {
   const session = useSession()
   const user = session.data?.user
 
+  const { setSelectedWorkspace } = useWorkspaceStore()
+
   const handleSignout = () => {
+    // remove selected workspace
+    setSelectedWorkspace({
+      id: null as unknown as string,
+      name: null as unknown as string,
+    })
+
     void signOut({
       callbackUrl: '/auth/signin',
     })
