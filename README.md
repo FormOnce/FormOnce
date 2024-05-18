@@ -29,7 +29,7 @@
 </p>
 
 > [!IMPORTANT]  
-> Why another form builder? Well, there are a lot of form builders out there, and yet none of them provides a one-stop solution for all kinds of forms/surveys. FormOnce aims to solve this by providing a universal form builder, i.e., a single platform that gives you the ability to collect any kind of information, whether it's CSAT, registrations, polls & voting, incident reports, bookings, or just plain old lead generation.
+> Why another form builder? Well, there are a lot of form builders out there, and yet none of them provides a one-stop solution for all kinds of forms/surveys. FormOnce aims to solve this by providing a universal form builder, i.e., a single platform that gives you the ability to collect any kind of information, whether it's CSAT, registrations, polls & voting, incident reports, bookings, testimonials or just plain old lead generation.
 
 <h3 id="toc">Table of contents</h3>
 
