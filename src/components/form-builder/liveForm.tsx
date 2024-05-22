@@ -39,9 +39,9 @@ function LiveForm({
 
   if (formSubmitted) {
     return (
-      <div className="flex flex-col items-center gap-2 px-4 text-center">
+      <div className="flex flex-col items-center gap-2 px-4">
         <div className="text text-4xl font-bold">Form submitted 🎉</div>
-        <div className="text text-lg font-thin">
+        <div className="text text-lg font-thin text-center">
           Your response has been submitted successfully.
         </div>
       </div>
