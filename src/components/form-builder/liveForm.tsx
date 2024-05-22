@@ -39,7 +39,7 @@ function LiveForm({
 
   if (formSubmitted) {
     return (
-      <div className="flex flex-col items-center gap-2">
+      <div className="flex flex-col items-center gap-2 px-4 text-center">
         <div className="text text-4xl font-bold">Form submitted 🎉</div>
         <div className="text text-lg font-thin">
           Your response has been submitted successfully.
@@ -49,7 +49,7 @@ function LiveForm({
   }
 
   return (
-    <div className="rounded-md border px-8 py-16 pt-4">
+    <div className="rounded-md border px-8 py-16">
       <FormRenderer
         formSchema={formSchema}
         questions={questions}
