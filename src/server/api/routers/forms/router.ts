@@ -473,6 +473,7 @@ export const formRouter = createTRPCRouter({
         const form = await ctx.prisma.form.findUnique({
           where: {
             id: input.id,
+            status: 'PUBLISHED',
           },
           select: {
             formSchema: true,
