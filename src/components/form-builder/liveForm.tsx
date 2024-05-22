@@ -49,7 +49,7 @@ function LiveForm({
   }
 
   return (
-    <div className="rounded-md border px-12 py-16">
+    <div className="rounded-md border px-8 py-16 pt-4">
       <FormRenderer
         formSchema={formSchema}
         questions={questions}

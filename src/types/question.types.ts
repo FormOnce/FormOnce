@@ -33,8 +33,8 @@ export enum ESelectSubType {
 }
 
 const ZBaseQuestion = z.object({
-  id: z.string().uuid().optional(),
-  title: z.string().min(5).max(100),
+  id: z.string().optional(),
+  title: z.string().min(5).max(500),
   description: z.string().min(10).max(500).optional(),
   placeholder: z.string().optional(),
   type: z.nativeEnum(EQuestionType),
