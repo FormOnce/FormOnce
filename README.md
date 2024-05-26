@@ -11,7 +11,7 @@
   Universal open source form builder
 </p>
 <p align="center">
-  <a href="https://formonce.in"><strong>Learn more »</strong></a>
+  <a href="https://formonce.in"><strong>Formonce.in</strong></a>
 </p>
 
 <p align="center">
