@@ -4,6 +4,7 @@ import { cn } from '@utils/cn'
 import { useFormik } from 'formik'
 import { signIn } from 'next-auth/react'
 import { useState } from 'react'
+import { toast } from 'sonner'
 import RootLayout from '~/layouts/rootLayout'
 
 export interface UserAuthFormProps
@@ -55,7 +56,13 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
           callbackUrl: '/dashboard',
         })
       } catch (error) {
-        console.error(error)
+        if (error instanceof Error) {
+          toast.error(error.message, {
+            position: 'top-center',
+            duration: 2000,
+            closeButton: true,
+          })
+        }
       }
     },
   })
