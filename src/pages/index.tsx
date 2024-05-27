@@ -10,14 +10,14 @@ import { Input } from '~/components/ui'
 import { Button } from '~/components/ui/button'
 import { getServerAuthSession } from '~/server/auth'
 
-import { useState } from 'react'
+import { FormEvent, FormEventHandler, useState } from 'react'
 import { toast } from 'sonner'
 import RootLayout from '~/layouts/rootLayout'
 import { api } from '~/utils/api'
 import HeroImg from '../assets/hero.png'
 
 export default function Home({ id }: { id: string }) {
-  const router = useRouter()
+  // const router = useRouter()
 
   // const [isSigningOut, setIsSigningOut] = useState(false)
   // const handleSignout = () => {
@@ -36,12 +36,18 @@ export default function Home({ id }: { id: string }) {
   const [email, setEmail] = useState('')
   const joinWaitlist = api.waitlist.join.useMutation()
 
-  const onJoinWaitlist = async () => {
-    if (!email) return
+  const onJoinWaitlist = async (e: FormEvent) => {
+    e.preventDefault()
+    // vaildate email is valid email using regex
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      return
+    }
+
     await joinWaitlist.mutateAsync({ email })
     toast.success('You have been added to the waitlist!', {
       position: 'top-center',
-      duration: 1000,
+      duration: 2000,
     })
     setEmail('')
   }
@@ -108,22 +114,23 @@ export default function Home({ id }: { id: string }) {
               </h2>
             </div>
             <div className="flex justify-center items-center flex-col gap-4">
-              <div className="relative">
+              <form className="relative" onSubmit={onJoinWaitlist}>
                 <Input
                   id="email"
                   placeholder="Enter your email"
                   className="w-[360px] py-1 px-3 text-primary text-sm h-12"
+                  type="email"
+                  autoComplete="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
                 <Button
-                  onClick={onJoinWaitlist}
                   className="absolute right-1.5 h-7 top-2.5"
                   loading={joinWaitlist.isLoading}
                 >
                   Join waitlist
                 </Button>
-              </div>
+              </form>
               <Link href="https://github.com/FormOnce/FormOnce">
                 <Button
                   variant={'secondary'}
