@@ -2,6 +2,7 @@ import { createTRPCRouter } from '~/server/api/trpc'
 import { authRouter } from './routers/auth'
 import { formRouter } from './routers/forms/router'
 import { ApikeyRouter } from './routers/keys/router'
+import { waitlistRouter } from './routers/waitlist'
 import { webhooksRouter } from './routers/webhook/router'
 import { workspaceRouter } from './routers/workspace'
 
@@ -16,6 +17,7 @@ export const appRouter = createTRPCRouter({
   form: formRouter,
   webhook: webhooksRouter,
   apiKey: ApikeyRouter,
+  waitlist: waitlistRouter,
 })
 
 // export type definition of API

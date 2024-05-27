@@ -1,41 +1,59 @@
-import {
-  GitHubLogoIcon,
-  PinRightIcon,
-  TwitterLogoIcon,
-} from '@radix-ui/react-icons'
-import { ChevronRight, CopyrightIcon } from 'lucide-react'
+import { GitHubLogoIcon, TwitterLogoIcon } from '@radix-ui/react-icons'
+import { ArrowRightIcon, ChevronRight, CopyrightIcon } from 'lucide-react'
 import type { GetServerSideProps } from 'next'
-import { signOut } from 'next-auth/react'
+// import { signOut } from 'next-auth/react'
 import Head from 'next/head'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { useState } from 'react'
-import { Icons, Input } from '~/components/ui'
+import { Input } from '~/components/ui'
 import { Button } from '~/components/ui/button'
 import { getServerAuthSession } from '~/server/auth'
 
+import { FormEvent, FormEventHandler, useState } from 'react'
+import { toast } from 'sonner'
+import RootLayout from '~/layouts/rootLayout'
+import { api } from '~/utils/api'
 import HeroImg from '../assets/hero.png'
 
 export default function Home({ id }: { id: string }) {
-  const router = useRouter()
+  // const router = useRouter()
 
-  const [isSigningOut, setIsSigningOut] = useState(false)
-  const handleSignout = () => {
-    setIsSigningOut(true)
-    void signOut({
-      callbackUrl: '/auth/signin',
-    }).then(() => {
-      setIsSigningOut(false)
+  // const [isSigningOut, setIsSigningOut] = useState(false)
+  // const handleSignout = () => {
+  //   setIsSigningOut(true)
+  //   void signOut({
+  //     callbackUrl: '/auth/signin',
+  //   }).then(() => {
+  //     setIsSigningOut(false)
+  //   })
+  // }
+
+  // const handleRedirectToDashboard = () => {
+  //   void router.push('/dashboard/forms')
+  // }
+
+  const [email, setEmail] = useState('')
+  const joinWaitlist = api.waitlist.join.useMutation()
+
+  const onJoinWaitlist = async (e: FormEvent) => {
+    e.preventDefault()
+    // vaildate email is valid email using regex
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      return
+    }
+
+    await joinWaitlist.mutateAsync({ email })
+    toast.success('You have been added to the waitlist!', {
+      position: 'top-center',
+      duration: 2000,
     })
-  }
-
-  const handleRedirectToDashboard = () => {
-    void router.push('/dashboard/forms')
+    setEmail('')
   }
 
   return (
-    <>
+    <RootLayout title="Formonce">
       <Head>
         <title>FormOnce</title>
         <meta name="description" content="Not another form builder" />
@@ -96,20 +114,38 @@ export default function Home({ id }: { id: string }) {
               </h2>
             </div>
             <div className="flex justify-center items-center flex-col gap-4">
-              <div className="relative">
+              <form className="relative" onSubmit={onJoinWaitlist}>
                 <Input
+                  id="email"
                   placeholder="Enter your email"
                   className="w-[360px] py-1 px-3 text-primary text-sm h-12"
+                  type="email"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
-                <Button className="absolute right-1.5 h-7 top-2.5">
+                <Button
+                  className="absolute right-1.5 h-7 top-2.5"
+                  loading={joinWaitlist.isLoading}
+                >
                   Join waitlist
                 </Button>
-              </div>
+              </form>
               <Link href="https://github.com/FormOnce/FormOnce">
-                <Button variant={'secondary'}>
+                <Button
+                  variant={'secondary'}
+                  className="[&>span>svg:first-child]:hover:hidden [&>span>svg:nth-child(even)]:hover:inline-block [&>span>svg:nth-child(even)]:hover:translate-x-1.5"
+                >
                   🌟 Star FormOnce on{' '}
                   <GitHubLogoIcon className="ml-2" width={'20'} height={'20'} />{' '}
-                  <ChevronRight className="ml-4" size={'12'} />
+                  <span>
+                    <ChevronRight className="ml-2 transition-all" size={'14'} />
+                    <ArrowRightIcon
+                      className="ml-2 transition-all duration-500 hidden mb-0.5"
+                      width={'14'}
+                      height={'14'}
+                    />
+                  </span>
                 </Button>
               </Link>
             </div>
@@ -172,7 +208,7 @@ export default function Home({ id }: { id: string }) {
           </div>
         </div>
       </footer>
-    </>
+    </RootLayout>
   )
 }
 
