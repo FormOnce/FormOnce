@@ -1,5 +1,5 @@
 import { GitHubLogoIcon, TwitterLogoIcon } from '@radix-ui/react-icons'
-import { ChevronRight, CopyrightIcon } from 'lucide-react'
+import { ArrowRightIcon, ChevronRight, CopyrightIcon } from 'lucide-react'
 import type { GetServerSideProps } from 'next'
 // import { signOut } from 'next-auth/react'
 import Head from 'next/head'
@@ -125,10 +125,20 @@ export default function Home({ id }: { id: string }) {
                 </Button>
               </div>
               <Link href="https://github.com/FormOnce/FormOnce">
-                <Button variant={'secondary'}>
+                <Button
+                  variant={'secondary'}
+                  className="[&>span>svg:first-child]:hover:hidden [&>span>svg:nth-child(even)]:hover:inline-block [&>span>svg:nth-child(even)]:hover:translate-x-1.5"
+                >
                   🌟 Star FormOnce on{' '}
                   <GitHubLogoIcon className="ml-2" width={'20'} height={'20'} />{' '}
-                  <ChevronRight className="ml-4" size={'12'} />
+                  <span>
+                    <ChevronRight className="ml-2 transition-all" size={'14'} />
+                    <ArrowRightIcon
+                      className="ml-2 transition-all duration-500 hidden mb-0.5"
+                      width={'14'}
+                      height={'14'}
+                    />
+                  </span>
                 </Button>
               </Link>
             </div>
