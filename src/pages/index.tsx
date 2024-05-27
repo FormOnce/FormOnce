@@ -106,7 +106,7 @@ export default function Home({ id }: { id: string }) {
                 is the #1 open-source platform for building voice & video
                 enabled forms.
               </h2>
-              <h2>
+              <h2 className="text-center">
                 <i className="text-xl font-base text-foreground max-w-2xl">
                   better than Typeform, Tallyforms, VideoAsk and everything
                   else.
@@ -156,32 +156,28 @@ export default function Home({ id }: { id: string }) {
                 width={1200}
                 height={600}
                 className="object-cover"
+                loading="lazy"
               />
             </div>
           </div>
         </div>
       </main>
       <footer className="flex items-center justify-center dark bg-background">
-        <div className="flex gap-6 w-[80%] border border-b-0 p-12 rounded-tr-xl rounded-tl-xl md:justify-between">
+        <div className="flex gap-6 w-[80%] border border-b-0 p-4 md:p-12 rounded-tr-xl rounded-tl-xl md:justify-between">
           <div className="space-y-2">
-            <div className="flex gap-1 items-end">
-              <span className="text-[hsl(280,100%,70%)] font-extrabold text-3xl">
-                FormOnce
-              </span>
-              <Link
-                href="https://github.com/ksushant6566"
-                className="flex items-center justify-center"
-                target="_blank"
-                rel="noopener noreferrer"
-              ></Link>
-            </div>
-            <p className="flex gap-2 items-center text-muted-foreground text-sm max-w-md">
-              <CopyrightIcon width={'14'} /> Formonce 2024 | Made with 💙
+            <span className="text-[hsl(280,100%,70%)] font-extrabold text-xl md:text-3xl">
+              FormOnce
+            </span>
+            <p className="flex gap-1 md:gap-2 items-center text-muted-foreground text-xs md:text-sm max-w-md">
+              <CopyrightIcon width={'14'} /> Formonce 2024 |{' '}
+              <br className="md:hidden" /> Made with 💙
             </p>
           </div>
-          <div className="flex flex-col justify-start space-y-2">
-            <h2 className="text-muted-foreground">Get in touch with us</h2>
-            <div className="flex gap-4 px-2">
+          <div className="flex flex-col justify-start items-center space-y-2">
+            <h2 className="text-muted-foreground text-sm md:text-base">
+              Get in touch with us
+            </h2>
+            <div className="flex gap-2 md:gap-4 px-2">
               <Button
                 variant={'link'}
                 className="ring-1 rounded-full p-2.5 grayscale hover:grayscale-0"
@@ -190,7 +186,7 @@ export default function Home({ id }: { id: string }) {
                   href="https://github.com/FormOnce/FormOnce"
                   className="flex items-center"
                 >
-                  <GitHubLogoIcon width={'16'} height={'16'} />
+                  <GitHubLogoIcon className="w-4 h-4" />
                 </Link>
               </Button>
               <Button
