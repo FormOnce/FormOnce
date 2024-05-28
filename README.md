@@ -8,7 +8,7 @@
 
 <h1 align="center">FormOnce</h1>
 <p align="center">
-  Universal open source form builder
+  Forms that Speak, Literally!
 </p>
 <p align="center">
   <a href="https://formonce.in"><strong>Formonce.in</strong></a>
@@ -29,7 +29,7 @@
 </p>
 
 > [!IMPORTANT]  
-> Why another form builder? Well, there are a lot of form builders out there, and yet none of them provides a one-stop solution for all kinds of forms/surveys. FormOnce aims to solve this by providing a universal form builder, i.e., a single platform that gives you the ability to collect any kind of information, whether it's CSAT, registrations, polls & voting, incident reports, bookings, testimonials or just plain old lead generation.
+> FormOnce is an open-source alternative to proprietary video form solutions like videoAsk. It enables you to create interactive, video-based forms and surveys, leveraging the power of video to enhance user engagement and gather more nuanced insights.
 
 <h3 id="toc">Table of contents</h3>
 
