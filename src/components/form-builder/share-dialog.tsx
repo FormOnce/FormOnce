@@ -40,7 +40,7 @@ export function ShareDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
-        <Button disabled={disabled}>
+        <Button disabled={disabled} size={'sm'}>
           Share
           <Share className="ml-2 h-4 w-4" />
         </Button>

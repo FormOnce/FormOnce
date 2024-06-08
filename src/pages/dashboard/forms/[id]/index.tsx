@@ -1,27 +1,15 @@
-import {
-  Button,
-  Icons,
-  Input,
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-  ScrollArea,
-} from '@components/ui'
+import { Button, Icons, Input } from '@components/ui'
 import { FormStatus } from '@prisma/client'
-import { LockClosedIcon } from '@radix-ui/react-icons'
-import { Reorder } from 'framer-motion'
-import { Check, Cross, Edit, X } from 'lucide-react'
+import { Check, Edit, Split, X } from 'lucide-react'
 import type { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import { AddNewQuestion } from '~/components/form-builder/add-new-question'
-import { EditableQuestion } from '~/components/form-builder/editable-question'
-import { Preview } from '~/components/form-builder/preview'
+import { BasicBuilder } from '~/components/form-builder/basic-builder'
+import { FlowBuilder } from '~/components/form-builder/flow-builder'
 import { ShareDialog } from '~/components/form-builder/share-dialog'
 import DashboardLayout from '~/layouts/dashboardLayout'
 import { getServerAuthSession } from '~/server/auth'
-import type { TFormSchema } from '~/types/form.types'
 import { type TQuestion } from '~/types/question.types'
 import { api } from '~/utils/api'
 
@@ -70,6 +58,8 @@ export default function Form(props: TProps) {
   const [isEditingFormName, setIsEditingFormName] = useState<boolean>(false)
 
   const [shareDialogOpen, setShareDialogOpen] = useState<boolean>(false)
+
+  const [view, setView] = useState<'basic' | 'flow'>('basic')
 
   const formData = data?.form
 
@@ -197,6 +187,10 @@ export default function Form(props: TProps) {
     }
   }
 
+  const onToggleView = () => {
+    setView(view === 'basic' ? 'flow' : 'basic')
+  }
+
   return (
     <DashboardLayout title="dashboard">
       {props.formId !== 'new' && isLoadingFormData ? (
@@ -242,7 +236,7 @@ export default function Form(props: TProps) {
               )
             ) : (
               <div className="flex gap-1">
-                <h1 className="cursor-pointer text-3xl font-semibold">
+                <h1 className="cursor-pointer text-2xl font-semibold">
                   {formData?.name ?? 'New Form'}
                 </h1>
                 <Button
@@ -255,11 +249,18 @@ export default function Form(props: TProps) {
               </div>
             )}
 
-            <div className="flex items-center gap-2">
-              {/* <Button type="button" onClick={() => void router.back()}>
-                Back
-              </Button> */}
+            <Button
+              size={'sm'}
+              onClick={onToggleView}
+              className="absolute top-0 right-0 -translate-x-8 gap-1 rounded-t-none h-6 px-3 py-1.5"
+            >
+              {view === 'basic' && <Split className="h-4 w-4" />}
+              Swith to {view === 'basic' ? 'Flow' : 'Basic'} builder
+            </Button>
+
+            <div className="flex items-center gap-2 mt-2">
               <Button
+                size={'sm'}
                 type="button"
                 onClick={() => void onTogglePublish()}
                 variant={
@@ -285,95 +286,30 @@ export default function Form(props: TProps) {
                   void router.push(`/dashboard/forms/${props.formId}/summary`)
                 }
                 variant={'secondary'}
+                size={'sm'}
               >
                 Responses
               </Button>
             </div>
           </div>
-          <ResizablePanelGroup direction="horizontal">
-            <ResizablePanel
-              minSize={40}
-              maxSize={60}
-              className="relative h-full"
-            >
-              <div
-                className={`${
-                  formData?.status === FormStatus.PUBLISHED
-                    ? 'absolute left-0 top-0 z-10 flex h-full w-full cursor-not-allowed items-center justify-center bg-black bg-opacity-75'
-                    : 'hidden'
-                }`}
-              >
-                <div className="mb-28 flex flex-col gap-2">
-                  <div className="flex">
-                    <LockClosedIcon className="mr-2 h-6 w-6" />
-                    <p className="text-xl">
-                      Published forms can&apos;t be edited.
-                    </p>
-                  </div>
-                  <div className="flex justify-center">
-                    <Button
-                      type="button"
-                      onClick={() => void onTogglePublish()}
-                      variant={'destructive'}
-                      disabled={
-                        !formData?.questions.length ||
-                        isUnpublishingForm ||
-                        formData?.status !== FormStatus.PUBLISHED
-                      }
-                      loading={isUnpublishingForm}
-                    >
-                      Unpublish
-                    </Button>
-                  </div>
-                </div>
-              </div>
-              <ScrollArea className="h-full pr-8">
-                <div className="flex h-full flex-col gap-6">
-                  <Reorder.Group
-                    onReorder={reorderQuestions}
-                    values={questions}
-                    className="flex flex-col gap-4"
-                  >
-                    {questions.map((question, index: number) => {
-                      return (
-                        <Reorder.Item
-                          key={question.id}
-                          value={question}
-                          className="flex items-center justify-between gap-4"
-                        >
-                          <EditableQuestion
-                            key={index}
-                            editQuestion={onEditQuestion}
-                            deleteQuestion={onDeleteQuestion}
-                            {...question}
-                            index={index}
-                            setCurrentQuestion={setCurrentQuestion}
-                          />
-                        </Reorder.Item>
-                      )
-                    })}
-                  </Reorder.Group>
-                  {isAddingQuestion || isCreatingForm ? (
-                    <div className="flex items-center justify-center p-1">
-                      <Icons.spinner className="mr-3 h-5 w-5 animate-spin" />
-                    </div>
-                  ) : null}
-                  <AddNewQuestion onAddQuestion={onAddQuestion} />
-                </div>
-              </ScrollArea>
-            </ResizablePanel>
-            <ResizableHandle />
-            <ResizablePanel>
-              <div className="flex flex-col gap-4 p-4">
-                <Preview
-                  formSchema={formData?.formSchema as TFormSchema}
-                  currentQuestionIdx={currentQuestion}
-                  questions={formData?.questions as TQuestion[]}
-                />
-                <p className="text-center text-muted-foreground">Preview</p>
-              </div>
-            </ResizablePanel>
-          </ResizablePanelGroup>
+          {view === 'flow' ? (
+            <FlowBuilder questions={questions} formData={formData} />
+          ) : (
+            <BasicBuilder
+              questions={questions}
+              formData={formData}
+              isAddingQuestion={isAddingQuestion}
+              isCreatingForm={isCreatingForm}
+              isUnpublishingForm={isUnpublishingForm}
+              currentQuestion={currentQuestion}
+              onAddQuestion={onAddQuestion}
+              onEditQuestion={onEditQuestion}
+              onDeleteQuestion={onDeleteQuestion}
+              reorderQuestions={reorderQuestions}
+              setCurrentQuestion={setCurrentQuestion}
+              onTogglePublish={onTogglePublish}
+            />
+          )}
         </div>
       )}
     </DashboardLayout>
