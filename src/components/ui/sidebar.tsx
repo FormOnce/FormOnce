@@ -1,5 +1,7 @@
+import { signOut, useSession } from 'next-auth/react'
 import Link from 'next/link'
-import { buttonVariants } from '~/components/ui/button'
+import { Button, buttonVariants } from '~/components/ui/button'
+import { useWorkspaceStore } from '~/store'
 import { cn } from '~/utils/cn'
 import { TeamSwitcher } from './nav'
 
@@ -39,26 +41,6 @@ const sidebarGroups: SidebarGroup[] = [
           </svg>
         ),
       },
-      // {
-      //   name: "Folders",
-      //   link: "/dashboard/folders",
-      //   icon: (
-      //     <svg
-      //       width="15"
-      //       height="15"
-      //       viewBox="0 0 15 15"
-      //       fill="none"
-      //       xmlns="http://www.w3.org/2000/svg"
-      //     >
-      //       <path
-      //         d="M3.5 2C3.22386 2 3 2.22386 3 2.5V12.5C3 12.7761 3.22386 13 3.5 13H11.5C11.7761 13 12 12.7761 12 12.5V6H8.5C8.22386 6 8 5.77614 8 5.5V2H3.5ZM9 2.70711L11.2929 5H9V2.70711ZM2 2.5C2 1.67157 2.67157 1 3.5 1H8.5C8.63261 1 8.75979 1.05268 8.85355 1.14645L12.8536 5.14645C12.9473 5.24021 13 5.36739 13 5.5V12.5C13 13.3284 12.3284 14 11.5 14H3.5C2.67157 14 2 13.3284 2 12.5V2.5Z"
-      //         fill="currentColor"
-      //         fillRule="evenodd"
-      //         clipRule="evenodd"
-      //       ></path>
-      //     </svg>
-      //   ),
-      // },
       {
         name: 'Templates',
         link: '/dashboard/templates',
@@ -158,17 +140,60 @@ const SidebarItem = ({ name, icon, link }: SidebarItem) => {
   )
 }
 
+const SideBarFooter = () => {
+  const session = useSession()
+  const user = session.data?.user
+
+  const { setSelectedWorkspace } = useWorkspaceStore()
+
+  const handleSignout = () => {
+    // remove selected workspace
+    setSelectedWorkspace({
+      id: null as unknown as string,
+      name: null as unknown as string,
+    })
+
+    void signOut({
+      callbackUrl: '/auth/signin',
+    })
+  }
+
+  return (
+    <div className="flex flex-col px-4 py-2">
+      <div className="flex flex-col px-3 py-2 space-y-1">
+        <p className="text-sm font-medium leading-none">{user?.name}</p>
+        <p className="text-xs leading-none text-muted-foreground">
+          {user?.email}
+        </p>
+      </div>
+      <Button
+        size={'sm'}
+        variant={'ghost'}
+        className="justify-start"
+        onClick={handleSignout}
+      >
+        Sign out
+      </Button>
+    </div>
+  )
+}
+
 export function Sidebar({ className }: SidebarProps) {
   return (
-    <div className={cn('border-r pb-12', className)}>
-      <div className="px-4 py-4">
-        <TeamSwitcher />
+    <div
+      className={cn('border-r pb-4 flex flex-col justify-between', className)}
+    >
+      <div>
+        <div className="px-4 py-4">
+          <TeamSwitcher />
+        </div>
+        <div className="space-y-8 py-4">
+          {sidebarGroups.map((sidebarGroup, i) => (
+            <SideBarGroup key={i} {...sidebarGroup} />
+          ))}
+        </div>
       </div>
-      <div className="space-y-8 py-4">
-        {sidebarGroups.map((sidebarGroup, i) => (
-          <SideBarGroup key={i} {...sidebarGroup} />
-        ))}
-      </div>
+      <SideBarFooter />
     </div>
   )
 }

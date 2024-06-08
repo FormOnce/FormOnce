@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 
 import RootLayout, { type RootLayoutProps } from '@layouts/rootLayout'
-import { MainNav, Sidebar, UserNav } from '~/components/ui'
+import { MainNav, Sidebar } from '~/components/ui'
 
 export const metadata: Metadata = {
   title: 'Dashboard',
@@ -19,13 +19,13 @@ export default function DashboardLayout({
       <div className="flex h-[100vh] w-full">
         <Sidebar className="w-72" />
         <div className="flex h-full w-full flex-col">
-          <nav className="flex h-16 items-center px-4 py-2">
+          {/* <nav className="flex h-16 items-center px-4 py-2">
             <MainNav className="mx-6" />
             <div className="ml-auto mr-4 flex items-center">
               <UserNav />
             </div>
-          </nav>
-          <div className="h-[calc(100vh-4rem)] w-full p-8 pt-4">{children}</div>
+          </nav> */}
+          <div className="h-[calc(100vh)] w-full p-8">{children}</div>
         </div>
       </div>
     </RootLayout>
