@@ -10,6 +10,7 @@ import {
 import { FormStatus } from '@prisma/client'
 import { LockClosedIcon } from '@radix-ui/react-icons'
 import { Reorder } from 'framer-motion'
+import { Check, Cross, Edit, X } from 'lucide-react'
 import type { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
@@ -52,7 +53,8 @@ export default function Form(props: TProps) {
 
   const { mutateAsync: createForm, isLoading: isCreatingForm } =
     api.form.create.useMutation()
-  const { mutateAsync: updateForm } = api.form.update.useMutation()
+  const { mutateAsync: updateForm, isLoading: isUpdatingForm } =
+    api.form.update.useMutation()
   const { mutateAsync: publishForm, isLoading: isPublishingForm } =
     api.form.publish.useMutation()
   const { mutateAsync: unpublishForm, isLoading: isUnpublishingForm } =
@@ -136,10 +138,18 @@ export default function Form(props: TProps) {
     })
   }
 
-  const updateFormName = async () => {
-    setIsEditingFormName(false)
+  const updateFormName = async (e: React.FormEvent) => {
+    e.preventDefault()
 
     const formName = document.getElementById('form-name') as HTMLInputElement
+
+    if (formName.value === formData?.name!) return setIsEditingFormName(false)
+
+    if (formName.value === '')
+      return toast.error('Form name cannot be empty', {
+        position: 'top-center',
+        duration: 1500,
+      })
 
     // if formId is new, create form
     if (props.formId === 'new') {
@@ -159,6 +169,7 @@ export default function Form(props: TProps) {
     }).then(() => {
       void refreshFormData()
     })
+    setIsEditingFormName(false)
   }
 
   const onTogglePublish = async () => {
@@ -196,25 +207,52 @@ export default function Form(props: TProps) {
         <div className="flex h-full flex-col gap-4">
           <div className="flex items-center justify-between">
             {isEditingFormName ? (
-              <form onSubmit={updateFormName}>
-                <Input
-                  id="form-name"
-                  size={56}
-                  placeholder="Search"
-                  defaultValue={formData?.name ?? 'New Form'}
-                  onMouseEnter={() =>
-                    document.getElementById('form-name')?.focus()
-                  }
-                  onMouseLeave={() => setIsEditingFormName(false)}
-                />
-              </form>
+              isUpdatingForm ? (
+                <div className="flex items-center gap-1">
+                  <Icons.spinner className="mr-3 h-5 w-5 animate-spin" />
+                </div>
+              ) : (
+                <form
+                  onSubmit={updateFormName}
+                  className="flex gap-2 items-center"
+                >
+                  <Input
+                    id="form-name"
+                    size={56}
+                    placeholder="Search"
+                    defaultValue={formData?.name ?? 'New Form'}
+                    onMouseEnter={() =>
+                      document.getElementById('form-name')?.focus()
+                    }
+                  />
+                  <div className="flex gap-0">
+                    <Button size={'sm'} variant={'ghost'} type="submit">
+                      <Check className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size={'sm'}
+                      variant={'ghost'}
+                      type="button"
+                      onClick={() => setIsEditingFormName(false)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </form>
+              )
             ) : (
-              <h1
-                className="cursor-pointer text-3xl font-semibold"
-                onClick={() => setIsEditingFormName(true)}
-              >
-                {formData?.name ?? 'New Form'}
-              </h1>
+              <div className="flex gap-1">
+                <h1 className="cursor-pointer text-3xl font-semibold">
+                  {formData?.name ?? 'New Form'}
+                </h1>
+                <Button
+                  size={'sm'}
+                  variant={'ghost'}
+                  onClick={() => setIsEditingFormName(true)}
+                >
+                  <Edit className="text-muted-foreground h-4 w-4" />
+                </Button>
+              </div>
             )}
 
             <div className="flex items-center gap-2">
