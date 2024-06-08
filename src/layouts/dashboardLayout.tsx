@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 
 import RootLayout, { type RootLayoutProps } from '@layouts/rootLayout'
-import { MainNav, Sidebar } from '~/components/ui'
+import { Sidebar } from '~/components/ui'
 
 export const metadata: Metadata = {
   title: 'Dashboard',
