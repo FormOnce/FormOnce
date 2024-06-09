@@ -17,7 +17,9 @@ const QuestionNode = ({ data }: QuestionNodeProps) => {
   return (
     <div className="flex flex-col border-2 border-violet-800 hover:border-violet-500 [&>div:first-child]:hover:border-violet-500 rounded-lg bg-primary-foreground w-64 h-56 hover:scale-105 transition-all duration-200">
       <div className="px-4 py-2 bg-primary-foreground rounded-t-lg border-b-2  border-violet-800">
-        {label}
+        <p className="overflow-hidden text-ellipsis whitespace-nowrap">
+          {label}
+        </p>
       </div>
       <div className="flex h-full rounded-b-lg">
         <div className="w-1/2 h-full rounded-bl-lg bg-black opacity-50 hover:opacity-100 flex justify-center items-center border-r border-violet-500 [&>*:first-child]:hover:bg-violet-800 [&>*:first-child]:hover:text-white [&>*:first-child]:hover:h-10 [&>*:first-child]:hover:w-10">
