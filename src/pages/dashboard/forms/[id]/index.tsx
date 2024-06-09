@@ -1,6 +1,6 @@
 import { Button, Icons, Input } from '@components/ui'
 import { FormStatus } from '@prisma/client'
-import { Check, Edit, Split, X } from 'lucide-react'
+import { ArrowLeft, Check, Edit, Split, X } from 'lucide-react'
 import type { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
@@ -8,7 +8,7 @@ import { toast } from 'sonner'
 import { BasicBuilder } from '~/components/form-builder/basic-builder'
 import { FlowBuilder } from '~/components/form-builder/flow-builder'
 import { ShareDialog } from '~/components/form-builder/share-dialog'
-import DashboardLayout from '~/layouts/dashboardLayout'
+import BuilderLayout from '~/layouts/builderLayout'
 import { getServerAuthSession } from '~/server/auth'
 import { type TQuestion } from '~/types/question.types'
 import { api } from '~/utils/api'
@@ -192,7 +192,7 @@ export default function Form(props: TProps) {
   }
 
   return (
-    <DashboardLayout title="dashboard">
+    <BuilderLayout title="dashboard">
       {props.formId !== 'new' && isLoadingFormData ? (
         <div className="flex h-full items-center justify-center">
           <Icons.spinner className="mb-10 h-8 w-8 animate-spin" />
@@ -200,54 +200,63 @@ export default function Form(props: TProps) {
       ) : (
         <div className="flex h-full flex-col gap-4">
           <div className="flex items-center justify-between">
-            {isEditingFormName ? (
-              isUpdatingForm ? (
-                <div className="flex items-center gap-1">
-                  <Icons.spinner className="mr-3 h-5 w-5 animate-spin" />
-                </div>
-              ) : (
-                <form
-                  onSubmit={updateFormName}
-                  className="flex gap-2 items-center"
-                >
-                  <Input
-                    id="form-name"
-                    size={56}
-                    placeholder="Search"
-                    defaultValue={formData?.name ?? 'New Form'}
-                    onMouseEnter={() =>
-                      document.getElementById('form-name')?.focus()
-                    }
-                  />
-                  <div className="flex gap-0">
-                    <Button size={'sm'} variant={'ghost'} type="submit">
-                      <Check className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      size={'sm'}
-                      variant={'ghost'}
-                      type="button"
-                      onClick={() => setIsEditingFormName(false)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
+            <div className="flex gap-2">
+              <Button
+                size={'sm'}
+                onClick={() => void router.push('/dashboard/forms')}
+                variant={'secondary'}
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              {isEditingFormName ? (
+                isUpdatingForm ? (
+                  <div className="flex items-center gap-1">
+                    <Icons.spinner className="mr-3 h-5 w-5 animate-spin" />
                   </div>
-                </form>
-              )
-            ) : (
-              <div className="flex gap-1">
-                <h1 className="cursor-pointer text-2xl font-semibold">
-                  {formData?.name ?? 'New Form'}
-                </h1>
-                <Button
-                  size={'sm'}
-                  variant={'ghost'}
-                  onClick={() => setIsEditingFormName(true)}
-                >
-                  <Edit className="text-muted-foreground h-4 w-4" />
-                </Button>
-              </div>
-            )}
+                ) : (
+                  <form
+                    onSubmit={updateFormName}
+                    className="flex gap-2 items-center"
+                  >
+                    <Input
+                      id="form-name"
+                      size={56}
+                      placeholder="Search"
+                      defaultValue={formData?.name ?? 'New Form'}
+                      onMouseEnter={() =>
+                        document.getElementById('form-name')?.focus()
+                      }
+                    />
+                    <div className="flex gap-0">
+                      <Button size={'sm'} variant={'ghost'} type="submit">
+                        <Check className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size={'sm'}
+                        variant={'ghost'}
+                        type="button"
+                        onClick={() => setIsEditingFormName(false)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </form>
+                )
+              ) : (
+                <div className="flex gap-1">
+                  <h1 className="cursor-pointer text-2xl font-semibold">
+                    {formData?.name ?? 'New Form'}
+                  </h1>
+                  <Button
+                    size={'sm'}
+                    variant={'ghost'}
+                    onClick={() => setIsEditingFormName(true)}
+                  >
+                    <Edit className="text-muted-foreground h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+            </div>
 
             <Button
               size={'sm'}
@@ -260,7 +269,6 @@ export default function Form(props: TProps) {
 
             <div className="flex items-center gap-2 mt-2">
               <Button
-                size={'sm'}
                 type="button"
                 onClick={() => void onTogglePublish()}
                 variant={
@@ -286,7 +294,6 @@ export default function Form(props: TProps) {
                   void router.push(`/dashboard/forms/${props.formId}/summary`)
                 }
                 variant={'secondary'}
-                size={'sm'}
               >
                 Responses
               </Button>
@@ -312,7 +319,7 @@ export default function Form(props: TProps) {
           )}
         </div>
       )}
-    </DashboardLayout>
+    </BuilderLayout>
   )
 }
 
