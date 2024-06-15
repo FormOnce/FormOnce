@@ -189,6 +189,7 @@ export default function Form(props: TProps) {
 
   const onToggleView = () => {
     setView(view === 'basic' ? 'flow' : 'basic')
+    refreshFormData()
   }
 
   return (

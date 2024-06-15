@@ -1,5 +1,5 @@
 import { Form } from '@prisma/client'
-import { useCallback } from 'react'
+import { useCallback, useDeferredValue } from 'react'
 import ReactFlow, {
   Controls,
   Background,
@@ -9,9 +9,11 @@ import ReactFlow, {
   Connection,
   Edge,
   Node,
+  NodeChange,
 } from 'reactflow'
 import 'reactflow/dist/style.css'
 import { TQuestion } from '~/types/question.types'
+import { api } from '~/utils/api'
 import QuestionNode from './QuestionNode'
 import EndNode from './end-node'
 import StartNode from './start-node'
@@ -34,10 +36,13 @@ const nodeTypes = {
 }
 
 export const FlowBuilder = ({ questions, formData }: FlowBuilderProps) => {
+  const { mutateAsync: updateForm, isLoading: isUpdatingQuestion } =
+    api.form.editQuestion.useMutation()
+
   const initialNodes: Node[] = questions.map((question, i) => ({
     id: question.id!,
     data: { label: `${i + 1}. ${question.title}`, question },
-    position: { x: (i + 1) * DEFAULT_EDGE_LENGTH, y: 100 },
+    position: question.position || { x: (i + 1) * DEFAULT_EDGE_LENGTH, y: 100 },
     type: 'question',
   }))
 
@@ -76,6 +81,26 @@ export const FlowBuilder = ({ questions, formData }: FlowBuilderProps) => {
     [],
   )
 
+  const onNodeDragStop = useCallback(
+    async (
+      _: unknown,
+      node: { data: { question: TQuestion }; position: TQuestion['position'] },
+    ) => {
+      const question = node.data.question
+
+      if (!question) return
+
+      const updatedQuestion = {
+        ...question,
+        id: question.id!,
+        position: node.position,
+      }
+
+      await updateForm({ formId: formData?.id!, question: updatedQuestion })
+    },
+    [nodes],
+  )
+
   return (
     <div style={{ height: '100%' }}>
       <ReactFlow
@@ -84,6 +109,7 @@ export const FlowBuilder = ({ questions, formData }: FlowBuilderProps) => {
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
+        onNodeDragStop={onNodeDragStop}
         onConnect={onConnect}
         nodeTypes={nodeTypes}
         fitView

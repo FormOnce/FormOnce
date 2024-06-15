@@ -38,6 +38,10 @@ const ZBaseQuestion = z.object({
   description: z.string().min(10).max(500).optional(),
   placeholder: z.string().optional(),
   type: z.nativeEnum(EQuestionType),
+  position: z.object({
+    x: z.number(),
+    y: z.number(),
+  }),
 })
 
 export const ZTextQuestion = z.object({
