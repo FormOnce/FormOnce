@@ -1,5 +1,5 @@
 import { Form } from '@prisma/client'
-import { useCallback, useDeferredValue } from 'react'
+import { useCallback } from 'react'
 import ReactFlow, {
   Controls,
   Background,
@@ -9,16 +9,17 @@ import ReactFlow, {
   Connection,
   Edge,
   Node,
-  NodeChange,
+  MiniMap,
 } from 'reactflow'
 import 'reactflow/dist/style.css'
 import { TQuestion } from '~/types/question.types'
 import { api } from '~/utils/api'
 import QuestionNode from './QuestionNode'
+import CustomEdge from './custom-edge'
 import EndNode from './end-node'
 import StartNode from './start-node'
 
-const DEFAULT_EDGE_LENGTH = 500
+const DEFAULT_EDGE_LENGTH = 600
 
 const proOptions = {
   hideAttribution: true,
@@ -26,13 +27,17 @@ const proOptions = {
 
 type FlowBuilderProps = {
   questions: TQuestion[]
-  formData: Form | undefined
+  formData: Form
 }
 
 const nodeTypes = {
   question: QuestionNode,
   start: StartNode,
   endNode: EndNode,
+}
+
+const edgeTypes = {
+  custom: CustomEdge,
 }
 
 export const FlowBuilder = ({ questions, formData }: FlowBuilderProps) => {
@@ -46,18 +51,30 @@ export const FlowBuilder = ({ questions, formData }: FlowBuilderProps) => {
     type: 'question',
   }))
 
+  const firstQ = questions[0]
   initialNodes.unshift({
     id: 'start',
     type: 'start',
     data: { label: 'Start' },
-    position: { x: 0, y: 100 },
+    position: firstQ?.position
+      ? {
+          x: firstQ?.position.x - DEFAULT_EDGE_LENGTH,
+          y: firstQ?.position.y,
+        }
+      : { x: 0, y: 100 },
   })
 
+  const lastQ = questions[questions.length - 1]
   initialNodes.push({
     id: 'end',
     data: { label: 'End' },
     type: 'endNode',
-    position: { x: (questions.length + 1) * DEFAULT_EDGE_LENGTH, y: 100 },
+    position: lastQ?.position
+      ? {
+          x: lastQ?.position.x + DEFAULT_EDGE_LENGTH,
+          y: lastQ?.position.y,
+        }
+      : { x: (questions.length + 1) * DEFAULT_EDGE_LENGTH, y: 100 },
   })
 
   const initialEdges: Edge[] = questions.map((question, i) => ({
@@ -65,12 +82,14 @@ export const FlowBuilder = ({ questions, formData }: FlowBuilderProps) => {
     source: question.id!,
     target: questions[i + 1]?.id! || 'end',
     // animated: true,
+    type: 'custom',
   }))
 
   initialEdges.unshift({
     id: 'start',
     source: 'start',
     target: questions[0]?.id!,
+    type: 'custom',
   })
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
@@ -102,7 +121,7 @@ export const FlowBuilder = ({ questions, formData }: FlowBuilderProps) => {
   )
 
   return (
-    <div style={{ height: '100%' }}>
+    <div className="h-[100%]">
       <ReactFlow
         proOptions={proOptions}
         nodes={nodes}
@@ -112,10 +131,29 @@ export const FlowBuilder = ({ questions, formData }: FlowBuilderProps) => {
         onNodeDragStop={onNodeDragStop}
         onConnect={onConnect}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
         fitView
+        // wait for 100ms and then zoom to fit first 2 questions
+        onInit={(reactFlowInstance) => {
+          setTimeout(() => {
+            const startNode = reactFlowInstance.getNode('start')
+            const firstQ = reactFlowInstance.getNode(questions[0]?.id!)
+            const secondQ = reactFlowInstance.getNode(questions[1]?.id!)
+
+            if (firstQ && secondQ && startNode) {
+              reactFlowInstance.fitView({
+                nodes: [startNode, firstQ, secondQ],
+                padding: 100,
+                duration: 500,
+                minZoom: 0.7,
+              })
+            }
+          }, 250)
+        }}
       >
         <Background />
-        <Controls position="bottom-right" />
+        <Controls position="bottom-left" />
+        <MiniMap zoomable pannable position="bottom-right" />
       </ReactFlow>
     </div>
   )

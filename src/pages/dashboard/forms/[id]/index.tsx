@@ -59,7 +59,7 @@ export default function Form(props: TProps) {
 
   const [shareDialogOpen, setShareDialogOpen] = useState<boolean>(false)
 
-  const [view, setView] = useState<'basic' | 'flow'>('basic')
+  const [view, setView] = useState<'basic' | 'flow'>('flow')
 
   const formData = data?.form
 
@@ -300,7 +300,11 @@ export default function Form(props: TProps) {
               </Button>
             </div>
           </div>
-          {view === 'flow' ? (
+          {isLoadingFormData || !formData || !questions.length ? (
+            <div className="flex h-full items-center justify-center">
+              <Icons.spinner className="mb-10 h-8 w-8 animate-spin" />
+            </div>
+          ) : view === 'flow' ? (
             <FlowBuilder questions={questions} formData={formData} />
           ) : (
             <BasicBuilder
