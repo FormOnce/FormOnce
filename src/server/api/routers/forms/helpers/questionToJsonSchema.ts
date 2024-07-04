@@ -21,15 +21,7 @@ const textQuestionToJsonSchema = (question: TTextQuestion) => {
   const { subType, ...rest } = question
 
   switch (subType) {
-    case 'short':
-      return {
-        ...rest,
-        type: 'string' as const,
-        minLength: 1,
-        maxLength: 100,
-      }
-
-    case 'long':
+    case 'free text':
       return {
         ...rest,
         type: 'string' as const,
