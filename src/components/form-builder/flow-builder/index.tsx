@@ -84,7 +84,7 @@ export const FlowBuilder = ({ formId }: FlowBuilderProps) => {
   )
 
   const formData = data?.form
-  const questions = formData?.questions as TQuestion[]
+  const questions = (formData?.questions ?? []) as TQuestion[]
 
   const { mutateAsync: editQuestion } = api.form.editQuestion.useMutation()
 
@@ -137,7 +137,7 @@ export const FlowBuilder = ({ formId }: FlowBuilderProps) => {
   initialEdges.unshift({
     id: 'start',
     source: 'start',
-    target: questions[0]?.id!,
+    target: questions[0]?.id! ?? 'end',
     type: 'custom',
   })
 
@@ -200,6 +200,12 @@ export const FlowBuilder = ({ formId }: FlowBuilderProps) => {
             if (firstQ && secondQ && startNode) {
               reactFlowInstance.fitView({
                 nodes: [startNode, firstQ, secondQ],
+                padding: 100,
+                duration: 500,
+                minZoom: 0.7,
+              })
+            } else {
+              reactFlowInstance.fitView({
                 padding: 100,
                 duration: 500,
                 minZoom: 0.7,

@@ -59,7 +59,7 @@ export default function Form(props: TProps) {
 
   const [shareDialogOpen, setShareDialogOpen] = useState<boolean>(false)
 
-  const [view, setView] = useState<'basic' | 'flow'>('basic')
+  const [view, setView] = useState<'basic' | 'flow'>('flow')
 
   const formData = data?.form
 
