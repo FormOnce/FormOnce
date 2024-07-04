@@ -76,8 +76,43 @@ export const FlowBuilder = ({ formId }: FlowBuilderProps) => {
 
         if (!startNode || !endNode) return
         updatedNodes.unshift(startNode)
-        updatedNodes.push(endNode)
 
+        const lastQ = questions[questions.length - 1]
+        updatedNodes.push({
+          id: 'end',
+          data: { label: 'End' },
+          type: 'endNode',
+          position: lastQ?.position
+            ? {
+                x: lastQ?.position.x + DEFAULT_EDGE_LENGTH,
+                y: lastQ?.position.y,
+              }
+            : { x: (questions.length + 1) * DEFAULT_EDGE_LENGTH, y: 100 },
+        })
+
+        const updatedEdges: Edge[] = questions.map((question, i) => ({
+          id: question.id!,
+          source: question.id!,
+          target: questions[i + 1]?.id! || 'end',
+          data: {
+            formId: formId,
+            refreshFormData,
+          },
+          type: 'custom',
+        }))
+
+        updatedEdges.unshift({
+          id: 'start',
+          source: 'start',
+          target: questions[0]?.id! ?? 'end',
+          data: {
+            formId: formId,
+            refreshFormData,
+          },
+          type: 'custom',
+        })
+
+        setEdges(updatedEdges)
         setNodes(updatedNodes)
       },
     },
@@ -130,7 +165,10 @@ export const FlowBuilder = ({ formId }: FlowBuilderProps) => {
     id: question.id!,
     source: question.id!,
     target: questions[i + 1]?.id! || 'end',
-    // animated: true,
+    data: {
+      formId: formId,
+      refreshFormData,
+    },
     type: 'custom',
   }))
 
@@ -138,6 +176,10 @@ export const FlowBuilder = ({ formId }: FlowBuilderProps) => {
     id: 'start',
     source: 'start',
     target: questions[0]?.id! ?? 'end',
+    data: {
+      formId: formId,
+      refreshFormData,
+    },
     type: 'custom',
   })
 
