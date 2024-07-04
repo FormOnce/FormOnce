@@ -174,7 +174,9 @@ const TextQuestionForm = (props: TTextQuestionProps) => {
           )}
         />
         {props.mode === 'add' ? (
-          <Button type="submit">Add Question</Button>
+          <Button type="submit" loading={isLoading}>
+            Add Question
+          </Button>
         ) : (
           <Button
             type="submit"

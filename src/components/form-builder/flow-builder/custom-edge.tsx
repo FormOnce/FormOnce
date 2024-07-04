@@ -1,10 +1,11 @@
 import { Plus } from 'lucide-react'
+import { useRouter } from 'next/router'
+import { useState } from 'react'
 import {
   BaseEdge,
   EdgeLabelRenderer,
   Position,
   getBezierPath,
-  getConnectedEdges,
   useReactFlow,
 } from 'reactflow'
 import {
@@ -14,9 +15,16 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '~/components/ui'
+import { TQuestion } from '~/types/question.types'
+import { api } from '~/utils/api'
+import { AddNewQuestionDialog } from '../add-new-question-modal'
 
 type CustomEdgeProps = {
   id: string
+  data?: {
+    formId: string
+    refreshFormData: () => void
+  }
   sourceX: number
   sourceY: number
   targetX: number
@@ -25,11 +33,18 @@ type CustomEdgeProps = {
 
 export default function CustomeEdge({
   id,
+  data,
   sourceX,
   sourceY,
   targetX,
   targetY,
 }: CustomEdgeProps) {
+  const router = useRouter()
+
+  const { mutateAsync: addQuestion } = api.form.addQuestion.useMutation()
+  const { mutateAsync: createForm, isLoading: isCreatingForm } =
+    api.form.create.useMutation()
+
   const [edgePath, labelX, labelY] = getBezierPath({
     sourceX,
     sourceY,
@@ -38,6 +53,8 @@ export default function CustomeEdge({
     sourcePosition: Position.Right,
     targetPosition: Position.Left,
   })
+
+  const [addQuestionDialogOpen, setAddQuestionDialogOpen] = useState(false)
 
   const reactFlowInstance = useReactFlow()
 
@@ -58,8 +75,32 @@ export default function CustomeEdge({
   }
 
   const onAddNode = () => {
-    console.log('add node at edge: ', id)
     onEdgeClick()
+    setAddQuestionDialogOpen(true)
+  }
+
+  const onAddQuestion = async (values: TQuestion) => {
+    if (!data) return
+    // if formId is new, create form first
+    if (data.formId === 'new') {
+      await createForm({
+        name: 'New Form',
+        questions: [values],
+      }).then((res) => {
+        void router.push(`/dashboard/forms/${res.id}`)
+      })
+      return
+    }
+
+    // else add question to form
+    await addQuestion({
+      formId: data.formId,
+      question: values,
+    }).then(() => {
+      void data.refreshFormData()
+    })
+
+    setAddQuestionDialogOpen(false)
   }
 
   return (
@@ -90,6 +131,11 @@ export default function CustomeEdge({
           </Tooltip>
         </TooltipProvider>
       </EdgeLabelRenderer>
+      <AddNewQuestionDialog
+        isOpen={addQuestionDialogOpen}
+        setIsOpen={setAddQuestionDialogOpen}
+        addQuestion={onAddQuestion}
+      />
     </>
   )
 }
