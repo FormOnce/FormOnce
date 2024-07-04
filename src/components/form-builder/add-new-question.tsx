@@ -26,18 +26,17 @@ type TAddNewQuestionProps = {
   onAddQuestion: (values: TQuestion) => Promise<void>
 }
 
-const questionTypes = Object.values(EQuestionType).map((type) => ({
-  label: type,
-  value: type,
+const a = Object.values(ETextSubType).map((value) => ({
+  label: value,
+  value: `${EQuestionType.Text}:${value}`,
 }))
 
-const questionSubTypes = [
-  ...Object.values(ETextSubType),
-  ...Object.values(ESelectSubType),
-].map((type) => ({
-  label: type,
-  value: type,
+const b = Object.values(ESelectSubType).map((value) => ({
+  label: value,
+  value: `${EQuestionType.Select}:${value}`,
 }))
+
+const questionSubTypes = [...a, ...b]
 
 const AddNewQuestion = (props: TAddNewQuestionProps) => {
   const [isOpen, setIsColapsed] = React.useState(false)
@@ -45,8 +44,9 @@ const AddNewQuestion = (props: TAddNewQuestionProps) => {
     EQuestionType.Text,
   )
 
-  const onInputTypeChange = (value: EQuestionType) => {
-    setInputType(value)
+  const onInputTypeChange = (value: ETextSubType | ESelectSubType) => {
+    const [type] = value.split(':')
+    setInputType(type as EQuestionType)
   }
 
   const onAddQuestion = async (values: TQuestion) => {
@@ -75,7 +75,7 @@ const AddNewQuestion = (props: TAddNewQuestionProps) => {
           <div className="w-36 items-center">
             <Select
               onValueChange={onInputTypeChange}
-              defaultValue={EQuestionType.Text}
+              defaultValue={`${EQuestionType.Text}:${ETextSubType.FreeText}`}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select an input type" />
@@ -85,7 +85,7 @@ const AddNewQuestion = (props: TAddNewQuestionProps) => {
                   (type) =>
                     type && (
                       <SelectItem key={type.label} value={type.value}>
-                        <div className="px-2">{type.label}</div>
+                        <div className="px-2 capitalize">{type.label}</div>
                       </SelectItem>
                     ),
                 )}
