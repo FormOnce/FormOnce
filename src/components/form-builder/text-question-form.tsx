@@ -60,7 +60,7 @@ const TextQuestionForm = (props: TTextQuestionProps) => {
             description: '',
             placeholder: '',
             type: EQuestionType.Text,
-            subType: ETextSubType.Short,
+            subType: ETextSubType.FreeText,
           },
     mode: 'onTouched',
   })
@@ -155,9 +155,9 @@ const TextQuestionForm = (props: TTextQuestionProps) => {
                       key={type.label}
                       className="flex items-center justify-center rounded-md border border-muted bg-popover px-4 py-2 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
                     >
-                      <FormLabel className="!mt-0 flex items-center justify-center gap-2">
+                      <FormLabel className="!mt-0 flex items-center justify-center gap-2 capitalize">
                         {type.icon && <type.icon className="h-4 w-4" />}
-                        {type.label}
+                        <p className="text-xs">{type.label}</p>
                       </FormLabel>
                       <FormControl>
                         <RadioGroupItem

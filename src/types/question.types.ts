@@ -17,8 +17,7 @@ export enum EQuestionType {
 }
 
 export enum ETextSubType {
-  Short = 'short',
-  Long = 'long',
+  FreeText = 'free text',
   Email = 'email',
   Number = 'number',
   URL = 'url',

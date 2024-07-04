@@ -11,6 +11,8 @@ type QuestionNodeProps = {
   data: {
     question: TQuestion
     label: string
+    formId: string
+    refreshFormData: () => void
   }
 }
 
@@ -22,12 +24,14 @@ const QuestionNode = ({ data }: QuestionNodeProps) => {
 
   const onEdit = async (values: TQuestion) => {
     await editQuestion({
-      formId: '',
+      formId: data.formId,
       question: {
         ...values,
         id: question.id!,
       },
     })
+    data.refreshFormData()
+    setEditDialogOpen(false)
   }
 
   const openEditDialog = () => {

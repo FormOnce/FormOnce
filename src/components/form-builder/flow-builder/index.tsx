@@ -26,8 +26,7 @@ const proOptions = {
 }
 
 type FlowBuilderProps = {
-  questions: TQuestion[]
-  formData: Form
+  formId: Form['id']
 }
 
 const nodeTypes = {
@@ -40,13 +39,63 @@ const edgeTypes = {
   custom: CustomEdge,
 }
 
-export const FlowBuilder = ({ questions, formData }: FlowBuilderProps) => {
-  const { mutateAsync: updateForm, isLoading: isUpdatingQuestion } =
-    api.form.editQuestion.useMutation()
+export const FlowBuilder = ({ formId }: FlowBuilderProps) => {
+  const {
+    data: data,
+    isError: isFormInvalid,
+    refetch: refreshFormData,
+  } = api.form.getOne.useQuery(
+    {
+      id: formId,
+    },
+    {
+      enabled: !!formId && formId !== 'new',
+      refetchOnWindowFocus: false,
+      retry: false,
+      onSuccess(data) {
+        if (!data.form) return
 
-  const initialNodes: Node[] = questions.map((question, i) => ({
+        const questions = data.form.questions as TQuestion[]
+        const updatedNodes: Node[] = questions.map((question, i) => ({
+          id: question.id!,
+          data: {
+            label: `${i + 1}. ${question.title}`,
+            question,
+            formId: data.form?.id,
+            refreshFormData,
+          },
+          position: question.position || {
+            x: (i + 1) * DEFAULT_EDGE_LENGTH,
+            y: 100,
+          },
+          type: 'question',
+        }))
+
+        const startNode = nodes[0]
+        const endNode = nodes[nodes.length - 1]
+
+        if (!startNode || !endNode) return
+        updatedNodes.unshift(startNode)
+        updatedNodes.push(endNode)
+
+        setNodes(updatedNodes)
+      },
+    },
+  )
+
+  const formData = data?.form
+  const questions = formData?.questions as TQuestion[]
+
+  const { mutateAsync: editQuestion } = api.form.editQuestion.useMutation()
+
+  const initialNodes: Node[] = questions?.map((question, i) => ({
     id: question.id!,
-    data: { label: `${i + 1}. ${question.title}`, question },
+    data: {
+      label: `${i + 1}. ${question.title}`,
+      question,
+      formId: formData?.id,
+      refreshFormData,
+    },
     position: question.position || { x: (i + 1) * DEFAULT_EDGE_LENGTH, y: 100 },
     type: 'question',
   }))
@@ -109,13 +158,21 @@ export const FlowBuilder = ({ questions, formData }: FlowBuilderProps) => {
 
       if (!question) return
 
+      if (
+        question.position &&
+        question.position.x === node.position?.x &&
+        question.position.y === node.position?.y
+      ) {
+        return
+      }
+
       const updatedQuestion = {
         ...question,
         id: question.id!,
         position: node.position,
       }
 
-      await updateForm({ formId: formData?.id!, question: updatedQuestion })
+      await editQuestion({ formId: formData?.id!, question: updatedQuestion })
     },
     [nodes],
   )

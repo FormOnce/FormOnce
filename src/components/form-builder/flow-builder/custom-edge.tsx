@@ -84,7 +84,7 @@ export default function CustomeEdge({
                 className="nodrag nopan rounded-full [&>*]:hover:scale-100 hover:border-4 border-green-600 ring-black"
                 onClick={onAddNode}
               >
-                <Plus size={18} />
+                <Plus size={24} />
               </Button>
             </TooltipTrigger>
           </Tooltip>
