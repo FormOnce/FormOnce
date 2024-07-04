@@ -1,7 +1,12 @@
 'use client'
 
 import React from 'react'
-import { EQuestionType, type TQuestion } from '~/types/question.types'
+import {
+  EQuestionType,
+  ESelectSubType,
+  ETextSubType,
+  type TQuestion,
+} from '~/types/question.types'
 
 import {
   Collapsible,
@@ -22,6 +27,14 @@ type TAddNewQuestionProps = {
 }
 
 const questionTypes = Object.values(EQuestionType).map((type) => ({
+  label: type,
+  value: type,
+}))
+
+const questionSubTypes = [
+  ...Object.values(ETextSubType),
+  ...Object.values(ESelectSubType),
+].map((type) => ({
   label: type,
   value: type,
 }))
@@ -68,11 +81,11 @@ const AddNewQuestion = (props: TAddNewQuestionProps) => {
                 <SelectValue placeholder="Select an input type" />
               </SelectTrigger>
               <SelectContent>
-                {questionTypes.map(
+                {questionSubTypes.map(
                   (type) =>
                     type && (
                       <SelectItem key={type.label} value={type.value}>
-                        {type.label}
+                        <div className="px-2">{type.label}</div>
                       </SelectItem>
                     ),
                 )}

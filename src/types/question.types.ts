@@ -17,8 +17,7 @@ export enum EQuestionType {
 }
 
 export enum ETextSubType {
-  Short = 'short',
-  Long = 'long',
+  FreeText = 'free text',
   Email = 'email',
   Number = 'number',
   URL = 'url',
@@ -38,6 +37,12 @@ const ZBaseQuestion = z.object({
   description: z.string().min(10).max(500).optional(),
   placeholder: z.string().optional(),
   type: z.nativeEnum(EQuestionType),
+  position: z
+    .object({
+      x: z.number(),
+      y: z.number(),
+    })
+    .optional(),
 })
 
 export const ZTextQuestion = z.object({

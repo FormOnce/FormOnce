@@ -189,6 +189,8 @@ export default function Form(props: TProps) {
 
   const onToggleView = () => {
     setView(view === 'basic' ? 'flow' : 'basic')
+    if (props.formId === 'new') return
+    refreshFormData()
   }
 
   return (
@@ -300,7 +302,7 @@ export default function Form(props: TProps) {
             </div>
           </div>
           {view === 'flow' ? (
-            <FlowBuilder questions={questions} formData={formData} />
+            <FlowBuilder formId={props.formId} />
           ) : (
             <BasicBuilder
               questions={questions}
