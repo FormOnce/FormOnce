@@ -12,6 +12,7 @@ import {
   ScrollArea,
 } from '../ui'
 import { AddNewQuestion } from './add-new-question'
+import { AddNewQuestionCollapsible } from './add-new-question-collapsible'
 import { EditableQuestion } from './editable-question'
 import { Preview } from './preview'
 
@@ -107,7 +108,7 @@ export const BasicBuilder = ({
                 <Icons.spinner className="mr-3 h-5 w-5 animate-spin" />
               </div>
             ) : null}
-            <AddNewQuestion onAddQuestion={onAddQuestion} />
+            <AddNewQuestionCollapsible onAddQuestion={onAddQuestion} />
           </div>
         </ScrollArea>
       </ResizablePanel>

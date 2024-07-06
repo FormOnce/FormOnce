@@ -55,54 +55,39 @@ const AddNewQuestion = (props: TAddNewQuestionProps) => {
   }
 
   return (
-    <Collapsible
-      open={isOpen}
-      onOpenChange={(open) => setIsColapsed(open)}
-      className="rounded-md border shadow-sm shadow-slate-800"
-    >
-      <CollapsibleTrigger
-        className={`flex w-full items-center justify-between rounded-md p-4 text-start ${
-          !isOpen && 'hover:bg-accent hover:text-accent-foreground'
-        }`}
-      >
-        <div className="flex h-9 items-center">
-          <Icons.plus
-            className={`mr-2 h-6 w-6 transition ${isOpen && 'rotate-90'}`}
-          />
-          <span className="text">Add new question</span>
+    <div>
+      <div className="flex justify-end relative">
+        <div className="w-36 absolute top-2">
+          <Select
+            onValueChange={onInputTypeChange}
+            defaultValue={`${EQuestionType.Text}:${ETextSubType.FreeText}`}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select an input type" />
+            </SelectTrigger>
+            <SelectContent>
+              {questionSubTypes.map(
+                (type) =>
+                  type && (
+                    <SelectItem key={type.label} value={type.value}>
+                      <div className="px-2 capitalize">{type.label}</div>
+                    </SelectItem>
+                  ),
+              )}
+            </SelectContent>
+          </Select>
         </div>
-        {isOpen && (
-          <div className="w-36 items-center">
-            <Select
-              onValueChange={onInputTypeChange}
-              defaultValue={`${EQuestionType.Text}:${ETextSubType.FreeText}`}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select an input type" />
-              </SelectTrigger>
-              <SelectContent>
-                {questionSubTypes.map(
-                  (type) =>
-                    type && (
-                      <SelectItem key={type.label} value={type.value}>
-                        <div className="px-2 capitalize">{type.label}</div>
-                      </SelectItem>
-                    ),
-                )}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
-      </CollapsibleTrigger>
-      <CollapsibleContent className="p-6 pt-4">
+      </div>
+
+      <div>
         {inputType === EQuestionType.Text && (
           <TextQuestionForm onSubmit={onAddQuestion} mode="add" />
         )}
         {inputType === EQuestionType.Select && (
           <SelectQuestionForm onSubmit={onAddQuestion} mode="add" />
         )}
-      </CollapsibleContent>
-    </Collapsible>
+      </div>
+    </div>
   )
 }
 
