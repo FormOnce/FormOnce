@@ -42,8 +42,7 @@ export default function CustomeEdge({
   const router = useRouter()
 
   const { mutateAsync: addQuestion } = api.form.addQuestion.useMutation()
-  const { mutateAsync: createForm, isLoading: isCreatingForm } =
-    api.form.create.useMutation()
+  const { mutateAsync: createForm } = api.form.create.useMutation()
 
   const [edgePath, labelX, labelY] = getBezierPath({
     sourceX,
@@ -81,6 +80,19 @@ export default function CustomeEdge({
 
   const onAddQuestion = async (values: TQuestion) => {
     if (!data) return
+
+    // 1. get the edge's source node
+    const edge = reactFlowInstance.getEdge(id)
+    const sourceNode = edge?.source
+      ? reactFlowInstance.getNode(edge.source)
+      : null
+
+    if (!sourceNode) return
+
+    // 2. get the index of the source node
+    const sourceNodeIdxStr = sourceNode.data.label.split('.')[0] ?? '0'
+    const sourceNodeIdx = parseInt(sourceNodeIdxStr) || 0
+
     // if formId is new, create form first
     if (data.formId === 'new') {
       await createForm({
@@ -96,6 +108,7 @@ export default function CustomeEdge({
     await addQuestion({
       formId: data.formId,
       question: values,
+      targetIdx: sourceNodeIdx,
     }).then(() => {
       void data.refreshFormData()
     })

@@ -258,10 +258,32 @@ export const formRouter = createTRPCRouter({
 
         // 2. update formSchema & questions array
         const questions = form.questions as TQuestion[]
-        questions.push({
+
+        // 2.1 calculate the position of the new question
+        const targetIdx = input.targetIdx ?? questions.length
+        const newQuestion = {
           ...input.question,
           id: questionId,
-        })
+          position: {
+            x:
+              questions[targetIdx]?.position?.x! ||
+              questions[targetIdx - 1]?.position?.x! + 600,
+            y:
+              questions[targetIdx]?.position?.y! ||
+              questions[targetIdx - 1]?.position?.y!,
+          },
+        }
+
+        // 2.2 insert the new question at the targetIdx
+        questions.splice(targetIdx, 0, newQuestion)
+
+        // 3. shift the position of the questions after the targetIdx
+        for (let i = targetIdx + 1; i < questions.length; i++) {
+          questions[i]!.position = {
+            x: questions[i]?.position?.x! + 600,
+            y: questions[i]?.position?.y!,
+          }
+        }
 
         const formSchema = form.formSchema as TFormSchema
         if (jsonSchema !== null) {

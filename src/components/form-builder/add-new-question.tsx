@@ -39,7 +39,6 @@ const b = Object.values(ESelectSubType).map((value) => ({
 const questionSubTypes = [...a, ...b]
 
 const AddNewQuestion = (props: TAddNewQuestionProps) => {
-  const [isOpen, setIsColapsed] = React.useState(false)
   const [inputType, setInputType] = React.useState<EQuestionType>(
     EQuestionType.Text,
   )
@@ -51,7 +50,6 @@ const AddNewQuestion = (props: TAddNewQuestionProps) => {
 
   const onAddQuestion = async (values: TQuestion) => {
     await props.onAddQuestion({ ...values, type: inputType } as TQuestion)
-    setIsColapsed(false)
   }
 
   return (
