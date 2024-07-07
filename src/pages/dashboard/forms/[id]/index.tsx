@@ -118,11 +118,39 @@ export default function Form(props: TProps) {
     })
   }
 
-  const reorderQuestions = async (questions: TQuestion[]) => {
-    setQuestions(questions)
+  const reorderQuestions = async (reorderedQuestions: TQuestion[]) => {
+    // check which questions have been swapped
+    const swappedQuestions = reorderedQuestions.filter(
+      (question, index) => question.id !== questions[index]!.id,
+    )
+
+    // if no questions have been swapped, return
+    if (!swappedQuestions.length) return
+
+    // it is assumed that only two questions have been swapped
+    const [question1, question2] = swappedQuestions
+
+    // swap positions of swapped questions
+    const updatedQuestions = reorderedQuestions.map((question) => {
+      if (question.id === question1!.id) {
+        return {
+          ...question,
+          position: question2!.position,
+        }
+      }
+      if (question.id === question2!.id) {
+        return {
+          ...question,
+          position: question1!.position,
+        }
+      }
+      return question
+    })
+
+    setQuestions(updatedQuestions)
     await updateForm({
       id: props.formId,
-      questions: questions,
+      questions: updatedQuestions,
     }).then(() => {
       void refreshFormData()
     })
