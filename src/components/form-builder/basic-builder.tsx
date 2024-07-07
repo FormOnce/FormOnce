@@ -11,7 +11,6 @@ import {
   ResizablePanelGroup,
   ScrollArea,
 } from '../ui'
-import { AddNewQuestion } from './add-new-question'
 import { AddNewQuestionCollapsible } from './add-new-question-collapsible'
 import { EditableQuestion } from './editable-question'
 import { Preview } from './preview'
