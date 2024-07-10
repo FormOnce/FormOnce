@@ -113,6 +113,16 @@ export default function Home({ id }: { id: string }) {
                 </i>
               </h2>
             </div>
+            <iframe
+              src="https://trysample.freestand.in/interactions/d5c59c52-db02-4a1e-8021-53aa05d9d9a7"
+              height="600"
+              width="100%"
+              frameborder="0"
+              marginheight="0"
+              marginwidth="0"
+            >
+              Loading...
+            </iframe>
             <div className="flex justify-center items-center flex-col gap-4">
               <form className="relative" onSubmit={onJoinWaitlist}>
                 <Input
