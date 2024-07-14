@@ -15,9 +15,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '~/components/ui'
-import { TQuestion } from '~/types/question.types'
+import { TLogic, TQuestion } from '~/types/question.types'
 import { api } from '~/utils/api'
 import { AddNewQuestionDialog } from '../add-new-question-modal'
+import { LogicBuilderDialog } from './logic-builder-dialog'
 
 type CustomEdgeProps = {
   id: string
@@ -54,6 +55,7 @@ export default function CustomeEdge({
   })
 
   const [addQuestionDialogOpen, setAddQuestionDialogOpen] = useState(false)
+  const [logicBuilderDialogOpen, setLogicBuilderDialogOpen] = useState(false)
 
   const reactFlowInstance = useReactFlow()
 
@@ -75,6 +77,10 @@ export default function CustomeEdge({
 
   const onAddNode = () => {
     onEdgeClick()
+    setLogicBuilderDialogOpen(true)
+  }
+
+  const onAddLogic = (values: TLogic) => {
     setAddQuestionDialogOpen(true)
   }
 
@@ -116,6 +122,10 @@ export default function CustomeEdge({
     setAddQuestionDialogOpen(false)
   }
 
+  const sourceNode = reactFlowInstance.getNode(
+    reactFlowInstance.getEdge(id)?.source!,
+  )
+
   return (
     <>
       <BaseEdge id={id} path={edgePath} />
@@ -144,6 +154,13 @@ export default function CustomeEdge({
           </Tooltip>
         </TooltipProvider>
       </EdgeLabelRenderer>
+      <LogicBuilderDialog
+        open={logicBuilderDialogOpen}
+        setIsOpen={setLogicBuilderDialogOpen}
+        sourceQuestion={sourceNode?.data.question as TQuestion & { id: string }}
+        onAddLogic={onAddLogic}
+      />
+
       <AddNewQuestionDialog
         isOpen={addQuestionDialogOpen}
         setIsOpen={setAddQuestionDialogOpen}
