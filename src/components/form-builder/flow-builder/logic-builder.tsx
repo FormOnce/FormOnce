@@ -85,7 +85,6 @@ const TextQuestionLogicBuilder = ({
   })
 
   const onSubmit = (data: z.infer<typeof FormSchema>) => {
-    console.log(data)
     onAddLogic(data)
   }
 

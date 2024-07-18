@@ -57,6 +57,9 @@ export default function CustomeEdge({
   const [addQuestionDialogOpen, setAddQuestionDialogOpen] = useState(false)
   const [logicBuilderDialogOpen, setLogicBuilderDialogOpen] = useState(false)
 
+  // used to update the source node's logic while adding new question
+  const [sourceLogic, setSourceLogic] = useState<TLogic | null>(null)
+
   const reactFlowInstance = useReactFlow()
 
   const onEdgeClick = () => {
@@ -81,7 +84,9 @@ export default function CustomeEdge({
   }
 
   const onAddLogic = (values: TLogic) => {
+    setSourceLogic(values)
     setAddQuestionDialogOpen(true)
+    setLogicBuilderDialogOpen(false)
   }
 
   const onAddQuestion = async (values: TQuestion) => {
@@ -115,10 +120,12 @@ export default function CustomeEdge({
       formId: data.formId,
       question: values,
       targetIdx: sourceNodeIdx,
+      sourceLogic: sourceLogic ? [sourceLogic] : undefined,
     }).then(() => {
       void data.refreshFormData()
     })
 
+    setSourceLogic(null)
     setAddQuestionDialogOpen(false)
   }
 
