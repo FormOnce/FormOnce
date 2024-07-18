@@ -351,12 +351,29 @@ export const formRouter = createTRPCRouter({
           ...input.question,
         }
 
+        // update formSchema
+        const formSchema = form.formSchema as TFormSchema
+        const jsonSchema = questionToJsonSchema(input.question)
+
+        if (jsonSchema !== null) {
+          formSchema.properties = {
+            ...formSchema.properties,
+            [input.question.id]: jsonSchema,
+          }
+        } else {
+          delete formSchema.properties?.[input.question.id]
+          formSchema.required = formSchema.required.filter(
+            (id) => id !== input.question.id,
+          )
+        }
+
         return await ctx.prisma.form.update({
           where: {
             id: input.formId,
           },
           data: {
             questions,
+            formSchema: formSchema as unknown as string,
           },
         })
       } catch (error) {
