@@ -7,6 +7,7 @@ const handleStyle = {
   borderRadius: '50%',
   border: '4px solid #000',
   boxShadow: '0 0 0 2px #000',
+  pointerEvents: 'none',
 } as React.CSSProperties
 
 export const handleStyleRight = {

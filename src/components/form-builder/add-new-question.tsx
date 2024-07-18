@@ -9,10 +9,6 @@ import {
 } from '~/types/question.types'
 
 import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-  Icons,
   Select,
   SelectContent,
   SelectItem,

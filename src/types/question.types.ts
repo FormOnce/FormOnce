@@ -31,6 +31,26 @@ export enum ESelectSubType {
   Multiple = 'multiple',
 }
 
+export enum ELogicCondition {
+  ALWAYS = 'always',
+  IS = 'is',
+  IS_NOT = 'is_not',
+  CONTAINS = 'contains',
+  DOES_NOT_CONTAIN = 'does_not_contain',
+  IS_GREATER_THAN = 'is_greater_than',
+  IS_LESS_THAN = 'is_less_than',
+  IS_ONE_OF = 'is_one_of',
+}
+
+export const ZLogic = z.object({
+  questionId: z.string(),
+  condition: z.nativeEnum(ELogicCondition),
+  value: z.string().or(z.array(z.string()).min(1)),
+  skipTo: z.string(),
+})
+
+export type TLogic = z.infer<typeof ZLogic>
+
 const ZBaseQuestion = z.object({
   id: z.string().optional(),
   title: z.string().min(5).max(500),
@@ -43,6 +63,7 @@ const ZBaseQuestion = z.object({
       y: z.number(),
     })
     .optional(),
+  logic: z.array(ZLogic).optional(),
 })
 
 export const ZTextQuestion = z.object({
