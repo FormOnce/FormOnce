@@ -13,7 +13,7 @@ import {
   publicProcedure,
 } from '~/server/api/trpc'
 import type { TFormSchema } from '~/types/form.types'
-import { type TQuestion } from '~/types/question.types'
+import { ELogicCondition, TLogic, type TQuestion } from '~/types/question.types'
 import { ZAddQuestion } from './dtos/addQuestion'
 import { ZCreateForm } from './dtos/createForm'
 import { ZEditQuestion } from './dtos/editQuestion'
@@ -149,7 +149,7 @@ export const formRouter = createTRPCRouter({
 
         const questions: TQuestion[] = []
 
-        input.questions.forEach((question) => {
+        input.questions.forEach((question, i) => {
           // const questionId = crypto.randomUUID();
           const questionId = question.title.toLowerCase().replace(/ /g, '_')
           const jsonSchema = questionToJsonSchema(question)
@@ -165,6 +165,21 @@ export const formRouter = createTRPCRouter({
             questions.push({
               ...question,
               id: questionId,
+              position: {
+                x: 400 * i,
+                y: 100,
+              },
+              logic: [
+                {
+                  questionId,
+                  condition:
+                    question.type === 'select'
+                      ? ELogicCondition.IS_ONE_OF
+                      : ELogicCondition.ALWAYS,
+                  value: question.type === 'select' ? question.options : '',
+                  skipTo: 'end',
+                },
+              ],
             })
           }
         })
@@ -267,11 +282,25 @@ export const formRouter = createTRPCRouter({
           position: {
             x:
               questions[targetIdx]?.position?.x! ||
-              questions[targetIdx - 1]?.position?.x! + 600,
-            y:
-              questions[targetIdx]?.position?.y! ||
-              questions[targetIdx - 1]?.position?.y!,
+              questions[targetIdx - 1]?.position?.x! + 600 ||
+              600,
+            y: questions[targetIdx]?.position?.y!
+              ? questions[targetIdx]?.position?.y! -
+                (questions[targetIdx]?.logic?.length ?? 1) * 400
+              : questions[targetIdx - 1]?.position?.y! || 100,
           },
+          logic: [
+            {
+              questionId,
+              condition:
+                input.question.type === 'select'
+                  ? ELogicCondition.IS_ONE_OF
+                  : ELogicCondition.ALWAYS,
+              value:
+                input.question.type === 'select' ? input.question.options : '',
+              skipTo: input.targetQuestionId,
+            },
+          ],
         }
 
         // 2.2 insert the new question at the targetIdx
@@ -285,6 +314,47 @@ export const formRouter = createTRPCRouter({
           }
         }
 
+        // update logic in the source question
+        if (input.sourceLogic) {
+          for (const question of questions) {
+            if (question.id === input.sourceLogic.questionId) {
+              if (question.type === 'select') {
+                // remove the values that are in the sourceLogic from the existing logics
+                const updatedLogic: TLogic[] = question.logic!.flatMap((l) => {
+                  const exisitingValues = l.value as string[]
+
+                  const newValues = exisitingValues.filter(
+                    (v) => !input.sourceLogic!.value.includes(v),
+                  )
+
+                  if (newValues.length === 0) {
+                    return []
+                  }
+
+                  return {
+                    ...l,
+                    value: newValues,
+                  }
+                })
+
+                updatedLogic.push({
+                  ...input.sourceLogic,
+                  skipTo: questionId,
+                })
+
+                question.logic = updatedLogic
+              } else {
+                question.logic = [
+                  {
+                    ...input.sourceLogic,
+                    skipTo: questionId,
+                  },
+                ]
+              }
+            }
+          }
+        }
+
         const formSchema = form.formSchema as TFormSchema
         if (jsonSchema !== null) {
           formSchema.properties = {
@@ -295,7 +365,7 @@ export const formRouter = createTRPCRouter({
 
         formSchema.required = [...formSchema.required, questionId]
 
-        // 3. update the form with the new formSchema
+        // 3. update the form with the new formSchema & updated questions
         return await ctx.prisma.form.update({
           where: {
             id: input.formId,
@@ -351,12 +421,29 @@ export const formRouter = createTRPCRouter({
           ...input.question,
         }
 
+        // update formSchema
+        const formSchema = form.formSchema as TFormSchema
+        const jsonSchema = questionToJsonSchema(input.question)
+
+        if (jsonSchema !== null) {
+          formSchema.properties = {
+            ...formSchema.properties,
+            [input.question.id]: jsonSchema,
+          }
+        } else {
+          delete formSchema.properties?.[input.question.id]
+          formSchema.required = formSchema.required.filter(
+            (id) => id !== input.question.id,
+          )
+        }
+
         return await ctx.prisma.form.update({
           where: {
             id: input.formId,
           },
           data: {
             questions,
+            formSchema: formSchema as unknown as string,
           },
         })
       } catch (error) {

@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -6,7 +5,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '~/components/ui'
-import { TLogic } from '~/types/question.types'
 import { LogicBuilder, LogicBuilderProps } from './logic-builder'
 
 type LogicBuilderDialogProps = LogicBuilderProps & {

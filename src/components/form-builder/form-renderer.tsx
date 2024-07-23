@@ -43,7 +43,10 @@ function FormRenderer({
 
   const handleNext = async () => {
     await form.trigger(questions[qIdx]?.id)
-    if (form.formState.errors[questions[qIdx]!.id!]) return
+    if (form.formState.errors[questions[qIdx]!.id!]) {
+      console.log('error', form.formState.errors[questions[qIdx]!.id!])
+      return
+    }
 
     setIsNextLoading(true)
 

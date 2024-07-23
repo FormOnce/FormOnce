@@ -91,6 +91,8 @@ export default function Form(props: TProps) {
     void addQuestion({
       formId: props.formId,
       question: values,
+      targetIdx: questions.length - 1,
+      targetQuestionId: 'end',
     }).then(() => {
       void refreshFormData()
     })

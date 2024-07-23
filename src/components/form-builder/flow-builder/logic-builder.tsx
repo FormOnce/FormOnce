@@ -35,6 +35,8 @@ export const LogicBuilder = ({
     onAddLogic(newLogic)
   }
 
+  if (!sourceQuestion) return null
+
   const questionType = sourceQuestion.type
 
   return (
