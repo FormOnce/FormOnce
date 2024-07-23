@@ -13,7 +13,7 @@ import {
   publicProcedure,
 } from '~/server/api/trpc'
 import type { TFormSchema } from '~/types/form.types'
-import { type TQuestion } from '~/types/question.types'
+import { ELogicCondition, TLogic, type TQuestion } from '~/types/question.types'
 import { ZAddQuestion } from './dtos/addQuestion'
 import { ZCreateForm } from './dtos/createForm'
 import { ZEditQuestion } from './dtos/editQuestion'
@@ -267,11 +267,25 @@ export const formRouter = createTRPCRouter({
           position: {
             x:
               questions[targetIdx]?.position?.x! ||
-              questions[targetIdx - 1]?.position?.x! + 600,
+              questions[targetIdx - 1]?.position?.x! + 600 ||
+              600,
             y:
               questions[targetIdx]?.position?.y! ||
-              questions[targetIdx - 1]?.position?.y!,
+              questions[targetIdx - 1]?.position?.y! ||
+              100,
           },
+          logic: [
+            {
+              questionId,
+              condition:
+                input.question.type === 'select'
+                  ? ELogicCondition.IS_ONE_OF
+                  : ELogicCondition.ALWAYS,
+              value:
+                input.question.type === 'select' ? input.question.options : '',
+              skipTo: input.targetQuestionId,
+            },
+          ],
         }
 
         // 2.2 insert the new question at the targetIdx
@@ -285,19 +299,46 @@ export const formRouter = createTRPCRouter({
           }
         }
 
-        // add sourceLogic in the source question
-        for (const question of questions) {
-          if (
-            input.sourceLogic &&
-            question.id === input.sourceLogic.questionId
-          ) {
-            question.logic = [
-              ...(question.logic ?? []),
-              {
-                ...input.sourceLogic,
-                skipTo: questionId,
-              },
-            ]
+        // update logic in the source question
+        if (input.sourceLogic) {
+          for (const question of questions) {
+            if (question.id === input.sourceLogic.questionId) {
+              if (question.type === 'select') {
+                // remove the values that are in the sourceLogic from the existing logics
+                const updatedLogic: TLogic[] = question
+                  .logic!.map((l) => {
+                    const exisitingValues = l.value as string[]
+
+                    const newValues = exisitingValues.filter(
+                      (v) => !input.sourceLogic!.value.includes(v),
+                    )
+
+                    if (newValues.length === 0) {
+                      return undefined
+                    }
+
+                    return {
+                      ...l,
+                      value: newValues,
+                    }
+                  })
+                  .filter((l) => l !== undefined)
+
+                updatedLogic.push({
+                  ...input.sourceLogic,
+                  skipTo: questionId,
+                })
+
+                question.logic = updatedLogic
+              } else {
+                question.logic = [
+                  {
+                    ...input.sourceLogic,
+                    skipTo: questionId,
+                  },
+                ]
+              }
+            }
           }
         }
 

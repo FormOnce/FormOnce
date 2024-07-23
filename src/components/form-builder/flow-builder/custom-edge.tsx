@@ -80,6 +80,12 @@ export default function CustomeEdge({
 
   const onAddNode = () => {
     onEdgeClick()
+
+    if (sourceNode?.id === 'start') {
+      setAddQuestionDialogOpen(true)
+      return
+    }
+
     setLogicBuilderDialogOpen(true)
   }
 
@@ -98,9 +104,16 @@ export default function CustomeEdge({
       ? reactFlowInstance.getNode(edge.source)
       : null
 
-    if (!sourceNode) return
+    const targetNode = edge?.target
+      ? reactFlowInstance.getNode(edge.target)
+      : null
 
-    // 2. get the index of the source node
+    if (!targetNode || !sourceNode) return
+
+    // 2. get the target node's id, which is the question id or 'end' if it's the end node
+    const targetNodeId = targetNode.id
+
+    // get the index of the source node
     const sourceNodeIdxStr = sourceNode.data.label.split('.')[0] ?? '0'
     const sourceNodeIdx = parseInt(sourceNodeIdxStr) || 0
 
@@ -122,6 +135,7 @@ export default function CustomeEdge({
       formId: data.formId,
       question: values,
       targetIdx: sourceNodeIdx,
+      targetQuestionId: targetNodeId,
       sourceLogic: sourceLogic ? sourceLogic : undefined,
     }).then(() => {
       void data.refreshFormData()

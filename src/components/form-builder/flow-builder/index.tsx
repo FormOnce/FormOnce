@@ -12,7 +12,7 @@ import ReactFlow, {
   MiniMap,
 } from 'reactflow'
 import 'reactflow/dist/style.css'
-import { TQuestion } from '~/types/question.types'
+import { EQuestionType, TQuestion } from '~/types/question.types'
 import { api } from '~/utils/api'
 import QuestionNode from './QuestionNode'
 import CustomEdge from './custom-edge'
@@ -42,8 +42,9 @@ const edgeTypes = {
 export const FlowBuilder = ({ formId }: FlowBuilderProps) => {
   const {
     data: data,
-    isError: isFormInvalid,
     refetch: refreshFormData,
+    isLoading,
+    isFetching,
   } = api.form.getOne.useQuery(
     {
       id: formId,
@@ -90,16 +91,19 @@ export const FlowBuilder = ({ formId }: FlowBuilderProps) => {
             : { x: (questions.length + 1) * DEFAULT_EDGE_LENGTH, y: 100 },
         })
 
-        const updatedEdges: Edge[] = questions.map((question, i) => ({
-          id: question.id!,
-          source: question.id!,
-          target: questions[i + 1]?.id! || 'end',
-          data: {
-            formId: formId,
-            refreshFormData,
-          },
-          type: 'custom',
-        }))
+        const updatedEdges: Edge[] = questions.flatMap((question) => {
+          return question.logic!.map((logic) => ({
+            id: `${question.id}-${logic.skipTo}`,
+            source: question.id!,
+            target: logic.skipTo,
+            data: {
+              formId: formId,
+              refreshFormData,
+              logic: logic,
+            },
+            type: 'custom',
+          }))
+        })
 
         updatedEdges.unshift({
           id: 'start',
@@ -123,17 +127,7 @@ export const FlowBuilder = ({ formId }: FlowBuilderProps) => {
 
   const { mutateAsync: editQuestion } = api.form.editQuestion.useMutation()
 
-  const initialNodes: Node[] = questions?.map((question, i) => ({
-    id: question.id!,
-    data: {
-      label: `${i + 1}. ${question.title}`,
-      question,
-      formId: formData?.id,
-      refreshFormData,
-    },
-    position: question.position || { x: (i + 1) * DEFAULT_EDGE_LENGTH, y: 100 },
-    type: 'question',
-  }))
+  const initialNodes: Node[] = []
 
   const firstQ = questions[0]
   initialNodes.unshift({
@@ -161,16 +155,7 @@ export const FlowBuilder = ({ formId }: FlowBuilderProps) => {
       : { x: (questions.length + 1) * DEFAULT_EDGE_LENGTH, y: 100 },
   })
 
-  const initialEdges: Edge[] = questions.map((question, i) => ({
-    id: question.id!,
-    source: question.id!,
-    target: questions[i + 1]?.id! || 'end',
-    data: {
-      formId: formId,
-      refreshFormData,
-    },
-    type: 'custom',
-  }))
+  const initialEdges: Edge[] = []
 
   initialEdges.unshift({
     id: 'start',
@@ -218,6 +203,8 @@ export const FlowBuilder = ({ formId }: FlowBuilderProps) => {
     },
     [nodes],
   )
+
+  if (isFetching) return <div>Loading...</div>
 
   return (
     <div className="h-[100%]">
