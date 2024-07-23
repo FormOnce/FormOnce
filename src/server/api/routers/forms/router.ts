@@ -149,7 +149,7 @@ export const formRouter = createTRPCRouter({
 
         const questions: TQuestion[] = []
 
-        input.questions.forEach((question) => {
+        input.questions.forEach((question, i) => {
           // const questionId = crypto.randomUUID();
           const questionId = question.title.toLowerCase().replace(/ /g, '_')
           const jsonSchema = questionToJsonSchema(question)
@@ -165,6 +165,21 @@ export const formRouter = createTRPCRouter({
             questions.push({
               ...question,
               id: questionId,
+              position: {
+                x: 400 * i,
+                y: 100,
+              },
+              logic: [
+                {
+                  questionId,
+                  condition:
+                    question.type === 'select'
+                      ? ELogicCondition.IS_ONE_OF
+                      : ELogicCondition.ALWAYS,
+                  value: question.type === 'select' ? question.options : '',
+                  skipTo: 'end',
+                },
+              ],
             })
           }
         })
