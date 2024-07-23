@@ -320,24 +320,22 @@ export const formRouter = createTRPCRouter({
             if (question.id === input.sourceLogic.questionId) {
               if (question.type === 'select') {
                 // remove the values that are in the sourceLogic from the existing logics
-                const updatedLogic: TLogic[] = question
-                  .logic!.map((l) => {
-                    const exisitingValues = l.value as string[]
+                const updatedLogic: TLogic[] = question.logic!.flatMap((l) => {
+                  const exisitingValues = l.value as string[]
 
-                    const newValues = exisitingValues.filter(
-                      (v) => !input.sourceLogic!.value.includes(v),
-                    )
+                  const newValues = exisitingValues.filter(
+                    (v) => !input.sourceLogic!.value.includes(v),
+                  )
 
-                    if (newValues.length === 0) {
-                      return undefined
-                    }
+                  if (newValues.length === 0) {
+                    return []
+                  }
 
-                    return {
-                      ...l,
-                      value: newValues,
-                    }
-                  })
-                  .filter((l) => l !== undefined)
+                  return {
+                    ...l,
+                    value: newValues,
+                  }
+                })
 
                 updatedLogic.push({
                   ...input.sourceLogic,
