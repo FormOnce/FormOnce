@@ -286,7 +286,7 @@ export const formRouter = createTRPCRouter({
               600,
             y: questions[targetIdx]?.position?.y!
               ? questions[targetIdx]?.position?.y! -
-                (questions[targetIdx].logic?.length ?? 1) * 400
+                (questions[targetIdx]?.logic?.length ?? 1) * 400
               : questions[targetIdx - 1]?.position?.y! || 100,
           },
           logic: [
