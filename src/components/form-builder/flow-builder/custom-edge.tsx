@@ -115,12 +115,14 @@ export default function CustomeEdge({
       return
     }
 
+    console.log('sourceLogic', sourceLogic)
+
     // else add question to form
     await addQuestion({
       formId: data.formId,
       question: values,
       targetIdx: sourceNodeIdx,
-      sourceLogic: sourceLogic ? [sourceLogic] : undefined,
+      sourceLogic: sourceLogic ? sourceLogic : undefined,
     }).then(() => {
       void data.refreshFormData()
     })

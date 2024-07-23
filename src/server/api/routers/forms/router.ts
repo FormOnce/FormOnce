@@ -285,6 +285,22 @@ export const formRouter = createTRPCRouter({
           }
         }
 
+        // add sourceLogic in the source question
+        for (const question of questions) {
+          if (
+            input.sourceLogic &&
+            question.id === input.sourceLogic.questionId
+          ) {
+            question.logic = [
+              ...(question.logic ?? []),
+              {
+                ...input.sourceLogic,
+                skipTo: questionId,
+              },
+            ]
+          }
+        }
+
         const formSchema = form.formSchema as TFormSchema
         if (jsonSchema !== null) {
           formSchema.properties = {
@@ -295,7 +311,7 @@ export const formRouter = createTRPCRouter({
 
         formSchema.required = [...formSchema.required, questionId]
 
-        // 3. update the form with the new formSchema
+        // 3. update the form with the new formSchema & updated questions
         return await ctx.prisma.form.update({
           where: {
             id: input.formId,

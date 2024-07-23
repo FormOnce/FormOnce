@@ -5,5 +5,5 @@ export const ZAddQuestion = z.object({
   formId: z.string().uuid(),
   question: ZQuestion,
   targetIdx: z.number().optional(),
-  sourceLogic: z.array(ZLogic).optional(),
+  sourceLogic: ZLogic.optional(),
 })
