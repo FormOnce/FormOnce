@@ -12,6 +12,7 @@ import ReactFlow, {
   MiniMap,
 } from 'reactflow'
 import 'reactflow/dist/style.css'
+import { animate } from 'framer-motion'
 import { EQuestionType, TQuestion } from '~/types/question.types'
 import { api } from '~/utils/api'
 import QuestionNode from './QuestionNode'
@@ -43,7 +44,6 @@ export const FlowBuilder = ({ formId }: FlowBuilderProps) => {
   const {
     data: data,
     refetch: refreshFormData,
-    isLoading,
     isFetching,
   } = api.form.getOne.useQuery(
     {
@@ -100,8 +100,10 @@ export const FlowBuilder = ({ formId }: FlowBuilderProps) => {
               formId: formId,
               refreshFormData,
               logic: logic,
+              showLogic: false,
             },
             type: 'custom',
+            style: { stroke: 'white', strokeWidth: 2 },
           }))
         })
 
@@ -112,8 +114,16 @@ export const FlowBuilder = ({ formId }: FlowBuilderProps) => {
           data: {
             formId: formId,
             refreshFormData,
+            logic: {
+              questionId: 'start',
+              condition: 'always',
+              value: '',
+              skipTo: questions[0]?.id!,
+            },
+            showLogic: false,
           },
           type: 'custom',
+          style: { stroke: 'white', strokeWidth: 2 },
         })
 
         setEdges(updatedEdges)
@@ -164,6 +174,8 @@ export const FlowBuilder = ({ formId }: FlowBuilderProps) => {
     data: {
       formId: formId,
       refreshFormData,
+      logic: [],
+      showLogic: false,
     },
     type: 'custom',
   })
@@ -204,6 +216,48 @@ export const FlowBuilder = ({ formId }: FlowBuilderProps) => {
     [nodes],
   )
 
+  const onEdgeMouseEnter = (e: React.MouseEvent, edge: Edge) => {
+    setEdges((edges: Edge[]) =>
+      edges.map((ed: Edge) =>
+        ed.id === edge.id
+          ? {
+              ...ed,
+              animated: true,
+              style: {
+                stroke: 'white',
+                strokeWidth: 4,
+              },
+              data: {
+                ...ed.data,
+                showLogic: true,
+              },
+            }
+          : ed,
+      ),
+    )
+  }
+
+  const onEdgeMouseLeave = (e: React.MouseEvent, edge: Edge) => {
+    setEdges((edges: Edge[]) =>
+      edges.map((ed: Edge) =>
+        ed.id === edge.id
+          ? {
+              ...ed,
+              animated: false,
+              style: {
+                stroke: 'white',
+                strokeWidth: 2,
+              },
+              data: {
+                ...ed.data,
+                showLogic: false,
+              },
+            }
+          : ed,
+      ),
+    )
+  }
+
   if (isFetching) return <div>Loading...</div>
 
   return (
@@ -218,6 +272,8 @@ export const FlowBuilder = ({ formId }: FlowBuilderProps) => {
         onConnect={onConnect}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
+        onEdgeMouseEnter={onEdgeMouseEnter}
+        onEdgeMouseLeave={onEdgeMouseLeave}
         fitView
         // wait for 100ms and then zoom to fit first 2 questions
         onInit={(reactFlowInstance) => {
