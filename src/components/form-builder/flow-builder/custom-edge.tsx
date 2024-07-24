@@ -25,11 +25,14 @@ type CustomEdgeProps = {
   data?: {
     formId: string
     refreshFormData: () => void
+    showLogic: boolean
+    logic: TLogic
   }
   sourceX: number
   sourceY: number
   targetX: number
   targetY: number
+  style?: React.CSSProperties
 }
 
 export default function CustomeEdge({
@@ -39,6 +42,7 @@ export default function CustomeEdge({
   sourceY,
   targetX,
   targetY,
+  style = {},
 }: CustomEdgeProps) {
   const router = useRouter()
 
@@ -128,8 +132,6 @@ export default function CustomeEdge({
       return
     }
 
-    console.log('sourceLogic', sourceLogic)
-
     // else add question to form
     await addQuestion({
       formId: data.formId,
@@ -149,9 +151,26 @@ export default function CustomeEdge({
     reactFlowInstance.getEdge(id)?.source!,
   )
 
+  const sourceNodeIdx = sourceNode?.data.label.split('.')[0] ?? 'start'
+
+  const targetNode = reactFlowInstance.getNode(
+    reactFlowInstance.getEdge(id)?.target!,
+  )
+
+  const targetNodeIdx = targetNode?.data.label.split('.')[0] ?? 'end'
+
+  const getConditionLabel = (condition: TLogic['condition'] | undefined) => {
+    switch (condition) {
+      case 'always':
+        return 'Always'
+      default:
+        return 'If...'
+    }
+  }
+
   return (
     <>
-      <BaseEdge id={id} path={edgePath} />
+      <BaseEdge id={id} path={edgePath} style={style} />
       <EdgeLabelRenderer>
         <TooltipProvider>
           <Tooltip delayDuration={10}>
@@ -177,6 +196,49 @@ export default function CustomeEdge({
           </Tooltip>
         </TooltipProvider>
       </EdgeLabelRenderer>
+      <foreignObject
+        width={150}
+        height={50}
+        x={labelX - 25}
+        y={labelY + 35}
+        className={`overflow-visible pointer-events-none ${
+          data?.showLogic ? '' : 'hidden'
+        }`}
+        style={{ zIndex: 9999, position: 'absolute' }}
+        requiredExtensions="http://www.w3.org/1999/xhtml"
+      >
+        <div className="bg-primary shadow rounded-md pointer-events-none cursor-none text-secondary text-lg px-4 py-2 w-fit">
+          <div className="space-x-2 text-base justify-center items-center">
+            <span className="bg-violet-700 rounded-md text-center px-2 py-0.5 text-primary">
+              {sourceNodeIdx}
+            </span>
+            <span className="text-lg">→</span>
+            <span className="bg-violet-700 rounded-md text-center px-2 py-0.5 text-primary">
+              {targetNodeIdx}
+            </span>
+            <span className="text-lg font-semibold">
+              {getConditionLabel(data?.logic.condition)}
+            </span>
+          </div>
+          <div className="flex flex-col gap-2 text-sm font-medium ">
+            {data?.logic.value instanceof Array ? (
+              <div className="mt-2 space-y-2">
+                {data?.logic.value.map((option, i) => (
+                  <div key={i} className="flex gap-2 items-center">
+                    <span className="bg-violet-600 text-sm text-primary p-0.5 px-2 rounded-md">
+                      {String.fromCharCode(65 + i)}
+                    </span>
+                    <span className="w-max">{option}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              data?.logic.value && <span className="">{data?.logic.value}</span>
+            )}
+          </div>
+        </div>
+      </foreignObject>
+
       <LogicBuilderDialog
         open={logicBuilderDialogOpen}
         setIsOpen={setLogicBuilderDialogOpen}
