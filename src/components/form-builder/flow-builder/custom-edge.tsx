@@ -187,7 +187,7 @@ export default function CustomeEdge({
               <Button
                 variant={'secondary'}
                 size={'icon'}
-                className="nodrag nopan rounded-full [&>*]:hover:scale-100 hover:border-4 border-green-600 ring-black"
+                className="nodrag nopan rounded-full [&>*]:hover:scale-100 hover:border-4 border-green-600 ring-black bg-secondary hover:bg-secondary"
                 onClick={onAddNode}
               >
                 <Plus size={24} />
@@ -241,14 +241,16 @@ export default function CustomeEdge({
                   data?.logic.value && <span>{data?.logic.value}</span>
                 )}
               </div>
-              <div className="w-max">
-                <Button
-                  variant={'ghost'}
-                  className="pl-0 pb-0 text-primary-foreground font-semibold"
-                >
-                  Click to edit logic
-                </Button>
-              </div>
+              {sourceNode?.id !== 'start' && (
+                <div className="w-max">
+                  <Button
+                    variant={'ghost'}
+                    className="pl-0 pb-0 text-primary-foreground font-semibold"
+                  >
+                    Click to edit logic
+                  </Button>
+                </div>
+              )}
             </div>
           </foreignObject>
         </div>
