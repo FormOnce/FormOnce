@@ -1,5 +1,5 @@
 import { Form } from '@prisma/client'
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import ReactFlow, {
   Controls,
   Background,
@@ -10,13 +10,14 @@ import ReactFlow, {
   Edge,
   Node,
   MiniMap,
+  useReactFlow,
 } from 'reactflow'
 import 'reactflow/dist/style.css'
-import { animate } from 'framer-motion'
-import { EQuestionType, TQuestion } from '~/types/question.types'
+import { TLogic, TQuestion } from '~/types/question.types'
 import { api } from '~/utils/api'
 import QuestionNode from './QuestionNode'
 import CustomEdge from './custom-edge'
+import { EditQuestion } from './edit-question'
 import EndNode from './end-node'
 import StartNode from './start-node'
 
@@ -131,6 +132,12 @@ export const FlowBuilder = ({ formId }: FlowBuilderProps) => {
       },
     },
   )
+
+  const reactFlowInstance = useReactFlow()
+
+  const [editQuestionOpen, setEditQuestionOpen] = useState(false)
+  const [editingNode, setEditingNode] = useState<Node | null>(null)
+  const [editingEdge, setEditingEdge] = useState<Edge | null>(null)
 
   const formData = data?.form
   const questions = (formData?.questions ?? []) as TQuestion[]
@@ -258,6 +265,54 @@ export const FlowBuilder = ({ formId }: FlowBuilderProps) => {
     )
   }
 
+  const onEdgeClick = (e: React.MouseEvent, edge: Edge) => {
+    const sourceNode = edge?.source
+      ? reactFlowInstance.getNode(edge.source)
+      : null
+
+    if (!sourceNode || sourceNode.id === 'start') return
+
+    reactFlowInstance.fitView({
+      nodes: [sourceNode],
+      padding: 150,
+      duration: 500,
+      minZoom: 1,
+    })
+
+    setEditQuestionOpen(true)
+    setEditingNode(sourceNode)
+    setEditingEdge(edge)
+  }
+
+  const onEditQuestion = () => {
+    // edit question
+    setEditQuestionOpen(false)
+  }
+
+  const onClose = () => {
+    setEditQuestionOpen(false)
+    reactFlowInstance.fitView({
+      nodes: [editingNode!],
+      padding: 100,
+      duration: 500,
+      minZoom: 0.6,
+    })
+  }
+
+  const onUpdateLogic = async (values: TLogic[]) => {
+    const updatedQuestion = {
+      ...editingNode!.data.question,
+      logic: values,
+    }
+
+    await editQuestion({
+      formId: formData?.id!,
+      question: updatedQuestion,
+    }).then(() => {
+      refreshFormData()
+    })
+  }
+
   if (isFetching) return <div>Loading...</div>
 
   return (
@@ -274,6 +329,7 @@ export const FlowBuilder = ({ formId }: FlowBuilderProps) => {
         edgeTypes={edgeTypes}
         onEdgeMouseEnter={onEdgeMouseEnter}
         onEdgeMouseLeave={onEdgeMouseLeave}
+        onEdgeClick={onEdgeClick}
         fitView
         // wait for 100ms and then zoom to fit first 2 questions
         onInit={(reactFlowInstance) => {
@@ -303,6 +359,14 @@ export const FlowBuilder = ({ formId }: FlowBuilderProps) => {
         <Controls position="bottom-left" />
         <MiniMap zoomable pannable position="bottom-right" />
       </ReactFlow>
+      <EditQuestion
+        isOpen={editQuestionOpen}
+        onEdit={onEditQuestion}
+        onClose={onClose}
+        editingNode={editingNode}
+        editingEdge={editingEdge}
+        onUpdateLogic={onUpdateLogic}
+      />
     </div>
   )
 }

@@ -4,6 +4,7 @@ import { ArrowLeft, Check, Edit, Split, X } from 'lucide-react'
 import type { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
+import { ReactFlowProvider } from 'reactflow'
 import { toast } from 'sonner'
 import { BasicBuilder } from '~/components/form-builder/basic-builder'
 import { FlowBuilder } from '~/components/form-builder/flow-builder'
@@ -332,7 +333,9 @@ export default function Form(props: TProps) {
             </div>
           </div>
           {view === 'flow' ? (
-            <FlowBuilder formId={props.formId} />
+            <ReactFlowProvider>
+              <FlowBuilder formId={props.formId} />
+            </ReactFlowProvider>
           ) : (
             <BasicBuilder
               questions={questions}

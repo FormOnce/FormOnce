@@ -187,7 +187,7 @@ export default function CustomeEdge({
               <Button
                 variant={'secondary'}
                 size={'icon'}
-                className="nodrag nopan rounded-full [&>*]:hover:scale-100 hover:border-4 border-green-600 ring-black"
+                className="nodrag nopan rounded-full [&>*]:hover:scale-100 hover:border-4 border-green-600 ring-black bg-secondary hover:bg-secondary"
                 onClick={onAddNode}
               >
                 <Plus size={24} />
@@ -195,49 +195,66 @@ export default function CustomeEdge({
             </TooltipTrigger>
           </Tooltip>
         </TooltipProvider>
-      </EdgeLabelRenderer>
-      <foreignObject
-        width={150}
-        height={50}
-        x={labelX - 25}
-        y={labelY + 35}
-        className={`overflow-visible pointer-events-none ${
-          data?.showLogic ? '' : 'hidden'
-        }`}
-        style={{ zIndex: 9999, position: 'absolute' }}
-        requiredExtensions="http://www.w3.org/1999/xhtml"
-      >
-        <div className="bg-primary shadow rounded-md pointer-events-none cursor-none text-secondary text-lg px-4 py-2 w-fit">
-          <div className="space-x-2 text-base justify-center items-center">
-            <span className="bg-violet-700 rounded-md text-center px-2 py-0.5 text-primary">
-              {sourceNodeIdx}
-            </span>
-            <span className="text-lg">→</span>
-            <span className="bg-violet-700 rounded-md text-center px-2 py-0.5 text-primary">
-              {targetNodeIdx}
-            </span>
-            <span className="text-lg font-semibold">
-              {getConditionLabel(data?.logic.condition)}
-            </span>
-          </div>
-          <div className="flex flex-col gap-2 text-sm font-medium ">
-            {data?.logic.value instanceof Array ? (
-              <div className="mt-2 space-y-2">
-                {data?.logic.value.map((option, i) => (
-                  <div key={i} className="flex gap-2 items-center">
-                    <span className="bg-violet-600 text-sm text-primary p-0.5 px-2 rounded-md">
-                      {String.fromCharCode(65 + i)}
-                    </span>
-                    <span className="w-max">{option}</span>
-                  </div>
-                ))}
+        <div
+          style={{
+            position: 'absolute',
+            transform: `translate(${labelX - 25}px,${labelY + 35}px)`,
+            pointerEvents: 'all',
+            zIndex: 9999,
+          }}
+        >
+          <foreignObject
+            width={150}
+            height={50}
+            className={`overflow-visible pointer-events-none ${
+              data?.showLogic ? '' : 'hidden'
+            }`}
+            style={{ zIndex: 9999, position: 'absolute' }}
+            requiredExtensions="http://www.w3.org/1999/xhtml"
+          >
+            <div className="bg-primary shadow rounded-md pointer-events-none cursor-none text-secondary text-lg px-4 py-2 w-fit">
+              <div className="space-x-2 text-base justify-center items-center">
+                <span className="bg-violet-700 rounded-md text-center px-2 py-0.5 text-primary">
+                  {sourceNodeIdx}
+                </span>
+                <span className="text-lg">→</span>
+                <span className="bg-violet-700 rounded-md text-center px-2 py-0.5 text-primary">
+                  {targetNodeIdx}
+                </span>
+                <span className="text-lg font-semibold">
+                  {getConditionLabel(data?.logic.condition)}
+                </span>
               </div>
-            ) : (
-              data?.logic.value && <span className="">{data?.logic.value}</span>
-            )}
-          </div>
+              <div className="flex flex-col gap-2 text-sm font-medium ">
+                {data?.logic.value instanceof Array ? (
+                  <div className="mt-2 space-y-2">
+                    {data?.logic.value.map((option, i) => (
+                      <div key={i} className="flex gap-2 items-center">
+                        <span className="bg-violet-600 text-sm text-primary p-0.5 px-2 rounded-md">
+                          {String.fromCharCode(65 + i)}
+                        </span>
+                        <span className="w-max">{option}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  data?.logic.value && <span>{data?.logic.value}</span>
+                )}
+              </div>
+              {sourceNode?.id !== 'start' && (
+                <div className="w-max">
+                  <Button
+                    variant={'ghost'}
+                    className="pl-0 pb-0 text-primary-foreground font-semibold"
+                  >
+                    Click to edit logic
+                  </Button>
+                </div>
+              )}
+            </div>
+          </foreignObject>
         </div>
-      </foreignObject>
+      </EdgeLabelRenderer>
 
       <LogicBuilderDialog
         open={logicBuilderDialogOpen}
