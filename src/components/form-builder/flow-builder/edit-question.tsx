@@ -55,12 +55,41 @@ const getConditionsfromLogic = (logics: TLogic[]) => {
   return conditions
 }
 
+const getLogicFromConditions = (conditions: TConditions): TLogic[] => {
+  const logics: TLogic[] = []
+  const logicMap = new Map<string, TLogic>()
+
+  Object.entries(conditions).forEach(([key, condition]) => {
+    const existingLogic = logicMap.get(condition.skipTo)
+
+    if (existingLogic && existingLogic.condition === condition.condition) {
+      if (Array.isArray(existingLogic.value)) {
+        ;(existingLogic.value as string[]).push(condition.option)
+      } else {
+        existingLogic.value = [existingLogic.value as string, condition.option]
+      }
+    } else {
+      const newLogic: TLogic = {
+        questionId: '', // This needs to be set externally as it's not part of the conditions
+        condition: condition.condition,
+        value: condition.option,
+        skipTo: condition.skipTo,
+      }
+      logics.push(newLogic)
+      logicMap.set(condition.skipTo, newLogic)
+    }
+  })
+
+  return logics
+}
+
 export type EditQuestionProps = {
   isOpen: boolean
   onEdit: () => void
   onClose: () => void
   editingNode: Node | null
   editingEdge: Edge | null
+  onUpdateLogic: (logics: TLogic[]) => void
 }
 
 type TConditions = {
@@ -76,11 +105,13 @@ export const EditQuestion = ({
   onClose,
   editingNode,
   editingEdge,
+  onUpdateLogic,
 }: EditQuestionProps) => {
   const reactFlowInstance = useReactFlow()
 
   //   Condtions are logic conditions that are used to determine the next step in the flow depending on the answer to a question.
   const [conditions, setConditions] = useState<TConditions | null>(null)
+  const [isSaveLoading, setIsSaveLoading] = useState(false)
 
   useEffect(() => {
     if (!editingNode) return
@@ -117,6 +148,17 @@ export const EditQuestion = ({
 
     if (labelA === 'End') return ['End' + ' 👋', '']
     return [labelA, node.data.label.split('.')[1]]
+  }
+
+  const saveConditions = () => {
+    if (!editingNode || !conditions) return
+    setIsSaveLoading(true)
+
+    const logics = getLogicFromConditions(conditions)
+    onUpdateLogic(logics)
+
+    setIsSaveLoading(false)
+    onOpenChange(false)
   }
 
   return (
@@ -244,7 +286,12 @@ export const EditQuestion = ({
           </Tabs>
         </div>
         <SheetFooter>
-          <Button size={'lg'} className="w-full text-base">
+          <Button
+            onClick={saveConditions}
+            size={'lg'}
+            className="w-full text-base"
+            loading={isSaveLoading}
+          >
             Done 👍
           </Button>
         </SheetFooter>

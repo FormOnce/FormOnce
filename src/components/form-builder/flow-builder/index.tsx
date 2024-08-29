@@ -13,7 +13,7 @@ import ReactFlow, {
   useReactFlow,
 } from 'reactflow'
 import 'reactflow/dist/style.css'
-import { TQuestion } from '~/types/question.types'
+import { TLogic, TQuestion } from '~/types/question.types'
 import { api } from '~/utils/api'
 import QuestionNode from './QuestionNode'
 import CustomEdge from './custom-edge'
@@ -299,6 +299,20 @@ export const FlowBuilder = ({ formId }: FlowBuilderProps) => {
     })
   }
 
+  const onUpdateLogic = async (values: TLogic[]) => {
+    const updatedQuestion = {
+      ...editingNode!.data.question,
+      logic: values,
+    }
+
+    await editQuestion({
+      formId: formData?.id!,
+      question: updatedQuestion,
+    }).then(() => {
+      refreshFormData()
+    })
+  }
+
   if (isFetching) return <div>Loading...</div>
 
   return (
@@ -351,6 +365,7 @@ export const FlowBuilder = ({ formId }: FlowBuilderProps) => {
         onClose={onClose}
         editingNode={editingNode}
         editingEdge={editingEdge}
+        onUpdateLogic={onUpdateLogic}
       />
     </div>
   )
