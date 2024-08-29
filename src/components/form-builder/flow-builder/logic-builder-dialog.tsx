@@ -19,7 +19,7 @@ export const LogicBuilderDialog = ({
 }: LogicBuilderDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={setIsOpen}>
-      <DialogContent>
+      <DialogContent onPointerDownOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>Logic builder</DialogTitle>
           <DialogDescription>
