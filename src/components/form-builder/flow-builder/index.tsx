@@ -102,6 +102,7 @@ export const FlowBuilder = ({ formId }: FlowBuilderProps) => {
               refreshFormData,
               logic: logic,
               showLogic: false,
+              setIsEdgeClickBlocked,
             },
             type: 'custom',
             style: { stroke: 'white', strokeWidth: 2 },
@@ -138,6 +139,8 @@ export const FlowBuilder = ({ formId }: FlowBuilderProps) => {
   const [editQuestionOpen, setEditQuestionOpen] = useState(false)
   const [editingNode, setEditingNode] = useState<Node | null>(null)
   const [editingEdge, setEditingEdge] = useState<Edge | null>(null)
+
+  const [isEdgeClickBlocked, setIsEdgeClickBlocked] = useState(false)
 
   const formData = data?.form
   const questions = (formData?.questions ?? []) as TQuestion[]
@@ -266,6 +269,8 @@ export const FlowBuilder = ({ formId }: FlowBuilderProps) => {
   }
 
   const onEdgeClick = (e: React.MouseEvent, edge: Edge) => {
+    if (isEdgeClickBlocked) return
+
     const sourceNode = edge?.source
       ? reactFlowInstance.getNode(edge.source)
       : null

@@ -27,6 +27,7 @@ type CustomEdgeProps = {
     refreshFormData: () => void
     showLogic: boolean
     logic: TLogic
+    setIsEdgeClickBlocked: (isBlocked: boolean) => void
   }
   sourceX: number
   sourceY: number
@@ -66,7 +67,8 @@ export default function CustomeEdge({
 
   const reactFlowInstance = useReactFlow()
 
-  const onEdgeClick = () => {
+  const fitEdgeIntoView = () => {
+    data?.setIsEdgeClickBlocked(true)
     const edge = reactFlowInstance.getEdge(id)
 
     const targetNode = edge?.target ? { id: edge.target } : null
@@ -83,7 +85,7 @@ export default function CustomeEdge({
   }
 
   const onAddNode = () => {
-    onEdgeClick()
+    fitEdgeIntoView()
 
     if (sourceNode?.id === 'start') {
       setAddQuestionDialogOpen(true)
@@ -97,6 +99,7 @@ export default function CustomeEdge({
     setSourceLogic(values)
     setAddQuestionDialogOpen(true)
     setLogicBuilderDialogOpen(false)
+    data?.setIsEdgeClickBlocked(false)
   }
 
   const onAddQuestion = async (values: TQuestion) => {
@@ -168,6 +171,31 @@ export default function CustomeEdge({
     }
   }
 
+  const blockEdgeClick = () => {
+    data?.setIsEdgeClickBlocked(true)
+  }
+
+  const unblockEdgeClick = () => {
+    if (logicBuilderDialogOpen || addQuestionDialogOpen) return
+    data?.setIsEdgeClickBlocked(false)
+  }
+
+  const onSetLogicBuilderDialogOpen = (isOpen: boolean) => {
+    setLogicBuilderDialogOpen(isOpen)
+
+    if (!isOpen) {
+      data?.setIsEdgeClickBlocked(false)
+    }
+  }
+
+  const onSetAddQuestionDialogOpen = (isOpen: boolean) => {
+    setAddQuestionDialogOpen(isOpen)
+
+    if (!isOpen) {
+      data?.setIsEdgeClickBlocked(false)
+    }
+  }
+
   return (
     <>
       <BaseEdge id={id} path={edgePath} style={style} />
@@ -182,15 +210,20 @@ export default function CustomeEdge({
                 position: 'absolute',
                 transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
                 pointerEvents: 'all',
+                zIndex: 9999,
               }}
+              onMouseEnter={blockEdgeClick}
+              onMouseLeave={unblockEdgeClick}
             >
               <Button
                 variant={'secondary'}
                 size={'icon'}
-                className="nodrag nopan rounded-full [&>*]:hover:scale-100 hover:border-4 border-green-600 ring-black bg-secondary hover:bg-secondary"
+                className="nodrag nopan rounded-full [&>*]:hover:scale-100 hover:ring-4 ring-green-500 bg-secondary hover:bg-secondary p-1"
                 onClick={onAddNode}
+                onMouseEnter={blockEdgeClick}
+                onMouseLeave={unblockEdgeClick}
               >
-                <Plus size={24} />
+                <Plus size={28} />
               </Button>
             </TooltipTrigger>
           </Tooltip>
@@ -258,14 +291,14 @@ export default function CustomeEdge({
 
       <LogicBuilderDialog
         open={logicBuilderDialogOpen}
-        setIsOpen={setLogicBuilderDialogOpen}
+        setIsOpen={onSetLogicBuilderDialogOpen}
         sourceQuestion={sourceNode?.data.question as TQuestion & { id: string }}
         onAddLogic={onAddLogic}
       />
 
       <AddNewQuestionDialog
         isOpen={addQuestionDialogOpen}
-        setIsOpen={setAddQuestionDialogOpen}
+        setIsOpen={onSetAddQuestionDialogOpen}
         addQuestion={onAddQuestion}
       />
     </>

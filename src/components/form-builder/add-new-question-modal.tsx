@@ -27,7 +27,7 @@ const AddNewQuestionDialog = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent onPointerDownOutside={(e) => e.preventDefault()}>
         <AddNewQuestion onAddQuestion={onAddQuestion} />
       </DialogContent>
     </Dialog>
