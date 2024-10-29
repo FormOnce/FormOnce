@@ -42,6 +42,8 @@ const edgeTypes = {
 }
 
 export const FlowBuilder = ({ formId }: FlowBuilderProps) => {
+  
+  
   const {
     data: data,
     refetch: refreshFormData,
@@ -116,6 +118,7 @@ export const FlowBuilder = ({ formId }: FlowBuilderProps) => {
           data: {
             formId: formId,
             refreshFormData,
+            setIsEdgeClickBlocked: () => void 0,
             logic: {
               questionId: 'start',
               condition: 'always',

@@ -177,7 +177,7 @@ export default function CustomeEdge({
 
   const unblockEdgeClick = () => {
     if (logicBuilderDialogOpen || addQuestionDialogOpen) return
-    data?.setIsEdgeClickBlocked(false)
+    data?.setIsEdgeClickBlocked?.(false)
   }
 
   const onSetLogicBuilderDialogOpen = (isOpen: boolean) => {
