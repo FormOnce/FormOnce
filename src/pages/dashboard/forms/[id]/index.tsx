@@ -297,7 +297,7 @@ export default function Form(props: TProps) {
               className="absolute top-0 right-0 -translate-x-8 gap-1 rounded-t-none h-6 px-3 py-1.5"
             >
               {view === 'basic' && <Split className="h-4 w-4" />}
-              Swith to {view === 'basic' ? 'Flow' : 'Basic'} builder
+              Switch to {view === 'basic' ? 'Flow' : 'Basic'} builder
             </Button>
 
             <div className="flex items-center gap-2 mt-2">
