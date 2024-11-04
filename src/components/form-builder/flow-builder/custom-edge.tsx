@@ -47,6 +47,7 @@ export default function CustomeEdge({
 }: CustomEdgeProps) {
   const router = useRouter()
 
+
   const { mutateAsync: addQuestion } = api.form.addQuestion.useMutation()
   const { mutateAsync: createForm } = api.form.create.useMutation()
 
@@ -68,7 +69,7 @@ export default function CustomeEdge({
   const reactFlowInstance = useReactFlow()
 
   const fitEdgeIntoView = () => {
-    data?.setIsEdgeClickBlocked(true)
+    data?.setIsEdgeClickBlocked?.(true)
     const edge = reactFlowInstance.getEdge(id)
 
     const targetNode = edge?.target ? { id: edge.target } : null
@@ -99,7 +100,7 @@ export default function CustomeEdge({
     setSourceLogic(values)
     setAddQuestionDialogOpen(true)
     setLogicBuilderDialogOpen(false)
-    data?.setIsEdgeClickBlocked(false)
+    data?.setIsEdgeClickBlocked?.(false)
   }
 
   const onAddQuestion = async (values: TQuestion) => {
@@ -172,7 +173,7 @@ export default function CustomeEdge({
   }
 
   const blockEdgeClick = () => {
-    data?.setIsEdgeClickBlocked(true)
+    data?.setIsEdgeClickBlocked?.(true)
   }
 
   const unblockEdgeClick = () => {
@@ -184,7 +185,7 @@ export default function CustomeEdge({
     setLogicBuilderDialogOpen(isOpen)
 
     if (!isOpen) {
-      data?.setIsEdgeClickBlocked(false)
+      data?.setIsEdgeClickBlocked?.(false)
     }
   }
 
@@ -192,7 +193,7 @@ export default function CustomeEdge({
     setAddQuestionDialogOpen(isOpen)
 
     if (!isOpen) {
-      data?.setIsEdgeClickBlocked(false)
+      data?.setIsEdgeClickBlocked?.(false)
     }
   }
 
