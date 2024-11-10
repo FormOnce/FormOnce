@@ -1,4 +1,4 @@
-"use client";
+'use client'
 
 import {
   Button,
@@ -7,43 +7,43 @@ import {
   DialogFooter,
   Input,
   Label,
-} from "@components/ui";
-import { api } from "~/utils/api";
-import { useState } from "react";
-import axios from "axios";
+} from '@components/ui'
+import axios from 'axios'
+import { useState } from 'react'
+import { api } from '~/utils/api'
 
-const CHUNK_SIZE = 5 * 1024 * 1024; // 5 MB per chunk
+const CHUNK_SIZE = 5 * 1024 * 1024 // 5 MB per chunk
 
 export const VideoUploadDialog = ({
   isOpen,
   setIsOpen,
 }: {
-  isOpen: boolean;
-  setIsOpen: (open: boolean) => void;
+  isOpen: boolean
+  setIsOpen: (open: boolean) => void
 }) => {
-  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [videoFile, setVideoFile] = useState<File | null>(null)
   const { mutateAsync: getChunkUploadUrl } =
-    api.video.getChunkUploadUrl.useMutation();
+    api.video.getChunkUploadUrl.useMutation()
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event?.target?.files?.[0]) {
-      setVideoFile(event.target.files[0]);
+      setVideoFile(event.target.files[0])
     }
-  };
+  }
 
   const uploadChunk = async (
     chunk: Blob,
     chunkNumber: number,
     filename: string,
-    fileType: string
+    fileType: string,
   ) => {
     try {
       const { uploadUrl } = await getChunkUploadUrl({
         filename,
         chunkNumber,
         fileType,
-      });
-  
+      })
+
       const response = await axios.put(uploadUrl, chunk, {
         headers: {
           'Content-Type': fileType,
@@ -52,51 +52,55 @@ export const VideoUploadDialog = ({
         maxBodyLength: Infinity,
         onUploadProgress: (progressEvent) => {
           const percentCompleted = Math.round(
-            (progressEvent.loaded * 100) / (progressEvent.total ?? 1)
-          );
-          console.log(`Upload Progress: ${percentCompleted}%`);
+            (progressEvent.loaded * 100) / (progressEvent.total ?? 1),
+          )
+          console.log(`Upload Progress: ${percentCompleted}%`)
         },
-      });
-  
+      })
+
       if (response.status !== 200) {
-        throw new Error(`Upload failed with status: ${response.status}`);
+        throw new Error(`Upload failed with status: ${response.status}`)
       }
-  
-      return response.data;
+
+      return response.data
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        console.error('Axios error:', error.response?.data);
-        throw new Error(`Upload failed: ${error.message}`);
+        console.error('Axios error:', error.response?.data)
+        throw new Error(`Upload failed: ${error.message}`)
       }
-      throw error;
+      throw error
     }
-  };
-  
+  }
+
   const handleUpload = async () => {
-    if (!videoFile) return alert("Please select a video file first");
-  
-    const { name, type, size } = videoFile;
-    const chunkCount = Math.ceil(size / CHUNK_SIZE);
-  
+    if (!videoFile) return alert('Please select a video file first')
+
+    const { name, type, size } = videoFile
+    const chunkCount = Math.ceil(size / CHUNK_SIZE)
+
     try {
-      const uploadPromises = [];
+      const uploadPromises = []
       for (let i = 0; i < chunkCount; i++) {
-        const start = i * CHUNK_SIZE;
-        const end = Math.min(start + CHUNK_SIZE, size);
-        const chunk = videoFile.slice(start, end);
-  
-        console.log(`Starting upload for chunk ${i + 1} of ${chunkCount}`);
-        uploadPromises.push(uploadChunk(chunk, i, name, type));
+        const start = i * CHUNK_SIZE
+        const end = Math.min(start + CHUNK_SIZE, size)
+        const chunk = videoFile.slice(start, end)
+
+        console.log(`Starting upload for chunk ${i + 1} of ${chunkCount}`)
+        uploadPromises.push(uploadChunk(chunk, i, name, type))
       }
-  
-      await Promise.all(uploadPromises);
-      console.log('All chunks uploaded successfully');
-      alert("Video uploaded successfully!");
+
+      await Promise.all(uploadPromises)
+      console.log('All chunks uploaded successfully')
+      alert('Video uploaded successfully!')
     } catch (error) {
-      console.error("Error uploading video:", error);
-      alert(`Failed to upload video: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error('Error uploading video:', error)
+      alert(
+        `Failed to upload video: ${
+          error instanceof Error ? error.message : 'Unknown error'
+        }`,
+      )
     }
-  };
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -127,8 +131,8 @@ export const VideoUploadDialog = ({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
-};
+  )
+}
 
 function FileIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -147,5 +151,5 @@ function FileIcon(props: React.SVGProps<SVGSVGElement>) {
       <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
       <path d="M14 2v4a2 2 0 0 0 2 2h4" />
     </svg>
-  );
+  )
 }
