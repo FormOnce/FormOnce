@@ -5,6 +5,7 @@ import { ApikeyRouter } from './routers/keys/router'
 import { waitlistRouter } from './routers/waitlist'
 import { webhooksRouter } from './routers/webhook/router'
 import { workspaceRouter } from './routers/workspace'
+import { videoRouter } from './routers/video/router'
 
 /**
  * This is the primary router for your server.
@@ -18,6 +19,7 @@ export const appRouter = createTRPCRouter({
   webhook: webhooksRouter,
   apiKey: ApikeyRouter,
   waitlist: waitlistRouter,
+  video: videoRouter,
 })
 
 // export type definition of API

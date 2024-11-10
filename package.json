@@ -1,6 +1,7 @@
 {
   "name": "form_once",
   "version": "0.1.0",
+  "packageManager": "pnpm@9.0.1",
   "private": true,
   "scripts": {
     "build": "next build",
@@ -11,6 +12,9 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.688.0",
+    "@aws-sdk/s3-request-presigner": "^3.688.0",
+    "@ffmpeg/ffmpeg": "^0.12.10",
     "@hookform/resolvers": "^3.3.3",
     "@next-auth/prisma-adapter": "^1.0.5",
     "@prisma/client": "^5.0.0",
@@ -44,12 +48,14 @@
     "@vercel/analytics": "^1.2.2",
     "@vercel/speed-insights": "^1.0.10",
     "argon2": "^0.31.0",
+    "axios": "^1.7.7",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "cmdk": "^0.2.0",
     "date-fns": "^3.5.0",
     "formik": "^2.4.3",
     "framer-motion": "^11.0.8",
+    "hls.js": "^1.5.17",
     "json-schema-to-zod": "^2.0.14",
     "lucide-react": "^0.264.0",
     "next": "^13.4.2",
@@ -67,6 +73,7 @@
     "tailwind-merge": "^1.14.0",
     "tailwindcss-animate": "^1.0.6",
     "ua-parser-js": "^1.0.37",
+    "uuid": "^11.0.2",
     "zod": "^3.21.4",
     "zustand": "^4.4.1"
   },

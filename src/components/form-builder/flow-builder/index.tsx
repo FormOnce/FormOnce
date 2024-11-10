@@ -42,8 +42,6 @@ const edgeTypes = {
 }
 
 export const FlowBuilder = ({ formId }: FlowBuilderProps) => {
-  
-  
   const {
     data: data,
     refetch: refreshFormData,
