@@ -5,6 +5,7 @@ import { Button } from '~/components/ui'
 import { TQuestion } from '~/types/question.types'
 import { api } from '~/utils/api'
 import { EditableQuestionDialog } from '../editable-question-modal'
+import { VideoUploadDialog } from './VideoUploadDialog'
 import { handleStyleLeft, handleStyleRight } from './utils'
 
 type QuestionNodeProps = {
@@ -21,7 +22,7 @@ const QuestionNode = ({ data }: QuestionNodeProps) => {
   const [editDialogOpen, setEditDialogOpen] = useState(false)
 
   const { mutateAsync: editQuestion } = api.form.editQuestion.useMutation()
-
+  const [videoDialogOpen, setVideoDialogOpen] = useState(false)
   const onEdit = async (values: TQuestion) => {
     await editQuestion({
       formId: data.formId,
@@ -38,6 +39,10 @@ const QuestionNode = ({ data }: QuestionNodeProps) => {
     setEditDialogOpen(true)
   }
 
+  const openVideoDialog = () => {
+    setVideoDialogOpen(true)
+  }
+
   return (
     <div className="flex flex-col border-2 border-violet-800 hover:border-violet-500 [&>div:first-child]:hover:border-violet-500 rounded-lg bg-primary-foreground w-64 h-56 hover:scale-105 transition-all duration-200">
       <div className="px-4 py-2 bg-primary-foreground rounded-t-lg border-b-2  border-violet-800">
@@ -51,6 +56,7 @@ const QuestionNode = ({ data }: QuestionNodeProps) => {
             variant={'secondary'}
             size={'icon'}
             className="rounded-full p-2 hover:w-10 hover:h-10 hover:bg-violet-800 hover:text-white"
+            onClick={openVideoDialog}
           >
             <Play size={32} className="text-violet-300 ml-0.5" />
           </Button>
@@ -74,6 +80,10 @@ const QuestionNode = ({ data }: QuestionNodeProps) => {
         isOpen={editDialogOpen}
         setIsOpen={setEditDialogOpen}
         editQuestion={onEdit}
+      />
+      <VideoUploadDialog
+        isOpen={videoDialogOpen}
+        setIsOpen={setVideoDialogOpen}
       />
     </div>
   )
