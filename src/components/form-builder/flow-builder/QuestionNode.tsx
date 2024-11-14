@@ -51,12 +51,14 @@ const QuestionNode = ({ data }: QuestionNodeProps) => {
         </p>
       </div>
       <div className="flex h-full rounded-b-lg">
-        <div className="w-1/2 h-full rounded-bl-lg bg-black opacity-50 hover:opacity-100 flex justify-center items-center border-r border-violet-500 [&>*:first-child]:hover:bg-violet-800 [&>*:first-child]:hover:text-white [&>*:first-child]:hover:h-10 [&>*:first-child]:hover:w-10">
+        <div
+          className="w-1/2 h-full rounded-bl-lg bg-black opacity-50 hover:opacity-100 flex justify-center items-center border-r border-violet-500 [&>*:first-child]:hover:bg-violet-800 [&>*:first-child]:hover:text-white [&>*:first-child]:hover:h-10 [&>*:first-child]:hover:w-10"
+          onClick={openVideoDialog}
+        >
           <Button
             variant={'secondary'}
             size={'icon'}
             className="rounded-full p-2 hover:w-10 hover:h-10 hover:bg-violet-800 hover:text-white"
-            onClick={openVideoDialog}
           >
             <Play size={32} className="text-violet-300 ml-0.5" />
           </Button>
