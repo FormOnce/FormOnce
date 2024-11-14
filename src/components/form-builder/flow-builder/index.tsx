@@ -370,7 +370,6 @@ export const FlowBuilder = ({ formId }: FlowBuilderProps) => {
         onEdit={onEditQuestion}
         onClose={onClose}
         editingNode={editingNode}
-        editingEdge={editingEdge}
         onUpdateLogic={onUpdateLogic}
       />
     </div>

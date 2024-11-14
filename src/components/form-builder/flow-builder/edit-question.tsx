@@ -15,15 +15,11 @@ import {
   TabsContent,
   TabsList,
   TabsTrigger,
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
 } from '@components/ui'
 import { Copy, Trash, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Edge, Node, useReactFlow } from 'reactflow'
-import { ELogicCondition, TLogic } from '~/types/question.types'
+import { ELogicCondition, TLogic, TQuestion } from '~/types/question.types'
 
 const getConditionsfromLogic = (logics: TLogic[]) => {
   const conditions: TConditions = {}
@@ -85,11 +81,11 @@ const getLogicFromConditions = (conditions: TConditions): TLogic[] => {
 
 export type EditQuestionProps = {
   isOpen: boolean
-  onEdit: () => void
+  onEdit: (values: TQuestion) => void
   onClose: () => void
   editingNode: Node | null
-  editingEdge: Edge | null
-  onUpdateLogic: (logics: TLogic[]) => void
+  onUpdateLogic: (logics: TLogic[]) => Promise<void>
+  defaultMode?: 'video' | 'logic' | 'answer'
 }
 
 type TConditions = {
@@ -104,8 +100,8 @@ export const EditQuestion = ({
   isOpen,
   onClose,
   editingNode,
-  editingEdge,
   onUpdateLogic,
+  defaultMode,
 }: EditQuestionProps) => {
   const reactFlowInstance = useReactFlow()
 
@@ -118,9 +114,9 @@ export const EditQuestion = ({
     const logics = editingNode.data.question.logic ?? []
     const updateConditions = getConditionsfromLogic(logics)
     setConditions(updateConditions)
-  }, [editingEdge, editingNode])
+  }, [editingNode])
 
-  if (!editingNode || !editingEdge) {
+  if (!editingNode) {
     return null
   }
 
@@ -150,12 +146,12 @@ export const EditQuestion = ({
     return [labelA, node.data.label.split('.')[1]]
   }
 
-  const saveConditions = () => {
+  const saveConditions = async () => {
     if (!editingNode || !conditions) return
     setIsSaveLoading(true)
 
     const logics = getLogicFromConditions(conditions)
-    onUpdateLogic(logics)
+    await onUpdateLogic(logics)
 
     setIsSaveLoading(false)
     onOpenChange(false)
@@ -196,7 +192,7 @@ export const EditQuestion = ({
           <SheetDescription></SheetDescription>
         </SheetHeader>
         <div className="h-full">
-          <Tabs defaultValue="logic">
+          <Tabs defaultValue={defaultMode ?? 'logic'}>
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="video">Video</TabsTrigger>
               <TabsTrigger value="answer">Answer</TabsTrigger>
