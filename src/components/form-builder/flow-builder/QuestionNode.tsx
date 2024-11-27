@@ -87,7 +87,7 @@ const QuestionNode = ({ data }: QuestionNodeProps) => {
           onLogic={() => onEditQuestionNode('logic')}
         />
       </div>
-      <div className="flex flex-col border-2 border-violet-800 hover:border-violet-500 [&>div:first-child]:hover:border-violet-500 rounded-lg bg-primary-foreground w-64 h-56 hover:scale-105 transition-all duration-200">
+      <div className="flex flex-col border-2 border-violet-800 group-hover:border-violet-500 [&>div:first-child]:hover:border-violet-500 rounded-lg bg-primary-foreground w-64 h-56 group-hover:scale-105 transition-all duration-200">
         <div className="px-4 py-2 bg-primary-foreground rounded-t-lg border-b-2  border-violet-800">
           <p className="overflow-hidden text-ellipsis whitespace-nowrap">
             {label}
