@@ -276,7 +276,7 @@ export const videoRouter = createTRPCRouter({
         fileType: z.string(),
       }),
     )
-    .mutation(async ({ input }) => {
+    .mutation(({ input }) => {
       const expirationTime = Math.floor(Date.now() / 1000) + 3600 // 1 hour from now
       const signature = createHash('sha256')
         .update(

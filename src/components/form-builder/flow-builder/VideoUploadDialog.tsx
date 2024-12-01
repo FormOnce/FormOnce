@@ -101,8 +101,16 @@ export const VideoUploadDialog = ({
     }
   }
 
+  const handleOnOpenChange = (open: boolean) => {
+    setIsOpen(open)
+    if (!open) {
+      uploadRef.current = null
+      setUploadProgress(0)
+    }
+  }
+
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={handleOnOpenChange}>
       <DialogContent>
         <div className="border-2 border-dashed border-gray-200 rounded-lg flex flex-col gap-1 p-6 m-4 items-center">
           <FileIcon className="w-12 h-12" />
