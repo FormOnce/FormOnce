@@ -10,6 +10,7 @@ import {
 } from '@components/ui'
 import axios from 'axios'
 import { useRef, useState } from 'react'
+import * as tus from 'tus-js-client'
 import { api } from '~/utils/api'
 
 const CHUNK_SIZE = 5 * 1024 * 1024 // 5 MB per chunk
@@ -24,7 +25,7 @@ export const VideoUploadDialog = ({
   const [videoFile, setVideoFile] = useState<File | null>(null)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [videoId, setVideoId] = useState<string | null>(null)
-  const uploadIdRef = useRef<string | null | undefined>(null)
+  const uploadRef = useRef<tus.Upload | null>(null)
 
   const { mutateAsync: initializeUpload } =
     api.video.initializeMultipartUpload.useMutation()
@@ -34,8 +35,9 @@ export const VideoUploadDialog = ({
     api.video.finalizeUploadAndStream.useMutation()
 
   const { mutateAsync: createVideo } = api.video.createVideo.useMutation()
-  const { mutateAsync: uploadVideo } = api.video.uploadVideo.useMutation()
-  // const { mutateAs ync: getUploadUrl } = api.video.getTusUploadUrl.useMutation();
+  const { mutateAsync: getTusUploadUrl } =
+    api.video.getTusUploadUrl.useMutation()
+
   const { data: videoStatus } = api.video.getVideoStatus.useQuery(
     { videoId: videoId! },
     { enabled: !!videoId, refetchInterval: 5000 },
@@ -57,26 +59,42 @@ export const VideoUploadDialog = ({
       })
       setVideoId(newVideoId)
 
-      // 2. Upload using FormData
-      const formData = new FormData()
-      formData.append('file', videoFile)
+      // 2. Get TUS upload URL and headers
+      const { uploadUrl, headers, metadata } = await getTusUploadUrl({
+        videoId: newVideoId,
+        filename: videoFile.name,
+        fileType: videoFile.type,
+      })
 
-      // Create the upload URL
-      const uploadUrl = `/api/upload-video/${newVideoId}`
-
-      await axios.post(uploadUrl, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
+      // 3. Create TUS upload
+      const upload = new tus.Upload(videoFile, {
+        endpoint: uploadUrl,
+        retryDelays: [0, 3000, 5000, 10000, 20000, 60000],
+        headers,
+        metadata,
+        onError: (error) => {
+          console.error('Upload failed:', error)
+          setUploadProgress(0)
         },
-        onUploadProgress: (progressEvent) => {
-          const percentCompleted = Math.round(
-            (progressEvent.loaded * 100) / (progressEvent.total ?? 1),
-          )
-          setUploadProgress(percentCompleted)
+        onProgress: (bytesUploaded, bytesTotal) => {
+          const percentage = Math.round((bytesUploaded / bytesTotal) * 100)
+          setUploadProgress(percentage)
+        },
+        onSuccess: () => {
+          setUploadProgress(100)
         },
       })
 
-      setUploadProgress(100)
+      uploadRef.current = upload
+
+      // Check for previous uploads
+      const previousUploads = await upload.findPreviousUploads()
+      if (previousUploads.length && previousUploads[0]) {
+        upload.resumeFromPreviousUpload(previousUploads[0])
+      }
+
+      // Start the upload
+      upload.start()
     } catch (error) {
       console.error('Upload failed:', error)
       setUploadProgress(0)
@@ -116,6 +134,11 @@ export const VideoUploadDialog = ({
                 {uploadProgress}% uploaded
               </p>
             </div>
+          )}
+          {uploadProgress === 100 && (
+            <p className="text-sm text-gray-500 text-center underline">
+              <a href={`/videos/${videoStatus.guid}`}>View video</a>
+            </p>
           )}
         </div>
         <DialogFooter>

@@ -1,4 +1,3 @@
-import Hls from 'hls.js'
 import { useEffect, useRef } from 'react'
 
 interface VideoPlayerProps {
@@ -9,49 +8,10 @@ interface VideoPlayerProps {
 // Define the Player.js types
 declare global {
   interface Window {
+    // biome-ignore lint/suspicious/noExplicitAny: external library without types
     playerjs: any
   }
 }
-
-// export const VideoPlayer = ({ videoId, poster }: VideoPlayerProps) => {
-//   const videoRef = useRef<HTMLVideoElement>(null);
-//   const hlsRef = useRef<Hls | null>(null);
-
-//   useEffect(() => {
-//     if (!videoRef.current) return;
-
-//     const videoElement = videoRef.current;
-//     const streamUrl = `${process.env.NEXT_PUBLIC_BUNNY_STREAM_URL}/${videoId}/play.m3u8`;
-
-//     if (Hls.isSupported()) {
-//       const hls = new Hls({
-//         enableWorker: true,
-//         lowLatencyMode: true,
-//       });
-
-//       hls.loadSource(streamUrl);
-//       hls.attachMedia(videoElement);
-//       hlsRef.current = hls;
-
-//       return () => {
-//         hls.destroy();
-//       };
-//     } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
-//       // For Safari
-//       videoElement.src = streamUrl;
-//     }
-//   }, [videoId]);
-
-//   return (
-//     <video
-//       ref={videoRef}
-//       controls
-//       poster={poster}
-//       className="w-full rounded-lg"
-//       playsInline
-//     />
-//   );
-// };
 
 interface VideoPlayerProps {
   videoId: string
@@ -69,6 +29,7 @@ export const VideoPlayer = ({
   onPause,
 }: VideoPlayerProps) => {
   const iframeRef = useRef<HTMLIFrameElement>(null)
+  // biome-ignore lint/suspicious/noExplicitAny: external library without types
   const playerRef = useRef<any>(null)
 
   useEffect(() => {

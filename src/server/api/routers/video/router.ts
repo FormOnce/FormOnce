@@ -9,6 +9,7 @@ import {
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { createTRPCRouter, protectedProcedure } from '~/server/api/trpc'
 
+import { createHash } from 'crypto'
 import { z } from 'zod'
 
 const s3Client = new S3Client({
@@ -166,7 +167,6 @@ export const videoRouter = createTRPCRouter({
     )
     .mutation(async ({ input }) => {
       try {
-        // 1. Create video in Bunny.net
         const response = await fetch(
           `https://video.bunnycdn.com/library/${process.env.BUNNY_LIBRARY_ID}/videos`,
           {
@@ -187,17 +187,8 @@ export const videoRouter = createTRPCRouter({
         }
 
         const data = await response.json()
-
-        // 2. Generate direct upload URL
-        const uploadUrl = `https://video.bunnycdn.com/library/${process.env.BUNNY_LIBRARY_ID}/videos/${data.guid}`
-
-        // 3. Return both the video ID and upload URL
         return {
           videoId: data.guid,
-          uploadUrl: uploadUrl,
-          headers: {
-            AccessKey: process.env.BUNNY_API_KEY,
-          },
         }
       } catch (error) {
         console.error('Error in createVideo:', error)
@@ -274,6 +265,40 @@ export const videoRouter = createTRPCRouter({
         throw new Error(
           error instanceof Error ? error.message : 'Failed to upload video',
         )
+      }
+    }),
+
+  getTusUploadUrl: protectedProcedure
+    .input(
+      z.object({
+        videoId: z.string(),
+        filename: z.string(),
+        fileType: z.string(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const expirationTime = Math.floor(Date.now() / 1000) + 3600 // 1 hour from now
+      const signature = createHash('sha256')
+        .update(
+          process.env.BUNNY_LIBRARY_ID! +
+            process.env.BUNNY_API_KEY! +
+            expirationTime +
+            input.videoId,
+        )
+        .digest('hex')
+
+      return {
+        uploadUrl: 'https://video.bunnycdn.com/tusupload',
+        headers: {
+          AuthorizationSignature: signature,
+          AuthorizationExpire: expirationTime.toString(),
+          VideoId: input.videoId,
+          LibraryId: process.env.BUNNY_LIBRARY_ID!,
+        },
+        metadata: {
+          filetype: input.fileType,
+          title: input.filename,
+        },
       }
     }),
 })
