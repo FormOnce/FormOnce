@@ -147,6 +147,8 @@ export const FlowBuilder = ({ formId }: FlowBuilderProps) => {
 
   const { mutateAsync: editQuestion } = api.form.editQuestion.useMutation()
   const { mutateAsync: deleteQuestion } = api.form.deleteQuestion.useMutation()
+  const { mutateAsync: duplicateQuestion } =
+    api.form.duplicateQuestion.useMutation()
 
   const initialNodes: Node[] = []
 
@@ -302,6 +304,14 @@ export const FlowBuilder = ({ formId }: FlowBuilderProps) => {
     refreshFormData()
   }
 
+  const onDuplicateQuestion = async () => {
+    await duplicateQuestion({
+      formId: formData?.id!,
+      questionId: editingNode?.id!,
+    })
+    refreshFormData()
+  }
+
   const onClose = () => {
     setEditQuestionOpen(false)
     reactFlowInstance.fitView({
@@ -379,6 +389,7 @@ export const FlowBuilder = ({ formId }: FlowBuilderProps) => {
         editingNode={editingNode}
         onUpdateLogic={onUpdateLogic}
         onDelete={onDeleteQuestion}
+        onDuplicate={onDuplicateQuestion}
       />
     </div>
   )
