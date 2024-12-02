@@ -139,7 +139,6 @@ export const FlowBuilder = ({ formId }: FlowBuilderProps) => {
 
   const [editQuestionOpen, setEditQuestionOpen] = useState(false)
   const [editingNode, setEditingNode] = useState<Node | null>(null)
-  const [editingEdge, setEditingEdge] = useState<Edge | null>(null)
 
   const [isEdgeClickBlocked, setIsEdgeClickBlocked] = useState(false)
 
@@ -147,6 +146,9 @@ export const FlowBuilder = ({ formId }: FlowBuilderProps) => {
   const questions = (formData?.questions ?? []) as TQuestion[]
 
   const { mutateAsync: editQuestion } = api.form.editQuestion.useMutation()
+  const { mutateAsync: deleteQuestion } = api.form.deleteQuestion.useMutation()
+  const { mutateAsync: duplicateQuestion } =
+    api.form.duplicateQuestion.useMutation()
 
   const initialNodes: Node[] = []
 
@@ -287,12 +289,27 @@ export const FlowBuilder = ({ formId }: FlowBuilderProps) => {
 
     setEditQuestionOpen(true)
     setEditingNode(sourceNode)
-    setEditingEdge(edge)
   }
 
   const onEditQuestion = () => {
     // edit question
     setEditQuestionOpen(false)
+  }
+
+  const onDeleteQuestion = async () => {
+    await deleteQuestion({
+      formId: formData?.id!,
+      questionId: editingNode?.id!,
+    })
+    refreshFormData()
+  }
+
+  const onDuplicateQuestion = async () => {
+    await duplicateQuestion({
+      formId: formData?.id!,
+      questionId: editingNode?.id!,
+    })
+    refreshFormData()
   }
 
   const onClose = () => {
@@ -301,7 +318,7 @@ export const FlowBuilder = ({ formId }: FlowBuilderProps) => {
       nodes: [editingNode!],
       padding: 100,
       duration: 500,
-      minZoom: 0.6,
+      minZoom: 0.7,
     })
   }
 
@@ -370,8 +387,9 @@ export const FlowBuilder = ({ formId }: FlowBuilderProps) => {
         onEdit={onEditQuestion}
         onClose={onClose}
         editingNode={editingNode}
-        editingEdge={editingEdge}
         onUpdateLogic={onUpdateLogic}
+        onDelete={onDeleteQuestion}
+        onDuplicate={onDuplicateQuestion}
       />
     </div>
   )
