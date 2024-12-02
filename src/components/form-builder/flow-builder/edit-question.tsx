@@ -15,11 +15,15 @@ import {
   TabsContent,
   TabsList,
   TabsTrigger,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
 } from '@components/ui'
 import { Copy, Trash, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Edge, Node, useReactFlow } from 'reactflow'
-import { ELogicCondition, TLogic, TQuestion } from '~/types/question.types'
+import { ELogicCondition, TLogic } from '~/types/question.types'
 
 const getConditionsfromLogic = (logics: TLogic[]) => {
   const conditions: TConditions = {}
@@ -81,13 +85,11 @@ const getLogicFromConditions = (conditions: TConditions): TLogic[] => {
 
 export type EditQuestionProps = {
   isOpen: boolean
-  onEdit: (values: TQuestion) => void
-  onDelete: () => Promise<void>
-  onDuplicate: () => Promise<void>
+  onEdit: () => void
   onClose: () => void
   editingNode: Node | null
-  onUpdateLogic: (logics: TLogic[]) => Promise<void>
-  defaultMode?: 'video' | 'logic' | 'answer'
+  editingEdge: Edge | null
+  onUpdateLogic: (logics: TLogic[]) => void
 }
 
 type TConditions = {
@@ -102,28 +104,23 @@ export const EditQuestion = ({
   isOpen,
   onClose,
   editingNode,
+  editingEdge,
   onUpdateLogic,
-  onDelete,
-  onDuplicate,
-  defaultMode,
 }: EditQuestionProps) => {
   const reactFlowInstance = useReactFlow()
 
   //   Condtions are logic conditions that are used to determine the next step in the flow depending on the answer to a question.
   const [conditions, setConditions] = useState<TConditions | null>(null)
-
   const [isSaveLoading, setIsSaveLoading] = useState(false)
-  const [isDeleteLoading, setIsDeleteLoading] = useState(false)
-  const [isDuplicateLoading, setIsDuplicateLoading] = useState(false)
 
   useEffect(() => {
     if (!editingNode) return
     const logics = editingNode.data.question.logic ?? []
     const updateConditions = getConditionsfromLogic(logics)
     setConditions(updateConditions)
-  }, [editingNode])
+  }, [editingEdge, editingNode])
 
-  if (!editingNode) {
+  if (!editingNode || !editingEdge) {
     return null
   }
 
@@ -153,31 +150,15 @@ export const EditQuestion = ({
     return [labelA, node.data.label.split('.')[1]]
   }
 
-  const saveConditions = async () => {
+  const saveConditions = () => {
     if (!editingNode || !conditions) return
     setIsSaveLoading(true)
 
     const logics = getLogicFromConditions(conditions)
-    await onUpdateLogic(logics)
+    onUpdateLogic(logics)
 
     setIsSaveLoading(false)
     onOpenChange(false)
-  }
-
-  const handleDelete = async () => {
-    if (!editingNode) return
-    setIsDeleteLoading(true)
-    await onDelete()
-    setIsDeleteLoading(false)
-    onClose()
-  }
-
-  const handleDuplicate = async () => {
-    if (!editingNode) return
-    setIsDeleteLoading(true)
-    await onDuplicate()
-    setIsDeleteLoading(false)
-    onClose()
   }
 
   return (
@@ -193,13 +174,7 @@ export const EditQuestion = ({
                 {editingNode?.data.label}
               </div>
               <div className="flex gap-0">
-                <Button
-                  variant={'ghost'}
-                  size={'sm'}
-                  loading={isDuplicateLoading}
-                  noChildOnLoading
-                  onClick={handleDuplicate}
-                >
+                <Button variant={'ghost'} size={'sm'}>
                   <Copy className="h-4 w-4 hover:scale-105" />
                 </Button>
 
@@ -207,9 +182,6 @@ export const EditQuestion = ({
                   variant={'ghost'}
                   size={'sm'}
                   className="hover:bg-destructive hover:text-destructive-foreground shadow-sm"
-                  loading={isDeleteLoading}
-                  noChildOnLoading
-                  onClick={handleDelete}
                 >
                   <Trash className="h-4 w-4 hover:scale-105" />
                 </Button>
@@ -224,7 +196,7 @@ export const EditQuestion = ({
           <SheetDescription></SheetDescription>
         </SheetHeader>
         <div className="h-full">
-          <Tabs defaultValue={defaultMode ?? 'logic'}>
+          <Tabs defaultValue="logic">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="video">Video</TabsTrigger>
               <TabsTrigger value="answer">Answer</TabsTrigger>

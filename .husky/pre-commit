@@ -3,7 +3,6 @@
 
 # Run the lint command
 npm run lint
-git add .
 
 # If the lint command fails, exit with a non-zero status
 if [ $? -ne 0 ]; then

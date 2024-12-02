@@ -30,7 +30,6 @@ import { questionToJsonSchema } from './helpers/questionToJsonSchema'
  * unpublish: protectedProcedure - unpublish a form
  * getPublicFormData: publicProcedure - get form data for a form
  * submitResponse: publicProcedure - submit a response to a form
- * duplicateQuestion: protectedProcedure - duplicate a question in a form
  **/
 
 export const formRouter = createTRPCRouter({
@@ -705,93 +704,6 @@ export const formRouter = createTRPCRouter({
         }
 
         return formresponse
-      } catch (error) {
-        console.log(error)
-        throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'Something went wrong',
-        })
-      }
-    }),
-
-  duplicateQuestion: protectedProcedure
-    .input(
-      z.object({
-        formId: z.string(),
-        questionId: z.string(),
-      }),
-    )
-    .mutation(async ({ input, ctx }) => {
-      try {
-        const form = await ctx.prisma.form.findUnique({
-          where: {
-            id: input.formId,
-            workspaceId: ctx.session?.user?.workspaceId,
-          },
-        })
-
-        if (!form) {
-          throw new TRPCError({
-            code: 'INTERNAL_SERVER_ERROR',
-            message:
-              "Form not found or you don't have permission to edit this form",
-          })
-        }
-
-        const questions = form.questions as TQuestion[]
-        const questionIndex = questions.findIndex(
-          (q) => q.id === input.questionId,
-        )
-
-        if (questionIndex === -1) {
-          throw new TRPCError({
-            code: 'INTERNAL_SERVER_ERROR',
-            message:
-              "Question not found or you don't have permission to edit this question",
-          })
-        }
-
-        const question = questions[questionIndex]!
-
-        const newTitle = `${question.title} (copy)`
-
-        // generate a new question id
-        // const newQuestionId = crypto.randomUUID();
-        const newQuestionId = newTitle.toLowerCase().replace(/ /g, '_')
-
-        const newQuestion = {
-          ...question,
-          title: newTitle,
-          id: newQuestionId,
-          position: {
-            x: question.position?.x ?? 0,
-            y: (question.position?.y ?? 0) + 400,
-          },
-        }
-
-        questions.splice(questionIndex + 1, 0, newQuestion)
-
-        const formSchema = form.formSchema as TFormSchema
-        const jsonSchema = questionToJsonSchema(question)
-
-        if (jsonSchema !== null) {
-          formSchema.properties = {
-            ...formSchema.properties,
-            [newQuestionId]: jsonSchema,
-          }
-        }
-
-        formSchema.required = [...formSchema.required, newQuestionId]
-
-        return await ctx.prisma.form.update({
-          where: {
-            id: input.formId,
-          },
-          data: {
-            questions,
-            formSchema: formSchema as unknown as string,
-          },
-        })
       } catch (error) {
         console.log(error)
         throw new TRPCError({

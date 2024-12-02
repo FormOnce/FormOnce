@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ChevronRight, MoveRight } from 'lucide-react'
-import { useState } from 'react'
+import { Check, ChevronRight, MoveRight } from 'lucide-react'
+import { useCallback, useState } from 'react'
 import { FieldErrors, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -13,7 +13,6 @@ import {
   Form,
   FormField,
   FormItem,
-  FormLabel,
 } from '~/components/ui'
 import {
   ELogicCondition,
@@ -259,19 +258,15 @@ const SelectQuestionLogicBuilder = ({
                               'border-violet-600'
                             }`}
                           >
-                            <label
-                              className="flex gap-2 items-center w-full"
-                              htmlFor={`${option}-${i}`}
-                            >
+                            <div className="flex gap-2 items-center">
                               <span className="border bg-violet-600 text-sm text-primary p-0.5 px-2 rounded-md">
                                 {String.fromCharCode(65 + i)}
                               </span>
                               <span>{option}</span>
-                            </label>
+                            </div>
                             <Checkbox
                               className={`h-6 w-6 data-[state=checked]:border-violet-600 data-[state=checked]:bg-violet-600 data-[state=checked]:text-primary`}
                               checked={field.value.includes(option)}
-                              id={`${option}-${i}`}
                               onCheckedChange={(checked) => {
                                 return checked
                                   ? field.onChange([...field.value, option])
