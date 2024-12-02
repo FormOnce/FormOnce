@@ -29,6 +29,10 @@ const QuestionNode = ({ data }: QuestionNodeProps) => {
   const reactFlowInstance = useReactFlow()
   const questionNode = reactFlowInstance.getNode(question.id!)
 
+  // TODO: see if there is better way to do this
+  const edges = reactFlowInstance.getEdges()
+  const hasIncomingEdge = edges.some((edge) => edge.target === question.id)
+
   const [editDialogOpen, setEditDialogOpen] = useState(false)
 
   const [editQuestionNodeOpen, setEditQuestionNodeOpen] = useState(false)
@@ -127,7 +131,7 @@ const QuestionNode = ({ data }: QuestionNodeProps) => {
 
   return (
     <div
-      className="relative group"
+      className={`relative group ${hasIncomingEdge ? '' : 'opacity-50'}`}
       onMouseEnter={() => setToolBarOpen(true)}
       onMouseLeave={() => setToolBarOpen(false)}
     >

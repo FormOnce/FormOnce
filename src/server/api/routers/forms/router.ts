@@ -765,7 +765,7 @@ export const formRouter = createTRPCRouter({
           id: newQuestionId,
           position: {
             x: question.position?.x ?? 0,
-            y: (question.position?.y ?? 0) - 400,
+            y: (question.position?.y ?? 0) + 400,
           },
         }
 
