@@ -1,7 +1,12 @@
 import { MessageSquare, MoreVertical, Play, Split, Video } from 'lucide-react'
-import { memo, useMemo, useState } from 'react'
+import { memo, useState } from 'react'
 import { Handle, Position, useReactFlow } from 'reactflow'
-import { Button } from '~/components/ui'
+import {
+  Button,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '~/components/ui'
 import { TLogic, TQuestion } from '~/types/question.types'
 import { api } from '~/utils/api'
 import { EditableQuestionDialog } from '../editable-question-modal'
@@ -31,9 +36,20 @@ const QuestionNode = ({ data }: QuestionNodeProps) => {
     'video' | 'logic' | 'answer'
   >('video')
 
+  const [toolBarOpen, setToolBarOpen] = useState(false)
+
   const [videoDialogOpen, setVideoDialogOpen] = useState(false)
 
   const { mutateAsync: editQuestion } = api.form.editQuestion.useMutation()
+  const { mutateAsync: deleteQuestion } = api.form.deleteQuestion.useMutation()
+
+  const onDelete = async () => {
+    await deleteQuestion({
+      formId: data.formId,
+      questionId: question.id!,
+    })
+    data.refreshFormData()
+  }
 
   const onEdit = async (values: TQuestion) => {
     await editQuestion({
@@ -56,10 +72,29 @@ const QuestionNode = ({ data }: QuestionNodeProps) => {
   }
 
   const onCloseEditQuestionNode = () => {
+    if (!questionNode) return
+
+    // zoom out
+    reactFlowInstance.fitView({
+      nodes: [questionNode],
+      padding: 150,
+      duration: 500,
+      minZoom: 0.7,
+    })
     setEditQuestionNodeOpen(false)
   }
 
   const onEditQuestionNode = (mode: 'video' | 'logic' | 'answer') => {
+    if (!questionNode) return
+
+    // Fit view to source node
+    reactFlowInstance.fitView({
+      nodes: [questionNode],
+      padding: 150,
+      duration: 500,
+      minZoom: 1,
+    })
+
     setEditQuestionNodeMode(mode)
     setEditQuestionNodeOpen(true)
   }
@@ -79,15 +114,28 @@ const QuestionNode = ({ data }: QuestionNodeProps) => {
   }
 
   return (
-    <div className="relative group">
-      <div className="absolute -top-32 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+    <div
+      className="relative group"
+      onMouseEnter={() => setToolBarOpen(true)}
+      onMouseLeave={() => setToolBarOpen(false)}
+    >
+      <div className={`absolute -top-32 left-1/2 -translate-x-1/2`}>
         <ToolBar
-          onVideo={() => onEditQuestionNode('video')}
-          onAnswer={() => onEditQuestionNode('answer')}
-          onLogic={() => onEditQuestionNode('logic')}
+          open={toolBarOpen}
+          onVideoClick={() => onEditQuestionNode('video')}
+          onAnswerClick={() => onEditQuestionNode('answer')}
+          onLogicClick={() => onEditQuestionNode('logic')}
+          onDelete={onDelete}
+          onDuplciate={() => {
+            // TODO: duplicate question
+          }}
         />
       </div>
-      <div className="flex flex-col border-2 border-violet-800 group-hover:border-violet-500 [&>div:first-child]:hover:border-violet-500 rounded-lg bg-primary-foreground w-64 h-56 group-hover:scale-105 transition-all duration-200">
+      <div
+        className={`flex flex-col border-2 border-violet-800 group-hover:border-violet-500 [&>div:first-child]:hover:border-violet-500 rounded-lg bg-primary-foreground w-64 h-56 group-hover:scale-105 transition-all duration-200 ${
+          toolBarOpen ? 'scale-105 border-violet-500' : ''
+        }`}
+      >
         <div className="px-4 py-2 bg-primary-foreground rounded-t-lg border-b-2  border-violet-800">
           <p className="overflow-hidden text-ellipsis whitespace-nowrap">
             {label}
@@ -139,6 +187,7 @@ const QuestionNode = ({ data }: QuestionNodeProps) => {
         <EditNode
           isOpen={editQuestionNodeOpen}
           onEdit={onEdit}
+          onDelete={onDelete}
           onClose={onCloseEditQuestionNode}
           editingNode={questionNode}
           onUpdateLogic={onUpdateLogic}
@@ -152,47 +201,121 @@ const QuestionNode = ({ data }: QuestionNodeProps) => {
 export default memo(QuestionNode)
 
 type ToolBarProps = {
-  onVideo: () => void
-  onAnswer: () => void
-  onLogic: () => void
+  open: boolean
+  onVideoClick: () => void
+  onAnswerClick: () => void
+  onLogicClick: () => void
+
+  // NOTE: these will be used in future for hover effects
+  // onLogicHoverStart: () => void
+  // onLogicHoverStop: () => void
+  // onAnswerHoverStart: () => void
+  // onAnswerHoverStop: () => void
+  // onVideoHoverStart: () => void
+  // onVideoHoverStop: () => void
+
+  onDelete: () => Promise<void>
+  onDuplciate: () => Promise<void>
 }
 
-const ToolBar = ({ onVideo, onAnswer, onLogic }: ToolBarProps) => {
+const ToolBar = ({
+  open,
+  onVideoClick,
+  onAnswerClick,
+  onLogicClick,
+  onDelete,
+  onDuplciate,
+  // onAnswerHoverStart,
+  // onAnswerHoverStop,
+  // onLogicHoverStart,
+  // onLogicHoverStop,
+  // onVideoHoverStart,
+  // onVideoHoverStop
+}: ToolBarProps) => {
+  const [isDeleteLoading, setIsDeleteLoading] = useState(false)
+  const [isDuplicateLoading, setIsDuplicateLoading] = useState(false)
+
   return (
-    <div className="flex gap-2 bg-primary-foreground rounded-lg">
-      <Button variant={'ghost'} size={'lg'} className="h-max" onClick={onVideo}>
-        <div className="flex flex-col items-center gap-2">
-          <Video size={36} fill="white" />
+    <div
+      className="flex gap-1 bg-primary-foreground rounded-lg items-stretch overflow-hidden transition-opacity duration-200"
+      style={{
+        opacity: open ? 1 : 0,
+      }}
+    >
+      <div className="flex">
+        <Button
+          variant={'ghost'}
+          size={'lg'}
+          className="h-full flex flex-col items-center gap-2 w-fit rounded-none"
+          onClick={onVideoClick}
+          // onMouseEnter={onVideoHoverStart}
+          // onMouseLeave={onVideoHoverStop}
+        >
+          <Video size={32} fill="white" />
           Video
-        </div>
-      </Button>
-      <Button
-        variant={'ghost'}
-        size={'lg'}
-        className="h-max"
-        onClick={onAnswer}
-      >
-        <div className="flex flex-col items-center gap-2 text-sm">
-          <MessageSquare size={36} />
+        </Button>
+        <Button
+          variant={'ghost'}
+          size={'lg'}
+          className="h-full flex flex-col items-center gap-2 w-fit rounded-none"
+          onClick={onAnswerClick}
+          // onMouseEnter={onAnswerHoverStart}
+          // onMouseLeave={onAnswerHoverStop}
+        >
+          <MessageSquare size={32} />
           Answer
-        </div>
-      </Button>
-      <Button variant={'ghost'} size={'lg'} className="h-max" onClick={onLogic}>
-        <div className="flex flex-col items-center gap-2 text-sm">
-          <Split size={36} />
+        </Button>
+        <Button
+          variant={'ghost'}
+          size={'lg'}
+          className="h-full flex flex-col items-center gap-2 w-fit rounded-none"
+          onClick={onLogicClick}
+          // onMouseEnter={onLogicHoverStart}
+          // onMouseLeave={onLogicHoverStop}
+        >
+          <Split size={32} />
           Logic
-        </div>
-      </Button>
-      <Button
-        variant={'ghost'}
-        size={'lg'}
-        className="h-max border-l rounded-l-none"
-      >
-        <div className="flex flex-col items-center gap-2 text-sm">
-          <MoreVertical size={36} />
-          More
-        </div>
-      </Button>
+        </Button>
+      </div>
+      <div>
+        <Popover>
+          <PopoverTrigger className="h-full" asChild>
+            <Button
+              variant={'ghost'}
+              className="h-full flex items-center justify-center border-l-2 rounded-none"
+            >
+              <MoreVertical size={32} />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent
+            align="center"
+            side="right"
+            className={`p-0 w-36 -translate-x-2 shadow-2xl rounded-lg ${
+              open ? '' : 'hidden'
+            }`}
+          >
+            <div className="flex flex-col gap-1 bg-primary-foreground rounded-lg items-stretch overflow-hidden p-2">
+              <Button
+                variant={'ghost'}
+                size={'sm'}
+                onClick={onDuplciate}
+                loading={isDuplicateLoading}
+              >
+                Duplicate
+              </Button>
+              <Button
+                variant={'ghost'}
+                size={'sm'}
+                onClick={onDelete}
+                loading={isDeleteLoading}
+                className="hover:text-red-500"
+              >
+                Delete
+              </Button>
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
     </div>
   )
 }

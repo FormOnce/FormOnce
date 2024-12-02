@@ -82,6 +82,7 @@ const getLogicFromConditions = (conditions: TConditions): TLogic[] => {
 export type EditQuestionProps = {
   isOpen: boolean
   onEdit: (values: TQuestion) => void
+  onDelete: () => Promise<void>
   onClose: () => void
   editingNode: Node | null
   onUpdateLogic: (logics: TLogic[]) => Promise<void>
@@ -101,13 +102,16 @@ export const EditQuestion = ({
   onClose,
   editingNode,
   onUpdateLogic,
+  onDelete,
   defaultMode,
 }: EditQuestionProps) => {
   const reactFlowInstance = useReactFlow()
 
   //   Condtions are logic conditions that are used to determine the next step in the flow depending on the answer to a question.
   const [conditions, setConditions] = useState<TConditions | null>(null)
+
   const [isSaveLoading, setIsSaveLoading] = useState(false)
+  const [isDeleteLoading, setIsDeleteLoading] = useState(false)
 
   useEffect(() => {
     if (!editingNode) return
@@ -157,6 +161,14 @@ export const EditQuestion = ({
     onOpenChange(false)
   }
 
+  const handleDelete = async () => {
+    if (!editingNode) return
+    setIsDeleteLoading(true)
+    await onDelete()
+    setIsDeleteLoading(false)
+    onClose()
+  }
+
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
       <SheetContent
@@ -178,6 +190,8 @@ export const EditQuestion = ({
                   variant={'ghost'}
                   size={'sm'}
                   className="hover:bg-destructive hover:text-destructive-foreground shadow-sm"
+                  loading={isDeleteLoading}
+                  onClick={handleDelete}
                 >
                   <Trash className="h-4 w-4 hover:scale-105" />
                 </Button>
