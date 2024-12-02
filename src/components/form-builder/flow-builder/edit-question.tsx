@@ -83,6 +83,7 @@ export type EditQuestionProps = {
   isOpen: boolean
   onEdit: (values: TQuestion) => void
   onDelete: () => Promise<void>
+  onDuplicate: () => Promise<void>
   onClose: () => void
   editingNode: Node | null
   onUpdateLogic: (logics: TLogic[]) => Promise<void>
@@ -103,6 +104,7 @@ export const EditQuestion = ({
   editingNode,
   onUpdateLogic,
   onDelete,
+  onDuplicate,
   defaultMode,
 }: EditQuestionProps) => {
   const reactFlowInstance = useReactFlow()
@@ -112,6 +114,7 @@ export const EditQuestion = ({
 
   const [isSaveLoading, setIsSaveLoading] = useState(false)
   const [isDeleteLoading, setIsDeleteLoading] = useState(false)
+  const [isDuplicateLoading, setIsDuplicateLoading] = useState(false)
 
   useEffect(() => {
     if (!editingNode) return
@@ -169,6 +172,14 @@ export const EditQuestion = ({
     onClose()
   }
 
+  const handleDuplicate = async () => {
+    if (!editingNode) return
+    setIsDeleteLoading(true)
+    await onDuplicate()
+    setIsDeleteLoading(false)
+    onClose()
+  }
+
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
       <SheetContent
@@ -182,7 +193,13 @@ export const EditQuestion = ({
                 {editingNode?.data.label}
               </div>
               <div className="flex gap-0">
-                <Button variant={'ghost'} size={'sm'}>
+                <Button
+                  variant={'ghost'}
+                  size={'sm'}
+                  loading={isDuplicateLoading}
+                  noChildOnLoading
+                  onClick={handleDuplicate}
+                >
                   <Copy className="h-4 w-4 hover:scale-105" />
                 </Button>
 
@@ -191,6 +208,7 @@ export const EditQuestion = ({
                   size={'sm'}
                   className="hover:bg-destructive hover:text-destructive-foreground shadow-sm"
                   loading={isDeleteLoading}
+                  noChildOnLoading
                   onClick={handleDelete}
                 >
                   <Trash className="h-4 w-4 hover:scale-105" />

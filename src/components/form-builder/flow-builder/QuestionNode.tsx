@@ -42,6 +42,16 @@ const QuestionNode = ({ data }: QuestionNodeProps) => {
 
   const { mutateAsync: editQuestion } = api.form.editQuestion.useMutation()
   const { mutateAsync: deleteQuestion } = api.form.deleteQuestion.useMutation()
+  const { mutateAsync: duplicateQuestion } =
+    api.form.duplicateQuestion.useMutation()
+
+  const onDuplicate = async () => {
+    await duplicateQuestion({
+      formId: data.formId,
+      questionId: question.id!,
+    })
+    data.refreshFormData()
+  }
 
   const onDelete = async () => {
     await deleteQuestion({
@@ -95,6 +105,8 @@ const QuestionNode = ({ data }: QuestionNodeProps) => {
       minZoom: 1,
     })
 
+    setToolBarOpen(false)
+
     setEditQuestionNodeMode(mode)
     setEditQuestionNodeOpen(true)
   }
@@ -126,9 +138,7 @@ const QuestionNode = ({ data }: QuestionNodeProps) => {
           onAnswerClick={() => onEditQuestionNode('answer')}
           onLogicClick={() => onEditQuestionNode('logic')}
           onDelete={onDelete}
-          onDuplciate={() => {
-            // TODO: duplicate question
-          }}
+          onDuplciate={onDuplicate}
         />
       </div>
       <div
@@ -188,6 +198,7 @@ const QuestionNode = ({ data }: QuestionNodeProps) => {
           isOpen={editQuestionNodeOpen}
           onEdit={onEdit}
           onDelete={onDelete}
+          onDuplicate={onDuplicate}
           onClose={onCloseEditQuestionNode}
           editingNode={questionNode}
           onUpdateLogic={onUpdateLogic}
@@ -234,6 +245,18 @@ const ToolBar = ({
 }: ToolBarProps) => {
   const [isDeleteLoading, setIsDeleteLoading] = useState(false)
   const [isDuplicateLoading, setIsDuplicateLoading] = useState(false)
+
+  const handleDelete = async () => {
+    setIsDeleteLoading(true)
+    await onDelete()
+    setIsDeleteLoading(false)
+  }
+
+  const handleDuplicate = async () => {
+    setIsDuplicateLoading(true)
+    await onDuplciate()
+    setIsDuplicateLoading(false)
+  }
 
   return (
     <div
@@ -298,16 +321,18 @@ const ToolBar = ({
               <Button
                 variant={'ghost'}
                 size={'sm'}
-                onClick={onDuplciate}
+                onClick={handleDuplicate}
                 loading={isDuplicateLoading}
+                noChildOnLoading
               >
                 Duplicate
               </Button>
               <Button
                 variant={'ghost'}
                 size={'sm'}
-                onClick={onDelete}
+                onClick={handleDelete}
                 loading={isDeleteLoading}
+                noChildOnLoading
                 className="hover:text-red-500"
               >
                 Delete
