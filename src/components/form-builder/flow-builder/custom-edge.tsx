@@ -99,7 +99,7 @@ export default function CustomeEdge({
     setSourceLogic(values)
     setAddQuestionDialogOpen(true)
     setLogicBuilderDialogOpen(false)
-    data?.setIsEdgeClickBlocked?.(false)
+    data?.setIsEdgeClickBlocked?.(true)
   }
 
   const onAddQuestion = async (values: TQuestion) => {
