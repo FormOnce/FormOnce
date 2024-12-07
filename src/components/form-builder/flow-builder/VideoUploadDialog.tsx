@@ -9,7 +9,8 @@ import {
   Label,
 } from '@components/ui'
 import axios from 'axios'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import * as tus from 'tus-js-client'
 import { api } from '~/utils/api'
 
 const CHUNK_SIZE = 5 * 1024 * 1024 // 5 MB per chunk
@@ -22,8 +23,25 @@ export const VideoUploadDialog = ({
   setIsOpen: (open: boolean) => void
 }) => {
   const [videoFile, setVideoFile] = useState<File | null>(null)
+  const [uploadProgress, setUploadProgress] = useState(0)
+  const [videoId, setVideoId] = useState<string | null>(null)
+  const uploadRef = useRef<tus.Upload | null>(null)
+
+  const { mutateAsync: initializeUpload } =
+    api.video.initializeMultipartUpload.useMutation()
   const { mutateAsync: getChunkUploadUrl } =
     api.video.getChunkUploadUrl.useMutation()
+  const { mutateAsync: finalizeUpload } =
+    api.video.finalizeUploadAndStream.useMutation()
+
+  const { mutateAsync: createVideo } = api.video.createVideo.useMutation()
+  const { mutateAsync: getTusUploadUrl } =
+    api.video.getTusUploadUrl.useMutation()
+
+  const { data: videoStatus } = api.video.getVideoStatus.useQuery(
+    { videoId: videoId! },
+    { enabled: !!videoId, refetchInterval: 5000 },
+  )
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event?.target?.files?.[0]) {
@@ -31,79 +49,68 @@ export const VideoUploadDialog = ({
     }
   }
 
-  const uploadChunk = async (
-    chunk: Blob,
-    chunkNumber: number,
-    filename: string,
-    fileType: string,
-  ) => {
+  const handleUpload = async () => {
+    if (!videoFile) return
+
     try {
-      const { uploadUrl } = await getChunkUploadUrl({
-        filename,
-        chunkNumber,
-        fileType,
+      // 1. Create video in Bunny.net
+      const { videoId: newVideoId } = await createVideo({
+        title: videoFile.name,
+      })
+      setVideoId(newVideoId)
+
+      // 2. Get TUS upload URL and headers
+      const { uploadUrl, headers, metadata } = await getTusUploadUrl({
+        videoId: newVideoId,
+        filename: videoFile.name,
+        fileType: videoFile.type,
       })
 
-      const response = await axios.put(uploadUrl, chunk, {
-        headers: {
-          'Content-Type': fileType,
+      // 3. Create TUS upload
+      const upload = new tus.Upload(videoFile, {
+        endpoint: uploadUrl,
+        retryDelays: [0, 3000, 5000, 10000, 20000, 60000],
+        headers,
+        metadata,
+        onError: (error) => {
+          console.error('Upload failed:', error)
+          setUploadProgress(0)
         },
-        maxContentLength: Infinity,
-        maxBodyLength: Infinity,
-        onUploadProgress: (progressEvent) => {
-          const percentCompleted = Math.round(
-            (progressEvent.loaded * 100) / (progressEvent.total ?? 1),
-          )
-          console.log(`Upload Progress: ${percentCompleted}%`)
+        onProgress: (bytesUploaded, bytesTotal) => {
+          const percentage = Math.round((bytesUploaded / bytesTotal) * 100)
+          setUploadProgress(percentage)
+        },
+        onSuccess: () => {
+          setUploadProgress(100)
         },
       })
 
-      if (response.status !== 200) {
-        throw new Error(`Upload failed with status: ${response.status}`)
+      uploadRef.current = upload
+
+      // Check for previous uploads
+      const previousUploads = await upload.findPreviousUploads()
+      if (previousUploads.length && previousUploads[0]) {
+        upload.resumeFromPreviousUpload(previousUploads[0])
       }
 
-      return response.data
+      // Start the upload
+      upload.start()
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error('Axios error:', error.response?.data)
-        throw new Error(`Upload failed: ${error.message}`)
-      }
-      throw error
+      console.error('Upload failed:', error)
+      setUploadProgress(0)
     }
   }
 
-  const handleUpload = async () => {
-    if (!videoFile) return alert('Please select a video file first')
-
-    const { name, type, size } = videoFile
-    const chunkCount = Math.ceil(size / CHUNK_SIZE)
-
-    try {
-      const uploadPromises = []
-      for (let i = 0; i < chunkCount; i++) {
-        const start = i * CHUNK_SIZE
-        const end = Math.min(start + CHUNK_SIZE, size)
-        const chunk = videoFile.slice(start, end)
-
-        console.log(`Starting upload for chunk ${i + 1} of ${chunkCount}`)
-        uploadPromises.push(uploadChunk(chunk, i, name, type))
-      }
-
-      await Promise.all(uploadPromises)
-      console.log('All chunks uploaded successfully')
-      alert('Video uploaded successfully!')
-    } catch (error) {
-      console.error('Error uploading video:', error)
-      alert(
-        `Failed to upload video: ${
-          error instanceof Error ? error.message : 'Unknown error'
-        }`,
-      )
+  const handleOnOpenChange = (open: boolean) => {
+    setIsOpen(open)
+    if (!open) {
+      uploadRef.current = null
+      setUploadProgress(0)
     }
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={handleOnOpenChange}>
       <DialogContent>
         <div className="border-2 border-dashed border-gray-200 rounded-lg flex flex-col gap-1 p-6 m-4 items-center">
           <FileIcon className="w-12 h-12" />
@@ -123,6 +130,24 @@ export const VideoUploadDialog = ({
             accept="video/mp4,video/x-m4v,video/*"
             onChange={handleFileChange}
           />
+          {uploadProgress > 0 && (
+            <div className="space-y-2">
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-blue-600 h-2 rounded-full transition-all"
+                  style={{ width: `${uploadProgress}%` }}
+                />
+              </div>
+              <p className="text-sm text-gray-500 text-center">
+                {uploadProgress}% uploaded
+              </p>
+            </div>
+          )}
+          {uploadProgress === 100 && (
+            <p className="text-sm text-gray-500 text-center underline">
+              <a href={`/videos/${videoStatus.guid}`}>View video</a>
+            </p>
+          )}
         </div>
         <DialogFooter>
           <Button size="lg" onClick={handleUpload} disabled={!videoFile}>
