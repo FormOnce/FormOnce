@@ -71,6 +71,12 @@
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/new/#https://github.com/formonce/formonce)
 
+<h4 id="codeanywhere">Development environment on Codeanywhere</h4>
+
+- Click the button below to open this project in Codeanywhere.
+
+[![Open in Codeanywhere](https://codeanywhere.com/img/open-in-codeanywhere-btn.svg)](https://app.codeanywhere.com/#https://github.com/formonce/formonce)
+
 ---
 
 <h4 id="with-docker">Development environment with Docker</h4>
